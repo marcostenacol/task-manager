@@ -1,0 +1,7 @@
+../../.git
+../../.gitlab-ci.yml
+../../vendor
+../../node_modules
+../../bower_modules
+../pgsql/backups/*.sql
+data
