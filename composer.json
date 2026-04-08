@@ -11,7 +11,10 @@
     "require": {
         "php": "^8.3",
         "laravel/framework": "^13.0",
-        "laravel/tinker": "^3.0"
+        "laravel/tinker": "^3.0",
+        "lucascudo/laravel-pt-br-localization": "^3.0",
+        "predis/predis": "^2.0",
+        "spatie/laravel-data": "^4.21"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -27,7 +30,17 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+        "files": [
+            "app/Base/Helpers/arrays.php",
+            "app/Base/Helpers/data.php",
+            "app/Base/Helpers/hashs.php",
+            "app/Base/Helpers/paths.php",
+            "app/Base/Helpers/sql.php",
+            "app/Base/Helpers/strings.php",
+            "app/Base/Helpers/user.php",
+            "app/Base/Helpers/validation.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

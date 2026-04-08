@@ -1,0 +1,2 @@
+* * * * * /usr/local/bin/php /var/www/html/artisan queue:work --stop-when-empty > /dev/null 2>&1 || /usr/local/bin/php /var/www/html/artisan queue:work --tries=3 > /dev/null 2>&1 &
+* * * * * /usr/local/bin/php /var/www/html/artisan schedule:run >> /var/log/cron.log 2>&1
