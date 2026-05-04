@@ -1,6 +1,6 @@
 <?php
 
-use App\Packages\Admin\User\Services\UserDataInCacheByTokenService;
+use App\Packages\Auth\Auth\Services\Cache\UserInCacheByTokenService;
 
 /**
  * @return string
@@ -10,7 +10,7 @@ function getClientIp(): string {
 }
 
 function userObject(): mixed {
-    return data_get(app(UserDataInCacheByTokenService::class)->execute(), 'user');
+    return data_get(app(UserInCacheByTokenService::class)->execute(), 'user');
 }
 
 /**
@@ -21,16 +21,3 @@ function hasPermission(string $permission): bool {
     return in_array($permission, userObject()->permissions ?? []);
 }
 
-/**
- * @return array
- */
-function userOrganizations(): array {
-    $organizations = [userObject()->organization->id];
-    if (hasPermission('can_view_descendants_organizations') && userObject()->descendant_organizations) {
-        $organizations = [...$organizations, ...userObject()->descendant_organizations];
-    }
-    if (hasPermission('can_view_sisters_organizations') && userObject()->sister_organizations) {
-        $organizations = [...$organizations, ...userObject()->sister_organizations];
-    }
-    return array_unique($organizations);
-}

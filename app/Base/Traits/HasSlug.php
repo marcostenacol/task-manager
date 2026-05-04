@@ -2,7 +2,6 @@
 
 namespace App\Base\Traits;
 
-use App\Services\Educational\Courses\SyncShiftService;
 use Illuminate\Support\Str;
 
 trait HasSlug

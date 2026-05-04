@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use InvalidArgumentException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 use Throwable;
+use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpFoundation\Response AS HttpResponse;
 
 trait Response {
@@ -83,7 +84,6 @@ trait Response {
     public static function returnError(
         mixed       $exception,
     ): HttpResponse|JsonResponse {
-        dd($exception);
         if ($exception instanceof HttpResponseException) {
             return self::httpResponseException($exception);
         }
@@ -106,6 +106,10 @@ trait Response {
 
         if ($exception instanceof ConflictHttpException) {
             return self::conflictResponse($exception);
+        }
+
+        if ($exception instanceof ValidationException) {
+            return self::failedValidationResponse($exception);
         }
 
         return self::internalServerErrorResponse($exception);
@@ -144,7 +148,7 @@ trait Response {
             substr($queryException->getCode(), -3) : null;
 
         if (!in_array($status_code, array_keys(HttpResponse::$statusTexts))) {
-            self::internalServerErrorResponse($queryException);
+            return self::internalServerErrorResponse($queryException);
         }
 
         return response()->json($response, $status_code ?? 400);
