@@ -1,242 +1,149 @@
-# Makefile melhorado para TASK MANAGER
+# Makefile para TASK MANAGER
 # Requer: GNU make, docker compose v2
-# Carrega variáveis do .env (mantive sua linha original)
+
 -include .env
 
-# Configs básicas
+# Configurações Básicas
 DOCKER_COMPOSE_FILE ?= docker-compose.yml
-DC := docker compose -f $(DOCKER_COMPOSE_FILE)
-
-# Prefix/project name
 PREFIX ?= task-manager
 COMPOSE_PROJECT_NAME ?= $(PREFIX)
 export COMPOSE_PROJECT_NAME
 
-# Perfil (dev, local, prod...)
+# Perfil do Docker Compose (ex: local, dev, prod)
 PROFILE ?= local
+ifneq ($(strip $(PROFILE)),)
+	PROFILE_FLAG := --profile $(PROFILE)
+endif
 
-# Fallbacks para nomes de serviços que o Makefile utiliza diretamente
+DC := docker compose -f $(DOCKER_COMPOSE_FILE) $(PROFILE_FLAG)
 DOCKER_SERVICE_PHP_FPM := task-manager-php-fpm
 DOCKER_SERVICE_NGINX   := task-manager-nginx
 DOCKER_SERVICE_PGSQL   := pgsql
 
-# Helper para adicionar --profile quando informado
-ifeq ($(strip $(PROFILE)),)
-	PROFILE_FLAG :=
-else
-	PROFILE_FLAG := --profile $(PROFILE)
-endif
+.PHONY: help build up down restart logs shell-php shell-nginx php art composer test migrate install clear in restore passport-install
 
-# Small helper to show which compose file / env is used
-define define-environment
-	@echo "Using compose file: $(DOCKER_COMPOSE_FILE)"
-	@echo "COMPOSE_PROJECT_NAME: '$(COMPOSE_PROJECT_NAME)'"
-	@echo "PROFILE: '$(PROFILE)'"
-endef
+# --- AJUDA ---
+help: ## Mostra os comandos disponíveis
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-18s\033[0m %s\n", $$1, $$2}'
 
-# Make help auto-generated from target comments
-HELP_FUN = awk 'BEGIN {FS = ":.*##"; printf "\nUsage: make <target> [VARIABLE=val]\n\nTargets:\n"} /^[a-zA-Z0-9_.-]+:.*?##/ { printf "  %-18s %s\n", $$1, $$2 } END {print ""}' $(MAKEFILE_LIST)
+# --- DOCKER (CONTROLE) ---
+build: ## Build das imagens do Docker
+	@$(DC) build --no-cache
 
-.PHONY: help define-environment build up down restart logs logs-all shell-php shell-nginx \
-	composer-install composer-update composer-dump composer-require node-install \
-	delete-node_modules delete-vendor migrate migrate-fresh refresh key-generate \
-	recreate-database recreate-testing-database restore in test certbot-run certbot-renew \
-	passport-install install deploy cache wait-healthy
-
-help: ## Mostrar este help
-	@$(HELP_FUN)
-
-define-environment: ## Mostra ambiente usado
-	@$(define-environment)
-
-# Builds
-build: define-environment ## Build dos serviços listados no .env (ou todos se vazio)
-	@echo "Building services: $(if $(SERVICE_NAMES),$(SERVICE_NAMES),<all services>)"
-	@$(DC) $(PROFILE_FLAG) build --no-cache
-
-up: define-environment ## Sobe containers (use PROFILE=dev/local/prod para profiles)
-	@echo "Starting compose $(PROFILE_FLAG)"
-	@$(DC) $(PROFILE_FLAG) up -d
+up: ## Sobe os containers em background
+	@$(DC) up -d
 	@$(MAKE) clear
 
-down: ## Encerra todos os containers listados no docker-compose
-	make define-environment
-	@docker compose -f ${DOCKER_COMPOSE_FILE} down
-	@#docker compose -f ${DOCKER_COMPOSE_FILE} ${DOCKER_SERVICE_PHP_FPM}  down -v
+down: ## Para e remove os containers
+	@$(DC) down
 
-shell-php:
-	@echo "Acessando shell do container app..."
-	docker compose exec ${DOCKER_SERVICE_PHP_FPM} bash
+restart: ## Reinicia os containers e limpa caches
+	@$(MAKE) down
+	@$(MAKE) up
+	@$(MAKE) clear
 
-shell-nginx:
-	@echo "Acessando shell do container app..."
-	docker compose exec ${DOCKER_SERVICE_NGINX} bash
+logs: ## Exibe logs de todos os containers
+	@$(DC) logs -f
 
-logs:
-	@echo "Exibindo logs de todos os containers..."
-	docker compose logs -f
+logs-php: ## Logs apenas do container PHP
+	@$(DC) logs -f $(DOCKER_SERVICE_PHP_FPM)
 
-logs-php:
-	@echo "Logs do container postgres:"
-	docker compose logs -f ${DOCKER_SERVICE_PHP_FPM}
+logs-nginx: ## Logs apenas do container Nginx
+	@$(DC) logs -f $(DOCKER_SERVICE_NGINX)
 
-logs-nginx:
-	@echo "Logs do container postgres:"
-	docker compose logs -f ${DOCKER_SERVICE_NGINX}
+# --- ACESSO E UTILITÁRIOS ---
+shell-php: ## Acessa o terminal bash do container PHP
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) bash
 
-key-generate: ## Executa o composer install
-	make define-environment
-	docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} php artisan key:generate
+shell-nginx: ## Acessa o terminal bash do container Nginx
+	@$(DC) exec $(DOCKER_SERVICE_NGINX) bash
 
-refresh:
-	make composer-dump
-	make clear
-
-lib ?=
-composer-require: ## Instala uma nova lib utilizando o composer
-ifdef lib
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} composer require $(lib)
-else
-	echo "Informe o nome da lib a ser instalada"
-endif
-
-composer-install: ## Executa o composer install
-	make define-environment
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} composer install --no-interaction
-
-composer-update: ## Executa o composer update
-	make define-environment
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} composer update --no-interaction
-
-composer-dump: ## Executa o composer dump
-	make define-environment
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} composer dump --no-interaction
-
-node-install: ## Executa bower e yarn install
-	make define-environment
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} npm install --non-interactive
-
-delete-node_modules: ## Remove a pasta node_modules
-	make define-environment
-	docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} rm -Rf node_modules
-
-delete-vendor: ## Remove a pasta node_modules
-	make define-environment
-	docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} rm -Rf vendor
-
-env ?=
-node-run: ## Roda o comando npm run
-ifdef env
-	echo "Rodando yarn run no modo $(env)"
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} npm run $(env)
-else
-	echo "Rodando yarn run no modo prod"
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} npm run prod
-endif
-
-migrate: ## Executa o comando php artisan migrate
-	make define-environment
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} php artisan migrate --force
-
-migrate-fresh: ## Executa o comando php artisan migrate --force
-	make define-environment
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} php artisan migrate:fresh
-
-clear: ## Executa o comando php artisan migrate --force
-	make define-environment
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} php artisan optimize:clear
-
-db-seed: ## Executa o comando php artisan db:seed
-	make define-environment
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} php artisan db:seed
-
-## Exemplo: make assign-password password=12345678
-assign-password:
-	make define-environment
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} php artisan password:assign --password=$(password)
-
-## Exemplo: make recreate-database
-recreate-database: ## Restaura um backup do banco de dados
-	make define-environment
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec pgsql psql -U "${DB_USERNAME}" -d "postgres" -c "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = '${DB_DATABASE}';"
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec pgsql psql -U "${DB_USERNAME}" -d "postgres" -c "DROP DATABASE IF EXISTS ${DB_DATABASE};"
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec pgsql psql -U "${DB_USERNAME}" -d "postgres" -c "CREATE DATABASE ${DB_DATABASE};"
-
-## Exemplo: make recreate-testing-database
-recreate-testing-database: ## Restaura um backup do banco de dados
-	make define-environment
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec pgsql psql -U "${DB_USERNAME}" -c "DROP DATABASE IF EXISTS ${DB_DATABASE}_testing;"
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec pgsql psql -U "${DB_USERNAME}" -c "CREATE DATABASE ${DB_DATABASE}_testing;"
-
-## Exemplo: make restore filename=pds.sql
-#restore: ## Restaura um backup do banco de dados
-#	make define-environment
-#	@docker compose -f ${DOCKER_COMPOSE_FILE} exec pgsql psql -U "${DB_USERNAME}" -d "${DB_DATABASE}" -c "CREATE EXTENSION IF NOT EXISTS postgis;"
-#	@docker compose -f ${DOCKER_COMPOSE_FILE} exec pgsql psql -U "${DB_USERNAME}" -d "${DB_DATABASE}" -f "/home/backups/$(filename)"
-
-## Exemplo: make restore filename=pds.sql
-restore: ## Restaura um backup do banco de dados
-	make define-environment
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec pgsql psql -U "${DB_USERNAME}" -d "${DB_DATABASE}" -c "CREATE EXTENSION IF NOT EXISTS postgis;"
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec pgsql dropdb -U "${DB_USERNAME}" "${DB_DATABASE}" || true
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec pgsql createdb -U "${DB_USERNAME}" "${DB_DATABASE}"
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec -T pgsql pg_restore -U "${DB_USERNAME}" -d "${DB_DATABASE}" "/home/backups/$(filename)"
-    #docker compose -f ${DOCKER_COMPOSE_FILE} exec pgsql psql -U "${DB_USERNAME}" -d "${DB_DATABASE}" -f "/home/backups/$(filename)"
-
-in: ## Lista todos os containers levantados para o usuário escolher um e entrar
+in: ## Script interativo para escolher e entrar em um container
 	@bash .docker/scripts/in.sh
 
-group ?=
-filter ?=
-test: ## Roda o phpunit
-ifdef group
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} vendor/bin/phpunit --group=$(group)
-else ifdef filter
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} vendor/bin/phpunit --filter=$(filter)
+# Atalhos de Comando (Pass-through)
+# Uso: make art c="migrate:status" | make composer c="update" | make npm c="install"
+art: ## Roda comandos do Artisan: make art c="comando"
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) php artisan $(c)
+
+composer: ## Roda comandos do Composer: make composer c="comando"
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) composer $(c)
+
+npm: ## Roda comandos do NPM: make npm c="comando"
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) npm $(c)
+
+php: ## Roda comandos PHP diretos: make php c="-v"
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) php $(c)
+
+# --- LARAVEL ---
+migrate: ## Executa as migrations pendentes
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) php artisan migrate
+
+migrate-fresh: ## Reseta o banco e roda todas as migrations
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) php artisan migrate:fresh
+
+clear: ## Limpa todos os caches do Laravel (optimize:clear)
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) php artisan optimize:clear
+
+db-seed: ## Alimenta o banco com dados (Seeders)
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) php artisan db:seed
+
+key-generate: ## Gera a chave da aplicação (APP_KEY)
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) php artisan key:generate
+
+passport-install: ## Instalação do Laravel Passport
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) php artisan passport:install
+
+# --- TESTES ---
+test: ## Executa os testes via Pest (use f=NomeDoTeste para filtrar)
+ifdef f
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) vendor/bin/pest --filter=$(f)
 else
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} vendor/bin/phpunit
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) vendor/bin/pest
 endif
 
-certbot-run: ## Solicita a primeira instalação do certificado digital utilizando certbot
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec nginx certbot run --nginx --agree-tos --no-eff-email -m ${CERTBOT_EMAIL_ADDRESS} -d ${CERTBOT_DOMAIN}
+# --- BANCO DE DADOS (POSTGRES) ---
+db-recreate: ## Dropa e cria o banco de dados principal
+	@$(DC) exec $(DOCKER_SERVICE_PGSQL) psql -U "$(DB_USERNAME)" -d "postgres" -c "DROP DATABASE IF EXISTS \"$(DB_DATABASE)\";"
+	@$(DC) exec $(DOCKER_SERVICE_PGSQL) psql -U "$(DB_USERNAME)" -d "postgres" -c "CREATE DATABASE \"$(DB_DATABASE)\";"
 
-certbot-renew: ## Solicita a renovação do certificado digital utilizando certbot
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec nginx certbot renew
+db-testing: ## Dropa e cria o banco de dados de testes
+	@$(DC) exec $(DOCKER_SERVICE_PGSQL) psql -U "$(DB_USERNAME)" -d "postgres" -c "DROP DATABASE IF EXISTS \"$(DB_DATABASE)_testing\";"
+	@$(DC) exec $(DOCKER_SERVICE_PGSQL) psql -U "$(DB_USERNAME)" -d "postgres" -c "CREATE DATABASE \"$(DB_DATABASE)_testing\";"
 
-passport-install: ## Faz install do passport
-	make define-environment
-	docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} php artisan passport:install
+restore: ## Restaura um backup (use filename=arquivo.sql)
+	@$(DC) exec $(DOCKER_SERVICE_PGSQL) psql -U "$(DB_USERNAME)" -d "$(DB_DATABASE)" -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+	@$(DC) exec $(DOCKER_SERVICE_PGSQL) dropdb -U "$(DB_USERNAME)" "$(DB_DATABASE)" || true
+	@$(DC) exec $(DOCKER_SERVICE_PGSQL) createdb -U "$(DB_USERNAME)" "$(DB_DATABASE)"
+	@$(DC) exec -T $(DOCKER_SERVICE_PGSQL) pg_restore -U "$(DB_USERNAME)" -d "$(DB_DATABASE)" "/home/backups/$(filename)"
 
-restart: ## Restarta todos os containers em execução
-	make define-environment
-	make down
-	make up
-	make refresh
+# --- INSTALAÇÃO ---
+install: ## Instalação completa do projeto do zero (Dev)
+	@echo "--- Iniciando Instalação TASK MANAGER ---"
+	@$(MAKE) build
+	@$(MAKE) up
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) composer install
+	@$(MAKE) key-generate
+	@$(MAKE) migrate-fresh
+	@echo "--- Instalação Finalizada! ---"
 
-install: ## Instala a aplicação executando todos os passos necessários
-	echo "TASK MANAGER INSTALL"
-	make build
-	make up
-	make delete-node_modules
-	make delete-vendor
-	make composer-install
-	make key-generate
-	echo "Install finished!"
+# --- PRODUÇÃO / DEPLOY ---
+cache-optimize: ## Otimiza a performance: cache de config, rotas e views
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) php artisan config:cache
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) php artisan route:cache
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) php artisan view:cache
 
-## Configuração de deploy
-deploy:
-	@echo "TASK MANAGER DEPLOY!"
-	make define-environment
-	make clear
-	make down
-	make up
-	make refresh
-	make migrate
-	make cache
-	@echo "DEPLOY FINALIZADO!"
+deploy: ## Sequência de deploy seguro para servidor de produção
+	@echo "--- Iniciando Deploy ---"
+	@$(MAKE) up
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) composer install --no-dev --optimize-autoloader
+	@$(MAKE) migrate
+	@$(MAKE) cache-optimize
+	@$(MAKE) clear
+	@echo "--- Deploy Finalizado com Sucesso! ---"
 
-## Realiza a criação de cache
-cache:
-	make define-environment
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} php artisan config:cache
-	@docker compose -f ${DOCKER_COMPOSE_FILE} exec ${DOCKER_SERVICE_PHP_FPM} php artisan route:cache
+certbot-run: ## Primeira instalação do SSL Certbot (Uso: m=email@ex.com d=dominio.com)
+	@$(DC) exec $(DOCKER_SERVICE_NGINX) certbot run --nginx --agree-tos --no-eff-email -m $(m) -d $(d)
+
+certbot-renew: ## Renova os certificados SSL do Certbot
+	@$(DC) exec $(DOCKER_SERVICE_NGINX) certbot renew

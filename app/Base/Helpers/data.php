@@ -1,15 +1,14 @@
 <?php
 
-
 use App\Base\Traits\CacheTrait;
-use App\Packages\Admin\Service\Models\Setting;
-use App\Packages\Attendance\AttendanceStatus\Models\AttendanceStatus;
-use App\Packages\CollectiveAttendance\CollectiveMeetingStatus\Models\CollectiveMeetingStatus;
+use App\Packages\Admin\Settings\Models\Setting;
+use App\Packages\Task\Statuses\Models\TaskStatus;
+use App\Packages\Task\Priorities\Models\TaskPriority;
+use Illuminate\Support\Facades\DB;
 
 function settingsInCache(): mixed {
-    return Cache::remember(
+    return (new class {use CacheTrait;})->cache(
         key: 'settings',
-        ttl: config('api.cache.ttl'),
         callback: function () {
             return Setting::all();
         }
@@ -17,16 +16,32 @@ function settingsInCache(): mixed {
 }
 
 /**
+ * @param string $key
  * @return mixed
  */
-function collectiveMeetingStatusInCache(): mixed {
+function getSetting(string $key): mixed {
     return (new class {use CacheTrait;})->cache(
-        key: 'collective-meeting',
-        callback: function () {
-            return CollectiveMeetingStatus::orderBy('name')->get();
+        key: 'setting_' . $key,
+        callback: function () use ($key) {
+            return DB::table('admin.settings')->where('name', $key)->value('value');
         }
     );
 }
 
+function taskStatusesInCache(): mixed {
+    return (new class {use CacheTrait;})->cache(
+        key: 'task_statuses',
+        callback: function () {
+            return TaskStatus::all();
+        }
+    );
+}
 
-
+function taskPrioritiesInCache(): mixed {
+    return (new class {use CacheTrait;})->cache(
+        key: 'task_priorities',
+        callback: function () {
+            return TaskPriority::orderBy('order')->get();
+        }
+    );
+}
