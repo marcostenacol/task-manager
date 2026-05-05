@@ -1,28 +1,40 @@
 <template>
-  <div class="app-container">
-    <Navbar />
-    <Hero />
-    <Footer />
+  <div class="app-root">
+    <NuxtPage />
   </div>
 </template>
 
 <script setup lang="ts">
-import Navbar from '~/modules/Landing/components/Navbar.vue'
-import Hero from '~/modules/Landing/components/Hero.vue'
-import Footer from '~/modules/Landing/components/Footer.vue'
-
 useHead({
   title: 'TaskMaster - Gestão Inteligente de Tarefas',
   meta: [
     { name: 'description', content: 'A plataforma definitiva para gerenciar suas tarefas e projetos com máxima eficiência.' }
+  ],
+  link: [
+    { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+    { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
+    { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap' }
   ]
 })
 </script>
 
-<style scoped>
-.app-container {
+<style>
+:root {
+  --font-primary: 'Inter', sans-serif;
+  --font-secondary: 'Outfit', sans-serif;
+}
+
+body {
+  font-family: var(--font-primary);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+h1, h2, h3, h4, .font-outfit {
+  font-family: var(--font-secondary);
+}
+
+.app-root {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
 </style>
