@@ -6,7 +6,6 @@ use App\Base\Traits\CacheTrait;
 use App\Packages\Auth\Auth\Services\Cache\RefreshTokenInCacheService;
 use App\Packages\Auth\Auth\Services\Cache\TokenInCacheService;
 use App\Packages\Auth\Auth\Services\Cache\UserInCacheByTokenService;
-use Illuminate\Support\Facades\DB;
 
 class LoginService
 {
@@ -14,12 +13,7 @@ class LoginService
 
     public function execute(string $username, string $password): mixed
     {
-        $response = json_decode(
-            DB::selectOne(
-                'select * from admin.process_login(?, ?);',
-                [$username, $password]
-            )->data
-        );
+        $response = app(\App\Packages\Auth\Auth\Repositories\AuthRepository::class)->processLogin($username, $password);
 
         app(TokenInCacheService::class)->execute(
             token: $response->access_token->token,
