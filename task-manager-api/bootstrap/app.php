@@ -2,7 +2,7 @@
 
 use App\Base\Traits\Response as ResponseTrait;
 use App\Http\Middleware\ForceJsonMiddleware;
-use App\Packages\Auth\Middlewares\AuthenticateMiddleware;
+use App\Packages\Auth\Auth\Middlewares\AuthenticateMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,6 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->prepend(\Illuminate\Http\Middleware\HandleCors::class);
         $middleware->append(ForceJsonMiddleware::class);
+
+        $middleware->alias([
+            'auth.api' => AuthenticateMiddleware::class,
+        ]);
 
     })
     ->withExceptions(function (Exceptions $exceptions): void {

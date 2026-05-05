@@ -50,4 +50,13 @@ trait CacheTrait {
         Cache::forget('refresh_token_' . $refresh_token);
     }
 
+    /**
+     * @param string $prefix
+     * @param string $key
+     * @return void
+     */
+    public function clearCache(string $prefix, string $key): void {
+        Cache::forget($prefix . $key);
+    }
+
 }

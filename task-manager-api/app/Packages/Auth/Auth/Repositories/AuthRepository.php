@@ -25,4 +25,34 @@ class AuthRepository
 
         return json_decode($result->data);
     }
+
+    /**
+     * Processa o refresh do token.
+     *
+     * @param string $refreshToken
+     * @return object
+     */
+    public function processRefresh(string $refreshToken): object
+    {
+        $result = DB::selectOne(
+            'select * from admin.process_refresh(?);',
+            [$refreshToken]
+        );
+
+        return json_decode($result->data);
+    }
+
+    /**
+     * Realiza o logout invalidando os tokens.
+     *
+     * @param string $token
+     * @return void
+     */
+    public function logout(string $token): void
+    {
+        DB::statement(
+            'select admin.process_logout(?);',
+            [$token]
+        );
+    }
 }

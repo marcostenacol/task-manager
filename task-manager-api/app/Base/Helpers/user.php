@@ -10,7 +10,11 @@ function getClientIp(): string {
 }
 
 function userObject(): mixed {
-    return data_get(app(UserInCacheByTokenService::class)->execute(), 'user');
+    return data_get(entityObject(), 'user');
+}
+
+function entityObject(): mixed {
+    return app(UserInCacheByTokenService::class)->execute();
 }
 
 /**
