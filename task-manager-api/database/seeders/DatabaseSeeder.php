@@ -11,6 +11,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seeding is handled via migrations
+        $this->call([
+            SettingSeeder::class,
+        ]);
     }
 }

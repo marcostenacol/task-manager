@@ -82,6 +82,9 @@ migrate: ## Executa as migrations pendentes
 migrate-fresh: ## Reseta o banco e roda todas as migrations
 	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) php artisan migrate:fresh
 
+migrate-testing: ## Roda as migrations no banco de testes
+	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) php artisan migrate --env=testing --force
+
 clear: ## Limpa todos os caches do Laravel (optimize:clear)
 	@$(DC) exec $(DOCKER_SERVICE_PHP_FPM) php artisan optimize:clear
 

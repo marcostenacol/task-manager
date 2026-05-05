@@ -17,6 +17,7 @@ test('should login successfully with valid credentials', function () {
         'password' => 'password123',
     ]);
 
+
     $response->assertStatus(200)
         ->assertJsonPath('success', true)
         ->assertJsonPath('message', 'Login realizado com sucesso.')

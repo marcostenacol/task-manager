@@ -63,6 +63,11 @@ class AuthenticateMiddleware {
 
         $expirationMinutes = (int)SettingsEnum::getValue(SettingsEnum::TOKEN_EXPIRATION_MINUTES);
         
+        if (isset($data->is_expired) && $data->is_expired) {
+            $this->revokeToken(personal_access_token_id: $data->id, access_token: $data->token);
+            return self::notAuthorizeExceptionResponse('Acesso expirado, por favor, realize o login novamente!');
+        }
+
         if (Carbon::parse($data->created_at)->addMinutes($expirationMinutes) < now()) {
             $this->revokeToken(personal_access_token_id: $data->id, access_token: $data->token);
             return self::notAuthorizeExceptionResponse('Acesso expirado, por favor, realize o login novamente!');

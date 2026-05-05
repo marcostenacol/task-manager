@@ -27,6 +27,11 @@ class ProcessRefreshTokenService
             data: $response->refresh_token
         );
 
+        // Limpa cache do token antigo e do usuário
+        if (isset($response->old_access_token)) {
+
+            $this->clearCache('token_', $response->old_access_token);
+        }
         $this->clearUserCache($response->user_data->user->id);
 
         return app(UserInCacheByTokenService::class)->execute(
