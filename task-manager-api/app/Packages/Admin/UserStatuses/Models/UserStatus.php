@@ -4,9 +4,16 @@ namespace App\Packages\Admin\UserStatuses\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+
 class UserStatus extends Model
 {
+    use HasUuids;
+
     protected $table = 'admin.user_statuses';
+
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         'id',

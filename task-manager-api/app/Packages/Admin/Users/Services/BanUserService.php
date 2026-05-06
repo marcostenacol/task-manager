@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Packages\Admin\Users\Services;
+
+use App\Packages\Admin\Users\Models\User;
+use App\Packages\Admin\UserStatuses\Models\UserStatus;
+use App\Base\Traits\CacheTrait;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+
+class BanUserService
+{
+    use CacheTrait;
+
+    public function execute(string $userId, string $reason, string $bannedBy): void
+    {
+        DB::transaction(function () use ($userId, $reason, $bannedBy) {
+            $user = User::findOrFail($userId);
+            $status = UserStatus::where('slug', 'banned')->firstOrFail();
+
+            // Update user's last status
+            $user->update([
+                'last_status_id' => $status->id
+            ]);
+
+            // Record in history
+            DB::table('admin.user_has_statuses')->insert([
+                'id' => \Illuminate\Support\Str::uuid(),
+                'user_id' => $userId,
+                'status_id' => $status->id,
+                'reason' => $reason,
+                'created_by' => $bannedBy,
+                'created_at' => now(),
+            ]);
+
+            // Clear cache
+            Cache::forget("admin_user_detail_{$userId}");
+            // Para a lista, como usamos MD5 nos filtros, o ideal seria tags, 
+            // mas como não temos, limpamos a chave base (se possível) ou aceitamos o TTL.
+            // Aqui vou tentar limpar a chave de usuário no cache geral se existir.
+            $this->clearUserCache($userId);
+        });
+    }
+}

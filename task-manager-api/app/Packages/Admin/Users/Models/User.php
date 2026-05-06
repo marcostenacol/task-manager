@@ -30,6 +30,8 @@ class User extends Authenticatable
         'password',
         'role_id',
         'last_status_id',
+        'avatar_path',
+        'bio',
     ];
 
     protected $hidden = [
@@ -57,5 +59,10 @@ class User extends Authenticatable
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    public function contacts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(\App\Packages\Social\Contacts\Models\UserContact::class, 'user_id');
     }
 }
