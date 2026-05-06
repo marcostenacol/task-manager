@@ -8,9 +8,16 @@ use App\Packages\Task\Statuses\Models\TaskStatus;
 use App\Packages\Task\Priorities\Models\TaskPriority;
 use App\Packages\Admin\Users\Models\User;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+
 class Task extends Model
 {
+    use HasUuids;
+
     protected $table = 'public.tasks';
+
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         'id',

@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Packages\Task\Tasks\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class CreateTaskRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return [
+            'status_id' => 'required|uuid|exists:task_statuses,id',
+            'priority_id' => 'required|uuid|exists:task_priorities,id',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'due_date' => 'nullable|date',
+        ];
+    }
+}

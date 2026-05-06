@@ -8,6 +8,9 @@ class TaskPriority extends Model
 {
     protected $table = 'public.task_priorities';
 
+    public $incrementing = false;
+    protected $keyType = 'string';
+
     protected $fillable = [
         'id',
         'name',
