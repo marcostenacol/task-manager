@@ -15,6 +15,10 @@ class LoginService
     {
         $response = app(\App\Packages\Auth\Auth\Repositories\AuthRepository::class)->processLogin($username, $password);
 
+        if (isset($response->success) && !$response->success) {
+            abort(400, $response->message);
+        }
+
         app(TokenInCacheService::class)->execute(
             token: $response->access_token->token,
             data: $response->access_token

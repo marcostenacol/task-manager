@@ -20,6 +20,8 @@ return [
 
     'default' => env('LOG_CHANNEL', 'stack'),
 
+    'show_error_message' => env('SHOW_ERROR_MESSAGE', false),
+
     /*
     |--------------------------------------------------------------------------
     | Deprecations Log Channel

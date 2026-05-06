@@ -1,113 +1,167 @@
 # Task Manager
 
-A modern, feature-rich task management application built with Laravel and Vue.js.
+Uma plataforma moderna de gestão de tarefas construída com Laravel modular no backend e Nuxt 3 no frontend, com segurança e performance delegadas ao PostgreSQL.
 
-## Features
+## Funcionalidades
 
-- **User Authentication**: Secure login and registration system.
-- **Task Management**: Create, read, update, and delete tasks.
-- **Task Prioritization**: Mark tasks as high priority.
-- **Task Status**: Track task completion status.
-- **Responsive Design**: Beautiful UI that works on desktop and mobile.
+- **Autenticação Segura**: Login, registro, logout e refresh token via PL/pgSQL.
+- **Gestão de Tarefas**: CRUD completo com status, prioridades e filtros avançados.
+- **Perfil Social**: Edição de perfil, avatar e contatos do usuário.
+- **Painel Admin**: Gestão de usuários, roles e histórico de status.
+- **Cache Inteligente**: Redis em todas as listagens e tokens.
+- **RBAC**: Controle de acesso baseado em permissões por role.
 
-## Tech Stack
+## Stack Técnica
 
-- **Backend**: Laravel 11
-- **Frontend**: Vue.js 3, Tailwind CSS
-- **Database**: MySQL
-- **Testing**: Pest
+### Backend
+- **Framework**: Laravel 11 (arquitetura modular por Packages)
+- **Banco de Dados**: PostgreSQL com schemas customizados (`admin`, `public`)
+- **Segurança**: Funções PL/pgSQL para autenticação e validação de tokens
+- **Cache**: Redis (tokens, listagens, dados de usuário)
+- **Testes**: Pest PHP (Feature + Unit)
 
-## Installation
+### Frontend
+- **Framework**: Nuxt 3 (Vue 3 + TypeScript)
+- **Organização**: Módulos por domínio (`modules/auth`, `modules/tasks`, etc.)
+- **Estilo**: CSS Vanilla com design system próprio (glassmorphism, dark mode)
 
-### Prerequisites
+### Infraestrutura
+- **Containerização**: Docker + Docker Compose
+- **Proxy**: Nginx
+- **Automação**: Makefile com comandos para dev, test e database
 
-- PHP 8.2+
-- Composer
-- Node.js 18+
-- MySQL
+---
 
-### Steps
+## ⚠️ Limitações de Infraestrutura
 
-1.  **Clone the repository**
-    ```bash
-    git clone <repository-url>
-    cd task-manager
-    ```
+> **Este projeto não utiliza nenhum serviço externo de mensageria ou notificação.**
 
-2.  **Install Backend Dependencies**
-    ```bash
-    cd task-manager-api
-    composer install
-    ```
+As seguintes funcionalidades **estão fora do escopo** por limitação de infraestrutura local:
 
-3.  **Configure Environment**
-    Copy the example environment file and fill in your database credentials:
-    ```bash
-    cp .env.example .env
-    ```
-    Edit `.env` with your database configuration:
-    ```env
-    DB_CONNECTION=mysql
-    DB_HOST=127.0.0.1
-    DB_PORT=3306
-    DB_DATABASE=task_manager
-    DB_USERNAME=root
-    DB_PASSWORD=
-    ```
+| Funcionalidade | Motivo | Alternativa adotada |
+|---|---|---|
+| **Envio de e-mails** | Sem servidor SMTP configurado | Ações como "esqueci minha senha" e "boas-vindas" não são implementadas |
+| **Notificações Push** | Sem serviço FCM/APNS | Status de tarefas atualizados apenas via polling/refetch |
+| **SMS / WhatsApp** | Sem integração com Twilio/Z-API | Campo de contato é armazenado mas não dispara mensagens |
+| **Webhooks externos** | Sem endpoint de recebimento exposto publicamente | Integrações externas não são suportadas |
+| **Filas de jobs** | Sem worker de fila ativo em dev | Todos os processos são síncronos |
+| **Recuperação de senha por e-mail** | Depende de SMTP | Não implementado — redefinição manual via admin |
 
-4.  **Generate Application Key**
-    ```bash
-    php artisan key:generate
-    ```
+> [!NOTE]
+> Qualquer funcionalidade futura que dependa de comunicação externa deve ser avaliada e aprovada antes de ser adicionada ao backlog.
 
-5.  **Run Migrations**
-    ```bash
-    php artisan migrate
-    ```
+---
 
-6.  **Install Frontend Dependencies**
-    ```bash
-    cd ../task-manager-ui
-    npm install
-    ```
+## Instalação
 
-7.  **Build Frontend**
-    ```bash
-    npm run build
-    ```
+### Pré-requisitos
 
-8.  **Run the Server**
-    Start the Laravel development server:
-    ```bash
-    cd ../task-manager-api
-    php artisan serve
-    ```
-    The application will be available at `http://localhost:8000`.
+- Docker e Docker Compose
+- Make
+- Node.js 20+
 
-## Running Tests
+### Setup Rápido
 
-### Backend Tests
-
-Run the Pest test suite:
 ```bash
-cd task-manager-api
-pest
+# Clone o repositório
+git clone <repository-url>
+cd task-manager
+
+# Suba os containers
+make up
+
+# Execute as migrations
+make migrate
+
+# Execute os seeders
+make art c="db:seed"
+
+# Inicie o frontend
+cd task-manager-ui && npm install && npm run dev
 ```
 
-## Project Structure
+### Configuração do Ambiente
+
+Copie o `.env.example` e configure:
+
+```env
+DB_CONNECTION=pgsql
+DB_HOST=pgsql
+DB_PORT=5432
+DB_DATABASE=task-manager
+DB_USERNAME=root
+DB_PASSWORD=root
+DB_SCHEMA=public
+
+CACHE_DRIVER=redis
+REDIS_HOST=redis
+REDIS_PORT=6379
+```
+
+---
+
+## Rodando os Testes
+
+```bash
+# Recria o banco de testes e roda todos os testes
+make migrate-testing && make test
+
+# Roda um grupo de testes específico
+make test f=Auth
+make test f=Task
+make test f=Social
+make test f=Admin
+```
+
+---
+
+## Estrutura do Projeto
 
 ```
 task-manager/
-├── task-manager-api/     # Laravel backend
-│   ├── app/              # Application code
-│   ├── database/         # Migrations and seeds
-│   ├── routes/           # API routes
-│   └── tests/            # Pest tests
-└── task-manager-ui/      # Vue.js frontend
-    ├── src/              # Vue components and logic
-    └── public/           # Compiled assets
+├── task-manager-api/              # Backend Laravel Modular
+│   ├── app/
+│   │   ├── Base/                  # Traits, Helpers e Repository base
+│   │   └── Packages/
+│   │       ├── Admin/             # Domínio Admin (Users, Roles, Permissions)
+│   │       ├── Auth/              # Domínio Auth (Login, Logout, Refresh)
+│   │       ├── Social/            # Domínio Social (Perfil, Contatos, Avatar)
+│   │       └── Task/              # Domínio Task (Tasks, Statuses, Priorities)
+│   ├── database/
+│   │   ├── migrations/            # Migrations + funções PL/pgSQL
+│   │   └── seeders/
+│   ├── routes/api.php
+│   └── tests/Feature/             # Testes espelhando cada domínio
+├── task-manager-ui/               # Frontend Nuxt 3
+│   └── app/
+│       ├── assets/css/            # Design system (variáveis, reset)
+│       ├── composables/           # useApi.ts (interceptor global)
+│       ├── middleware/            # Proteção de rotas
+│       ├── modules/
+│       │   ├── Landing/           # Landing page
+│       │   ├── auth/              # Login, Register
+│       │   ├── social/            # Perfil do usuário
+│       │   ├── tasks/             # Dashboard e CRUD de tarefas
+│       │   └── admin/             # Painel administrativo
+│       └── pages/                 # Roteamento Nuxt
+└── .agents/                       # Documentação e guias para IA
+    ├── agents/                    # Agentes especializados
+    ├── docs/                      # Referências de arquitetura
+    └── skills/                    # Skills automatizadas
 ```
 
-## License
+---
 
-This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Documentação da API
+
+A documentação da API é gerada automaticamente via **Scramble (OpenAPI)** e estará disponível em:
+
+```
+http://localhost:8000/docs/api
+```
+
+---
+
+## Licença
+
+Este projeto é licenciado sob a [MIT license](https://opensource.org/licenses/MIT).

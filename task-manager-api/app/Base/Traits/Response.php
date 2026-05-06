@@ -112,6 +112,13 @@ trait Response {
             return self::failedValidationResponse($exception);
         }
 
+        if ($exception instanceof \Symfony\Component\HttpKernel\Exception\HttpException) {
+            return response()->json(
+                self::defineResponseBase(success: false, message: $exception->getMessage()),
+                $exception->getStatusCode()
+            );
+        }
+
         return self::internalServerErrorResponse($exception);
     }
 
