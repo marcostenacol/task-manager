@@ -16,6 +16,7 @@ class UpdatePersonRequest extends FormRequest
         return [
             'name' => 'sometimes|string|max:255',
             'bio' => 'sometimes|nullable|string|max:1000',
+            'avatar' => 'sometimes|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ];
     }
 }

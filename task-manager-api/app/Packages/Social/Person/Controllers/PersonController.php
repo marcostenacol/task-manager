@@ -41,7 +41,7 @@ class PersonController extends Controller
     {
         try {
             $request->validate([
-                'avatar' => 'required|image|max:2048', // 2MB
+                'avatar' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB
             ]);
 
             $user = userObject();
