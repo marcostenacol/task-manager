@@ -18,9 +18,11 @@ export const useUsers = () => {
     const fetchUsers = async () => {
         loading.value = true;
         try {
-            const response = await AdminService.listUsers(filters);
-            users.value = response.data;
-            meta.value = response.meta;
+            const response = await AdminService.listUsers(filters) as any;
+            if (response.success && response.data) {
+                users.value = response.data.data || [];
+                meta.value = response.data;
+            }
         } catch (error) {
             console.error('Erro ao buscar usuários:', error);
         } finally {

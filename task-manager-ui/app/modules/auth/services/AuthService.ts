@@ -17,9 +17,5 @@ export const AuthService = {
 
   async logout(): Promise<void> {
     await useApi('/v1/auth/logout', { method: 'POST' })
-  },
-
-  async me(): Promise<any> {
-    return useApi('/v1/auth/me', { method: 'GET' })
   }
 }

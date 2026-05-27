@@ -33,7 +33,7 @@ export const useProfile = () => {
         try {
             const response = await SocialService.uploadAvatar(file);
             if (profile.value) {
-                profile.value.avatar_path = response.data.url;
+                profile.value.avatar_path = response.data.avatar_url;
             }
             return true;
         } catch (error) {

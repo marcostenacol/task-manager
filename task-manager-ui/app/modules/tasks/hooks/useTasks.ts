@@ -18,9 +18,12 @@ export const useTasks = () => {
     const fetchTasks = async () => {
         loading.value = true;
         try {
-            const response = await TaskService.list(filters);
-            tasks.value = response.data;
-            meta.value = response.meta;
+            const response = await TaskService.list(filters) as any;
+            if (response.success && response.data) {
+                // response.data contains the paginator object: { current_page, data: [...], total, ... }
+                tasks.value = response.data.data || [];
+                meta.value = response.data;
+            }
         } catch (error) {
             console.error('Erro ao buscar tarefas:', error);
         } finally {

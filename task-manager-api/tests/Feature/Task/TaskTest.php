@@ -121,5 +121,5 @@ test('deve deletar uma tarefa', function () {
         ->deleteJson("/api/v1/tasks/{$task->id}");
 
     $response->assertStatus(200);
-    $this->assertDatabaseMissing('tasks', ['id' => $task->id]);
+    $this->assertSoftDeleted('tasks', ['id' => $task->id]);
 });
