@@ -35,4 +35,4 @@ O servidor estará disponível em `http://localhost:3000`.
 - **Animações**: Micro-animações em CSS puro para feedback visual.
 
 ---
-Built with ❤️ by Antigravity AI Engineer.
+Built with ❤️.

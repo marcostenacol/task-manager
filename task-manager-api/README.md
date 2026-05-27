@@ -144,7 +144,7 @@ task-manager/
 │       │   ├── tasks/             # Dashboard e CRUD de tarefas
 │       │   └── admin/             # Painel administrativo
 │       └── pages/                 # Roteamento Nuxt
-└── .agents/                       # Documentação e guias para IA
+└── .agents/                       # Documentação e guias para automação
     ├── agents/                    # Agentes especializados
     ├── docs/                      # Referências de arquitetura
     └── skills/                    # Skills automatizadas
