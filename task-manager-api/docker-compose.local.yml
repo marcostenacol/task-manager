@@ -12,7 +12,6 @@ x-defaults: &defaults
 services:
   task-manager-nginx:
     <<: *defaults
-    profiles: ["homolog", "main"]
     build:
       context: .docker/nginx
       dockerfile: Dockerfile
@@ -41,7 +40,6 @@ services:
 
   task-manager-php-fpm:
     <<: *defaults
-    profiles: ["homolog", "main"]
     shm_size: 256m
     build:
       context: .docker/php
@@ -74,7 +72,6 @@ services:
 
   task-manager-redis:
     <<: *defaults
-    profiles: ["homolog", "main"]
     build:
       context: .docker/redis
       dockerfile: Dockerfile
@@ -96,7 +93,6 @@ services:
 
   pgsql:
     <<: *defaults
-    profiles: ["homolog"]
     shm_size: 512m
     image: "postgres:16-alpine"
     container_name: "${PREFIX:-task-manager}_homolog_postgres"
@@ -118,7 +114,7 @@ services:
 
 networks:
   shared-network:
-    external: true
+    driver: bridge
 
 volumes:
   task-manager-api-redis:

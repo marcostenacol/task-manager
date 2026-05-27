@@ -4,18 +4,17 @@
 -include .env
 
 # Configurações Básicas
-DOCKER_COMPOSE_FILE ?= docker-compose.yml
+APP_ENV ?= local
+ifeq ($(APP_ENV),production)
+	DOCKER_COMPOSE_FILE ?= docker-compose.production.yml
+else
+	DOCKER_COMPOSE_FILE ?= docker-compose.local.yml
+endif
 PREFIX ?= task-manager
 COMPOSE_PROJECT_NAME ?= $(PREFIX)
 export COMPOSE_PROJECT_NAME
 
-# Perfil do Docker Compose (ex: main, homolog)
-PROFILE ?= main
-ifneq ($(strip $(PROFILE)),)
-	PROFILE_FLAG := --profile $(PROFILE)
-endif
-
-DC := sudo docker compose -f $(DOCKER_COMPOSE_FILE) $(PROFILE_FLAG)
+DC := sudo docker compose -f $(DOCKER_COMPOSE_FILE)
 DOCKER_SERVICE_PHP_FPM := task-manager-php-fpm
 DOCKER_SERVICE_NGINX   := task-manager-nginx
 DOCKER_SERVICE_PGSQL   := pgsql
