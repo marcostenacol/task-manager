@@ -9,13 +9,13 @@ PREFIX ?= task-manager
 COMPOSE_PROJECT_NAME ?= $(PREFIX)
 export COMPOSE_PROJECT_NAME
 
-# Perfil do Docker Compose (ex: local, dev, prod)
-PROFILE ?= local
+# Perfil do Docker Compose (ex: main, homolog)
+PROFILE ?= main
 ifneq ($(strip $(PROFILE)),)
 	PROFILE_FLAG := --profile $(PROFILE)
 endif
 
-DC := docker compose -f $(DOCKER_COMPOSE_FILE) $(PROFILE_FLAG)
+DC := sudo docker compose -f $(DOCKER_COMPOSE_FILE) $(PROFILE_FLAG)
 DOCKER_SERVICE_PHP_FPM := task-manager-php-fpm
 DOCKER_SERVICE_NGINX   := task-manager-nginx
 DOCKER_SERVICE_PGSQL   := pgsql

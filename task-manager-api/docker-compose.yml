@@ -1,8 +1,4 @@
 # docker-compose.yml
-
-# Use COMPOSE_PROJECT_NAME (recommended) or PREFIX to prefix container names:
-# export COMPOSE_PROJECT_NAME=meuprefix
-# or export PREFIX=meuprefix
 x-defaults: &defaults
   restart: unless-stopped
   tty: true
@@ -11,12 +7,12 @@ x-defaults: &defaults
       soft: "${ULIMITS_NOFILE_SOFT:-65536}"
       hard: "${ULIMITS_NOFILE_HARD:-1048576}"
   networks:
-    - task-manager-api-network
+    - shared-network
 
 services:
-  # Nginx runs in all environments by default
   task-manager-nginx:
     <<: *defaults
+    profiles: ["homolog", "main"]
     build:
       context: .docker/nginx
       dockerfile: Dockerfile
@@ -42,14 +38,10 @@ services:
       - 'task-manager-api-php-socket:/tmp/:ro'
     depends_on:
       - task-manager-php-fpm
-    labels:
-      - "com.example.description=TASK MANAGER API Nginx"
-    command: >
-      sh -c "sleep 5 && /docker-entrypoint.sh nginx -g 'daemon off;'"
 
-  # PHP-FPM always defined (can point to external DB/Redis via env)
   task-manager-php-fpm:
     <<: *defaults
+    profiles: ["homolog", "main"]
     shm_size: 256m
     build:
       context: .docker/php
@@ -65,19 +57,7 @@ services:
       TZ: "${APP_TIMEZONE:-America/Boa_Vista}"
       APP_ENV: ${APP_ENV:-local}
       APP_DEBUG: ${APP_DEBUG:-true}
-      # Opcache / PHP tuning
-      PHP_OPCACHE_MEMORY_CONSUMPTION: "${PHP_OPCACHE_MEMORY_CONSUMPTION:-500}"
-      PHP_OPCACHE_VALIDATE_TIMESTAMPS: "${PHP_OPCACHE_VALIDATE_TIMESTAMPS:-0}"
-      PHP_OPCACHE_MAX_ACCELERATED_FILES: "${PHP_OPCACHE_MAX_ACCELERATED_FILES:-20000}"
-      PHP_OPCACHE_MAX_WASTED_PERCENTAGE: "${PHP_OPCACHE_MAX_WASTED_PERCENTAGE:-15}"
-      PHP_OPCACHE_REVALIDATE_FREQ: "${PHP_OPCACHE_REVALIDATE_FREQ:-0}"
-      PHP_OPCACHE_INTERNED_STRINGS_BUFFER: "${PHP_OPCACHE_INTERNED_STRINGS_BUFFER:-32}"
-      PHP_OPCACHE_ENABLE_CLI: "${PHP_OPCACHE_ENABLE_CLI:-1}"
-      PHP_OPCACHE_SAVE_COMMENTS: "${PHP_OPCACHE_SAVE_COMMENTS:-1}"
-      PHP_OPCACHE_HUGE_CODE_PAGES: "${PHP_OPCACHE_HUGE_CODE_PAGES:-1}"
-      PHP_OPCACHE_FILE_CACHE: "${PHP_OPCACHE_FILE_CACHE:-/tmp/opcache}"
-      # DB/Redis host fallback (use external services in prod)
-      DB_HOST: "${DB_HOST:-pgsql}"
+      DB_HOST: "${DB_HOST:-central-db}"
       DB_PORT: "${DB_PORT:-5432}"
       REDIS_HOST: "${REDIS_HOST:-task-manager-redis}"
       REDIS_PORT: "${REDIS_PORT:-6379}"
@@ -87,19 +67,14 @@ services:
       - './.docker/php/conf.d/opcache.ini:/usr/local/etc/php/conf.d/docker-php-ext-opcache.ini:ro'
       - './.docker/php/conf.d/www.conf:/usr/local/etc/php-fpm.d/www.conf:ro'
       - 'task-manager-api-php-socket:/tmp/:rw'
-    # Do not require redis container at compose-level since it's profile-gated.
-    # Use REDIS_HOST env to point to external redis in production or the container in dev.
     depends_on:
       - task-manager-redis
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    labels:
-      - "com.example.description=TASK MANAGER API PHP-FPM"
 
-  # Redis: usually used in dev/local but you can enable in prod if you want
   task-manager-redis:
     <<: *defaults
-    profiles: ["dev","local", "hml"]
+    profiles: ["homolog", "main"]
     build:
       context: .docker/redis
       dockerfile: Dockerfile
@@ -118,47 +93,37 @@ services:
       retries: 3
       timeout: 5s
       interval: 10s
-    labels:
-      - "com.example.description=TASK MANAGER API Redis"
 
-  # Postgres (PostGIS) — only in dev/local profiles (production -> external DB)
   pgsql:
     <<: *defaults
-    profiles: ["local"]
+    profiles: ["homolog"]
     shm_size: 512m
-    image: "postgis/postgis:${POSTGRES_VERSION:-17-master}"
-    container_name: "${PREFIX:-task-manager}_${DB_CONTAINER_NAME:-postgres}"
+    image: "postgres:16-alpine"
+    container_name: "${PREFIX:-task-manager}_homolog_postgres"
     ports:
-      - '${FORWARD_DB_PORT:-5432}:5432'
+      - '5433:5432'
     environment:
       PGPASSWORD: '${DB_PASSWORD:-secret}'
       POSTGRES_DB: '${DB_DATABASE:-task-manager}'
       POSTGRES_USER: '${DB_USERNAME:-task-manager}'
       POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
       TZ: "${APP_TIMEZONE:-America/Boa_Vista}"
-    command:
-      - "postgres"
-      - "-c"
-      - "max_locks_per_transaction=2048"
     volumes:
-      - 'task-manager-api-pgsql:/var/lib/postgresql/data'
-      - './.docker/pgsql/backups:/home/backups'
+      - 'task-manager-api-pgsql-homolog:/var/lib/postgresql/data'
     healthcheck:
       test: ["CMD", "pg_isready", "-q", "-d", "${DB_DATABASE:-task-manager}", "-U", "${DB_USERNAME:-task-manager}"]
       retries: 3
       timeout: 5s
       interval: 10s
-    labels:
-      - "com.example.description=TASK MANAGER API PostgreSQL Database"
 
 networks:
-  task-manager-api-network:
-    driver: bridge
+  shared-network:
+    external: true
 
 volumes:
   task-manager-api-redis:
     driver: local
-  task-manager-api-pgsql:
-    driver: local
   task-manager-api-php-socket:
+    driver: local
+  task-manager-api-pgsql-homolog:
     driver: local

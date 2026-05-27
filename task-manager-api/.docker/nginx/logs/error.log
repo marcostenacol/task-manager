@@ -478,3 +478,113 @@
 2026/05/05 08:21:24 [notice] 1#1: start worker process 30
 2026/05/05 08:21:24 [notice] 1#1: start worker process 31
 2026/05/05 08:21:24 [notice] 1#1: start worker process 32
+2026/05/27 10:10:41 [notice] 1#1: using the "epoll" event method
+2026/05/27 10:10:41 [notice] 1#1: nginx/1.31.1
+2026/05/27 10:10:41 [notice] 1#1: built by gcc 15.2.0 (Alpine 15.2.0) 
+2026/05/27 10:10:41 [notice] 1#1: OS: Linux 5.15.0-1081-oracle
+2026/05/27 10:10:41 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 65536:1048576
+2026/05/27 10:10:41 [notice] 1#1: start worker processes
+2026/05/27 10:10:41 [notice] 1#1: start worker process 20
+2026/05/27 10:10:41 [notice] 1#1: start worker process 21
+2026/05/27 10:10:41 [notice] 1#1: start worker process 22
+2026/05/27 10:10:41 [notice] 1#1: start worker process 23
+2026/05/27 11:01:53 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2026/05/27 11:01:53 [notice] 20#20: gracefully shutting down
+2026/05/27 11:01:53 [notice] 21#21: gracefully shutting down
+2026/05/27 11:01:53 [notice] 20#20: exiting
+2026/05/27 11:01:53 [notice] 21#21: exiting
+2026/05/27 11:01:53 [notice] 20#20: exit
+2026/05/27 11:01:53 [notice] 21#21: exit
+2026/05/27 11:01:53 [notice] 23#23: gracefully shutting down
+2026/05/27 11:01:53 [notice] 23#23: exiting
+2026/05/27 11:01:53 [notice] 23#23: exit
+2026/05/27 11:01:53 [notice] 22#22: gracefully shutting down
+2026/05/27 11:01:53 [notice] 22#22: exiting
+2026/05/27 11:01:53 [notice] 22#22: exit
+2026/05/27 11:01:53 [notice] 1#1: signal 17 (SIGCHLD) received from 21
+2026/05/27 11:01:53 [notice] 1#1: worker process 21 exited with code 0
+2026/05/27 11:01:53 [notice] 1#1: signal 29 (SIGIO) received
+2026/05/27 11:01:53 [notice] 1#1: signal 17 (SIGCHLD) received from 23
+2026/05/27 11:01:53 [notice] 1#1: worker process 22 exited with code 0
+2026/05/27 11:01:53 [notice] 1#1: worker process 23 exited with code 0
+2026/05/27 11:01:53 [notice] 1#1: signal 29 (SIGIO) received
+2026/05/27 11:01:53 [notice] 1#1: signal 17 (SIGCHLD) received from 20
+2026/05/27 11:01:53 [notice] 1#1: worker process 20 exited with code 0
+2026/05/27 11:01:53 [notice] 1#1: exit
+2026/05/27 11:02:34 [notice] 1#1: using the "epoll" event method
+2026/05/27 11:02:34 [notice] 1#1: nginx/1.31.1
+2026/05/27 11:02:34 [notice] 1#1: built by gcc 15.2.0 (Alpine 15.2.0) 
+2026/05/27 11:02:34 [notice] 1#1: OS: Linux 5.15.0-1081-oracle
+2026/05/27 11:02:34 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 65536:1048576
+2026/05/27 11:02:34 [notice] 1#1: start worker processes
+2026/05/27 11:02:34 [notice] 1#1: start worker process 20
+2026/05/27 11:02:34 [notice] 1#1: start worker process 21
+2026/05/27 11:02:34 [notice] 1#1: start worker process 22
+2026/05/27 11:02:34 [notice] 1#1: start worker process 23
+2026/05/27 11:21:16 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2026/05/27 11:21:16 [notice] 20#20: gracefully shutting down
+2026/05/27 11:21:16 [notice] 22#22: gracefully shutting down
+2026/05/27 11:21:16 [notice] 21#21: gracefully shutting down
+2026/05/27 11:21:16 [notice] 20#20: exiting
+2026/05/27 11:21:16 [notice] 22#22: exiting
+2026/05/27 11:21:16 [notice] 21#21: exiting
+2026/05/27 11:21:16 [notice] 20#20: exit
+2026/05/27 11:21:16 [notice] 22#22: exit
+2026/05/27 11:21:16 [notice] 21#21: exit
+2026/05/27 11:21:16 [notice] 23#23: gracefully shutting down
+2026/05/27 11:21:16 [notice] 23#23: exiting
+2026/05/27 11:21:16 [notice] 23#23: exit
+2026/05/27 11:21:16 [notice] 1#1: signal 17 (SIGCHLD) received from 20
+2026/05/27 11:21:16 [notice] 1#1: worker process 20 exited with code 0
+2026/05/27 11:21:16 [notice] 1#1: worker process 21 exited with code 0
+2026/05/27 11:21:16 [notice] 1#1: worker process 22 exited with code 0
+2026/05/27 11:21:16 [notice] 1#1: worker process 23 exited with code 0
+2026/05/27 11:21:16 [notice] 1#1: exit
+2026/05/27 11:21:46 [notice] 1#1: using the "epoll" event method
+2026/05/27 11:21:46 [notice] 1#1: nginx/1.31.1
+2026/05/27 11:21:46 [notice] 1#1: built by gcc 15.2.0 (Alpine 15.2.0) 
+2026/05/27 11:21:46 [notice] 1#1: OS: Linux 5.15.0-1081-oracle
+2026/05/27 11:21:46 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 65536:1048576
+2026/05/27 11:21:46 [notice] 1#1: start worker processes
+2026/05/27 11:21:46 [notice] 1#1: start worker process 20
+2026/05/27 11:21:46 [notice] 1#1: start worker process 21
+2026/05/27 11:21:46 [notice] 1#1: start worker process 22
+2026/05/27 11:21:46 [notice] 1#1: start worker process 23
+2026/05/27 11:40:25 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:26 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /vendor/phpunit/phpunit/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:26 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /vendor/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:26 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /vendor/phpunit/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:27 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /vendor/phpunit/phpunit/LICENSE/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:27 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /vendor/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:28 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:28 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /phpunit/phpunit/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:28 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:28 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /phpunit/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:29 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /lib/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:29 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /lib/phpunit/phpunit/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:29 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /lib/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:29 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /lib/phpunit/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:29 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /lib/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:30 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /laravel/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:30 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /www/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:30 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /ws/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:30 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /yii/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:31 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /zend/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:31 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /ws/ec/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:32 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /V2/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:32 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /tests/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:33 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /test/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:33 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /testing/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:34 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /api/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:34 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /demo/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:35 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /cms/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:35 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /crm/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:36 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /admin/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:37 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /backup/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:37 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /blog/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:37 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /workspace/drupal/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:38 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /panel/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:39 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /public/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:39 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /apps/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:40 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /app/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php HTTP/1.1", host: "150.230.75.122:80"
+2026/05/27 11:40:41 [error] 20#20: *27 open() "/var/www/html/public404" failed (2: No such file or directory), client: 107.172.204.15, server: hml-task-manager-api.ae3tecnologia.com.br, request: "GET /public/index.php?s=/index/\think\app/invokefunction&function=call_user_func_array&vars[0]=md5&vars[1][]=Hello HTTP/1.1", host: "150.230.75.122:80"

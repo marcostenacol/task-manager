@@ -1,6 +1,6 @@
 <template>
   <footer class="footer">
-    <p>&copy; 2026 TaskMaster. Built with Antigravity AI.</p>
+    <p>&copy; 2026 TaskMaster.</p>
   </footer>
 </template>
 
