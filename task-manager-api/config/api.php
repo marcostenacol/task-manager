@@ -2,7 +2,7 @@
 
 return [
     'cache' => [
-        'use_cache' => true,
+        'use_cache' => env('USE_CACHE', true),
         'ttl' => 86400,
     ],
 ];
