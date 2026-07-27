@@ -1,5 +1,5 @@
 {
-  "name": "false",
+  "name": "task-manager-ui",
   "type": "module",
   "private": true,
   "scripts": {
