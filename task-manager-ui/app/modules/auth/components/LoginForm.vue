@@ -73,7 +73,6 @@ async function handleSubmit() {
   error.value = ''
   try {
     const response = await login(form)
-    console.log('Login response:', response)
     if (!response.success) {
       error.value = response.message || 'Erro ao realizar login.'
     }

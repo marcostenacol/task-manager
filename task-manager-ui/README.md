@@ -2,6 +2,10 @@
 
 Este é o módulo de interface do usuário do Sistema de Gestão de Tarefas, construído com **Nuxt 4**.
 
+## 💡 Motivação
+
+Este frontend existe para provar, na prática, que a API modular do `task-manager-api` é consumível por um cliente real — e para servir de vitrine de portfólio de um consumo de API "cru", sem framework de estado (Pinia) nem UI kit, apenas Nuxt/Vue puro e um composable de fetch com interceptor próprio (`useApi.ts`) cuidando de autenticação, refresh de token e erros. A organização por módulos de domínio (`auth`, `tasks`, `social`, `admin`) espelha a modularidade do backend propositalmente, para deixar explícito que a mesma disciplina de separação por domínio vale nas duas pontas do sistema.
+
 ## 🚀 Tecnologias Utilizadas
 
 - **Framework**: [Nuxt 4](https://nuxt.com/) (Vue 3)

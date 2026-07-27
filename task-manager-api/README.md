@@ -2,6 +2,10 @@
 
 Uma plataforma moderna de gestão de tarefas construída com Laravel modular no backend e Nuxt 4 no frontend, com segurança e performance delegadas ao PostgreSQL.
 
+## Sobre o projeto
+
+Este projeto nasceu como peça de portfólio para demonstrar, em um sistema real e funcional, decisões de arquitetura backend que costumam ficar só na teoria: organização 100% modular por domínio (sem o clássico legado "flat" de Controllers/Models soltos), regras de autorização e validação de token implementadas via funções PL/pgSQL no próprio banco (em vez de depender de Sanctum/Passport), RBAC granular por permissão, e cache Redis aplicado de forma consistente em listagens e tokens. A escolha de um domínio simples — gestão de tarefas com perfil social e painel admin — é deliberada: o valor demonstrado está na qualidade da engenharia (testes de Feature reais com Pest, camadas bem separadas, schemas Postgres organizados) e não na complexidade do problema de negócio em si.
+
 ## Funcionalidades
 
 - **Autenticação Segura**: Login, registro, logout e refresh token via PL/pgSQL.

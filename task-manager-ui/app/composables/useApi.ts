@@ -13,7 +13,6 @@ export const useApi = async <T>(url: string, options: FetchOptions = {}) => {
     async onResponseError({ request, response }) {
       console.error(`API Error [${response.status}] on ${request}:`, response._data)
       if (response.status === 401 && refreshToken.value) {
-        console.log('401 detected, attempting token refresh...')
         // Tenta fazer o refresh
         try {
           const { data } = await $fetch<any>('/v1/auth/refresh', {
@@ -21,7 +20,6 @@ export const useApi = async <T>(url: string, options: FetchOptions = {}) => {
             method: 'POST',
             body: { refresh_token: refreshToken.value }
           })
-          console.log('Token refresh successful:', data)
 
           if (data && data.access_token) {
             token.value = data.access_token.token

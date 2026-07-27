@@ -12,16 +12,12 @@ export const useAuth = () => {
   async function login(credentials: any) {
     loading.value = true
     try {
-      console.log('Starting login request...')
       const response = await AuthService.login(credentials)
-      console.log('AuthService response received:', response)
       if (response.success) {
-        console.log('Login success, setting tokens and user...')
         token.value = response.data.access_token.token
         refreshToken.value = response.data.refresh_token.token
         user.value = response.data.user
-        
-        console.log('Redirecting to home...')
+
         navigateTo('/')
       }
       return response
