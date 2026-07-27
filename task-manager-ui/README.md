@@ -1,22 +1,22 @@
 # 🎨 TaskMaster UI - Frontend
 
-Este é o módulo de interface do usuário do Sistema de Gestão de Tarefas, construído com **Nuxt 3**.
+Este é o módulo de interface do usuário do Sistema de Gestão de Tarefas, construído com **Nuxt 4**.
 
 ## 🚀 Tecnologias Utilizadas
 
-- **Framework**: [Nuxt 3](https://nuxt.com/) (Vue 3)
+- **Framework**: [Nuxt 4](https://nuxt.com/) (Vue 3)
 - **Estilização**: CSS Puro (Vanilla CSS) com variáveis globais e design system modular.
 - **Tipografia**: Inter (Google Fonts).
 - **Icons**: Emoji-based (para performance e estética limpa).
 
 ## 📁 Estrutura de Pastas (Modular)
 
-Seguindo a arquitetura definida no `GEMINI.md`:
+Segue a estrutura padrão do Nuxt 4 (`srcDir: app/`):
 
-- `modules/`: Domínios isolados da aplicação.
-- `components/`: Componentes atômicos reutilizáveis.
-- `services/`: Lógica de consumo da API Laravel.
-- `app.vue`: Ponto de entrada com o layout base premium.
+- `app/modules/`: Domínios isolados da aplicação.
+- `app/composables/`: Lógica de consumo da API Laravel e estado compartilhado.
+- `app/pages/`: Rotas da aplicação.
+- `app/app.vue`: Ponto de entrada com o layout base premium.
 
 ## 🛠️ Desenvolvimento
 
@@ -26,7 +26,7 @@ Para rodar o servidor de desenvolvimento:
 npm run dev
 ```
 
-O servidor estará disponível em `http://localhost:3000`.
+O servidor estará disponível na porta definida em `PORT` no `.env` (padrão: `http://localhost:25565`).
 
 ## 🎨 Guia de Estilo
 

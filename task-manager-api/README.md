@@ -1,6 +1,6 @@
 # Task Manager
 
-Uma plataforma moderna de gestão de tarefas construída com Laravel modular no backend e Nuxt 3 no frontend, com segurança e performance delegadas ao PostgreSQL.
+Uma plataforma moderna de gestão de tarefas construída com Laravel modular no backend e Nuxt 4 no frontend, com segurança e performance delegadas ao PostgreSQL.
 
 ## Funcionalidades
 
@@ -14,14 +14,14 @@ Uma plataforma moderna de gestão de tarefas construída com Laravel modular no 
 ## Stack Técnica
 
 ### Backend
-- **Framework**: Laravel 11 (arquitetura modular por Packages)
+- **Framework**: Laravel 13 (arquitetura modular por Packages)
 - **Banco de Dados**: PostgreSQL com schemas customizados (`admin`, `public`)
 - **Segurança**: Funções PL/pgSQL para autenticação e validação de tokens
 - **Cache**: Redis (tokens, listagens, dados de usuário)
 - **Testes**: Pest PHP (Feature + Unit)
 
 ### Frontend
-- **Framework**: Nuxt 3 (Vue 3 + TypeScript)
+- **Framework**: Nuxt 4 (Vue 3 + TypeScript)
 - **Organização**: Módulos por domínio (`modules/auth`, `modules/tasks`, etc.)
 - **Estilo**: CSS Vanilla com design system próprio (glassmorphism, dark mode)
 
@@ -132,7 +132,7 @@ task-manager/
 │   │   └── seeders/
 │   ├── routes/api.php
 │   └── tests/Feature/             # Testes espelhando cada domínio
-├── task-manager-ui/               # Frontend Nuxt 3
+├── task-manager-ui/               # Frontend Nuxt 4
 │   └── app/
 │       ├── assets/css/            # Design system (variáveis, reset)
 │       ├── composables/           # useApi.ts (interceptor global)
