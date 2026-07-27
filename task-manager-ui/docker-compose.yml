@@ -3,7 +3,7 @@ services:
     build: .
     profiles: ["homolog", "main"]
     ports:
-      - "25565:25565"
+      - "127.0.0.1:25565:25565"
     environment:
       NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-http://localhost/api}
       PORT: ${PORT:-25565}
