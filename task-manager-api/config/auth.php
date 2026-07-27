@@ -25,15 +25,14 @@ return [
     | Authentication Guards
     |--------------------------------------------------------------------------
     |
-    | Next, you may define every authentication guard for your application.
-    | Of course, a great default configuration has been defined for you
-    | which utilizes session storage plus the Eloquent user provider.
-    |
-    | All authentication guards have a user provider, which defines how the
-    | users are actually retrieved out of your database or other storage
-    | system used by the application. Typically, Eloquent is utilized.
-    |
-    | Supported: "session"
+    | A API real é 100% autenticada via Bearer token (validado por função
+    | PL/pgSQL no middleware App\Packages\Auth\Auth\Middlewares\AuthenticateMiddleware,
+    | alias `auth.api` em bootstrap/app.php) — nenhuma rota de `routes/api.php`
+    | usa este guard `web`. Ele NÃO PODE ser removido: `resources/views/welcome.blade.php`
+    | (view padrão do skeleton, servida em `GET /`) usa `@auth`/`@endauth`, que
+    | resolve o guard default do Laravel em toda requisição a `/` — removê-lo
+    | quebra a rota raiz com "Auth guard [web] is not defined." Confirmado ao
+    | tentar remover nesta tarefa: ver Débito Técnico Conhecido no CLAUDE.md.
     |
     */
 
@@ -64,7 +63,7 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' =>  \App\Packages\Admin\Users\Models\User::class,
+            'model' => App\Packages\Admin\Users\Models\User::class,
         ],
 
         // 'users' => [

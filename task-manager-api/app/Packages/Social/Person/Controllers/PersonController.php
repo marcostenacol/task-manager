@@ -4,12 +4,12 @@ namespace App\Packages\Social\Person\Controllers;
 
 use App\Base\Traits\Response;
 use App\Http\Controllers\Controller;
+use App\Packages\Social\Person\Requests\UpdateAvatarRequest;
 use App\Packages\Social\Person\Requests\UpdatePersonRequest;
 use App\Packages\Social\Person\Services\DetailPersonService;
 use App\Packages\Social\Person\Services\UpdateOrCreateAvatarService;
 use App\Packages\Social\Person\Services\UpdatePersonService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class PersonController extends Controller
 {
@@ -45,13 +45,9 @@ class PersonController extends Controller
         }
     }
 
-    public function avatar(Request $request): JsonResponse
+    public function avatar(UpdateAvatarRequest $request): JsonResponse
     {
         try {
-            $request->validate([
-                'avatar' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB
-            ]);
-
             $user = userObject();
             $url = $this->updateOrCreateAvatarService->execute($user->id, $request->file('avatar'));
 
