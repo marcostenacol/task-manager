@@ -24,16 +24,15 @@ install:
 up:
 	@echo "--- Iniciando Backend (API) ---"
 	@$(MAKE) -C task-manager-api up
-	@echo "--- Iniciando Frontend (UI - Background) ---"
-	@$(MAKE) -C task-manager-ui dev > nuxt_output.log 2>&1 &
+	@echo "--- Iniciando Frontend (UI - Docker) ---"
+	@cd task-manager-ui && docker compose --profile main up -d --build
 	@echo "--- Sistema iniciado! Frontend em http://localhost:25565 ---"
-	@echo "--- Logs do frontend disponíveis em: task-manager-ui/nuxt_output.log ---"
 
 down:
 	@echo "--- Parando Backend (API) ---"
 	@$(MAKE) -C task-manager-api down
 	@echo "--- Parando Frontend (UI) ---"
-	@pkill -f "nuxt dev" || true
+	@cd task-manager-ui && docker compose --profile main down
 
 build:
 	@echo "--- Build do Backend ---"
