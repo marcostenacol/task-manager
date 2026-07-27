@@ -2,24 +2,31 @@
 
 namespace App\Packages\Social\Person\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Base\Traits\Response;
-use App\Packages\Social\Person\Services\DetailPersonService;
-use App\Packages\Social\Person\Services\UpdatePersonService;
-use App\Packages\Social\Person\Services\UpdateOrCreateAvatarService;
+use App\Http\Controllers\Controller;
 use App\Packages\Social\Person\Requests\UpdatePersonRequest;
-use Illuminate\Http\Request;
+use App\Packages\Social\Person\Services\DetailPersonService;
+use App\Packages\Social\Person\Services\UpdateOrCreateAvatarService;
+use App\Packages\Social\Person\Services\UpdatePersonService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class PersonController extends Controller
 {
     use Response;
 
+    public function __construct(
+        private DetailPersonService $detailPersonService,
+        private UpdatePersonService $updatePersonService,
+        private UpdateOrCreateAvatarService $updateOrCreateAvatarService,
+    ) {}
+
     public function show(): JsonResponse
     {
         try {
             $user = userObject();
-            $data = app(DetailPersonService::class)->execute($user->id);
+            $data = $this->detailPersonService->execute($user->id);
+
             return self::successResponse($data, 'Perfil recuperado com sucesso.');
         } catch (\Exception $e) {
             return self::returnError($e);
@@ -30,7 +37,8 @@ class PersonController extends Controller
     {
         try {
             $user = userObject();
-            $data = app(UpdatePersonService::class)->execute($user->id, $request->validated());
+            $data = $this->updatePersonService->execute($user->id, $request->validated());
+
             return self::successResponse($data, 'Perfil atualizado com sucesso.');
         } catch (\Exception $e) {
             return self::returnError($e);
@@ -45,8 +53,8 @@ class PersonController extends Controller
             ]);
 
             $user = userObject();
-            $url = app(UpdateOrCreateAvatarService::class)->execute($user->id, $request->file('avatar'));
-            
+            $url = $this->updateOrCreateAvatarService->execute($user->id, $request->file('avatar'));
+
             return self::successResponse(['avatar_url' => $url], 'Avatar atualizado com sucesso.');
         } catch (\Exception $e) {
             return self::returnError($e);
