@@ -14,7 +14,7 @@ install:
 	npm install
 
 dev:
-	npm run dev
+	@export $$(grep -v '^#' .env | xargs) && npm run dev
 
 build:
 	npm run build

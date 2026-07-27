@@ -6,8 +6,8 @@
     </div>
     
     <div class="nav-links" v-if="isAuthenticated">
-      <NuxtLink to="/dashboard" class="nav-link">Dashboard</NuxtLink>
-      <NuxtLink to="/projects" class="nav-link">Projetos</NuxtLink>
+      <NuxtLink to="/tasks" class="nav-link">Dashboard</NuxtLink>
+      <NuxtLink to="/" class="nav-link">Projetos</NuxtLink>
       <NuxtLink to="/tasks" class="nav-link active">Tarefas</NuxtLink>
     </div>
 
@@ -19,8 +19,18 @@
       <template v-else>
         <div class="user-info">
           <span class="user-name">{{ user?.name }}</span>
-          <div class="avatar" @click="logout" title="Sair">
-            {{ user?.name?.charAt(0) || 'U' }}
+          <div class="user-menu-container">
+            <div class="avatar" @click="toggleMenu">
+              {{ user?.name?.charAt(0) || 'U' }}
+            </div>
+            <div v-if="showMenu" class="user-dropdown glass">
+              <NuxtLink to="/profile" class="dropdown-item" @click="showMenu = false">
+                <span class="icon">👤</span> Perfil
+              </NuxtLink>
+              <button class="dropdown-item logout" @click="handleLogout">
+                <span class="icon">🚪</span> Sair
+              </button>
+            </div>
           </div>
         </div>
       </template>
@@ -29,9 +39,20 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useAuth } from '~/modules/auth/hooks/useAuth'
 
 const { user, isAuthenticated, logout } = useAuth()
+const showMenu = ref(false)
+
+const toggleMenu = () => {
+  showMenu.value = !showMenu.value
+}
+
+const handleLogout = () => {
+  showMenu.value = false
+  logout()
+}
 </script>
 
 <style scoped>
@@ -129,6 +150,54 @@ const { user, isAuthenticated, logout } = useAuth()
 
 .avatar:hover {
   transform: scale(1.1);
+}
+
+.user-menu-container {
+  position: relative;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 180px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 0.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.8rem 1rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border-radius: 8px;
+  transition: background 0.2s;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--accent-primary);
+}
+
+.dropdown-item.logout:hover {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.05);
 }
 
 @media (max-width: 768px) {

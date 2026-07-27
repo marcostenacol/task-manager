@@ -114,7 +114,7 @@ services:
 
 networks:
   shared-network:
-    driver: bridge
+    external: true
 
 volumes:
   task-manager-api-redis:

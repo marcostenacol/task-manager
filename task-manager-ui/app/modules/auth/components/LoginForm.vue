@@ -73,10 +73,12 @@ async function handleSubmit() {
   error.value = ''
   try {
     const response = await login(form)
+    console.log('Login response:', response)
     if (!response.success) {
       error.value = response.message || 'Erro ao realizar login.'
     }
   } catch (err: any) {
+    console.error('Login error detail:', err)
     error.value = 'Falha na conexão com o servidor.'
   }
 }

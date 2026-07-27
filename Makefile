@@ -24,13 +24,16 @@ install:
 up:
 	@echo "--- Iniciando Backend (API) ---"
 	@$(MAKE) -C task-manager-api up
-	@echo "--- Iniciando Frontend (UI) ---"
-	@echo "O frontend rodará agora em modo interativo. Pressione Ctrl+C para parar."
-	@$(MAKE) -C task-manager-ui dev
+	@echo "--- Iniciando Frontend (UI - Background) ---"
+	@$(MAKE) -C task-manager-ui dev > nuxt_output.log 2>&1 &
+	@echo "--- Sistema iniciado! Frontend em http://localhost:25565 ---"
+	@echo "--- Logs do frontend disponíveis em: task-manager-ui/nuxt_output.log ---"
 
 down:
 	@echo "--- Parando Backend (API) ---"
 	@$(MAKE) -C task-manager-api down
+	@echo "--- Parando Frontend (UI) ---"
+	@pkill -f "nuxt dev" || true
 
 build:
 	@echo "--- Build do Backend ---"
