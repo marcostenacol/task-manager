@@ -20,8 +20,8 @@ services:
         ID_USER_LINUX: ${ID_USER_LINUX:-1001}
         APP_ENV: ${APP_ENV:-local}
     ports:
-      - "${NGINX_PORT:-80}:80"
-      - "${NGINX_HTTPS_PORT:-443}:443"
+      - "127.0.0.1:${NGINX_PORT:-80}:80"
+      - "127.0.0.1:${NGINX_HTTPS_PORT:-443}:443"
     container_name: "${PREFIX:-task-manager}_${NGINX_CONTAINER_NAME:-api_nginx}"
     environment:
       SERVICE_NAME: task-manager_api_nginx
@@ -42,12 +42,11 @@ services:
     <<: *defaults
     shm_size: 256m
     build:
-      context: .docker/php
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: .docker/php/Dockerfile
       args:
         ID_GROUP_LINUX: ${ID_GROUP_LINUX:-1001}
         ID_USER_LINUX: ${ID_USER_LINUX:-1001}
-        PHP_VERSION: ${PHP_VERSION:-8.4}
     container_name: "${PREFIX:-task-manager}_${PHP_CONTAINER_NAME:-api_php}"
     environment:
       SERVICE_NAME: api
@@ -76,7 +75,7 @@ services:
       context: .docker/redis
       dockerfile: Dockerfile
     ports:
-      - '${FORWARD_REDIS_PORT:-6379}:6379'
+      - '127.0.0.1:${FORWARD_REDIS_PORT:-6379}:6379'
     container_name: "${PREFIX:-task-manager}_${REDIS_CONTAINER_NAME:-redis}"
     environment:
       TZ: "${APP_TIMEZONE:-America/Boa_Vista}"
