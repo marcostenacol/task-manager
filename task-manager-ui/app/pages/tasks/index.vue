@@ -32,7 +32,9 @@ onMounted(async () => {
     fetchTasks();
     try {
         statuses.value = await TaskService.getStatuses();
-    } catch (error) {}
+    } catch {
+        // Falha ao carregar status para o Kanban não é crítica para a listagem
+    }
 });
 </script>
 
@@ -49,8 +51,8 @@ onMounted(async () => {
                 </div>
                 
                 <button 
-                    @click="openCreateModal"
                     class="group relative inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold transition-all shadow-xl shadow-blue-500/20 active:scale-95"
+                    @click="openCreateModal"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
@@ -63,29 +65,29 @@ onMounted(async () => {
             <div class="flex items-center justify-between mb-8">
                 <div class="inline-flex p-1 bg-white/5 border border-white/10 rounded-xl">
                     <button 
-                        @click="viewMode = 'list'"
                         class="px-4 py-1.5 rounded-lg text-sm font-semibold transition-all"
                         :class="viewMode === 'list' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'"
+                        @click="viewMode = 'list'"
                     >
                         Lista
                     </button>
                     <button 
-                        @click="viewMode = 'kanban'"
                         class="px-4 py-1.5 rounded-lg text-sm font-semibold transition-all"
                         :class="viewMode === 'kanban' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'"
+                        @click="viewMode = 'kanban'"
                     >
                         Kanban
                     </button>
                 </div>
 
                 <div v-if="viewMode === 'list'">
-                    <TaskFilters :filters="filters" @apply="applyFilters" />
+                    <TaskFilters v-model:filters="filters" @apply="applyFilters" />
                 </div>
             </div>
 
             <!-- Content -->
             <div v-if="loading" class="flex flex-col items-center justify-center py-20">
-                <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500/20 border-t-blue-500"></div>
+                <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500/20 border-t-blue-500"/>
                 <p class="text-slate-500 mt-4 font-medium">Carregando suas tarefas...</p>
             </div>
 
@@ -120,8 +122,8 @@ onMounted(async () => {
                         Parece que você está com tudo em dia! Que tal criar uma nova tarefa para começar?
                     </p>
                     <button 
-                        @click="openCreateModal"
                         class="mt-6 text-blue-400 hover:text-blue-300 font-medium transition-colors"
+                        @click="openCreateModal"
                     >
                         Criar minha primeira tarefa →
                     </button>

@@ -5,7 +5,7 @@
       <span class="logo-text">TaskMaster</span>
     </div>
     
-    <div class="nav-links" v-if="isAuthenticated">
+    <div v-if="isAuthenticated" class="nav-links">
       <NuxtLink to="/tasks" class="nav-link">Dashboard</NuxtLink>
       <NuxtLink to="/" class="nav-link">Projetos</NuxtLink>
       <NuxtLink to="/tasks" class="nav-link active">Tarefas</NuxtLink>

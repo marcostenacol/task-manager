@@ -5,7 +5,7 @@
       <p>Entre com suas credenciais para continuar</p>
     </div>
 
-    <form @submit.prevent="handleSubmit" class="auth-form">
+    <form class="auth-form" @submit.prevent="handleSubmit">
       <div class="input-group">
         <label for="email">E-mail</label>
         <div class="input-wrapper">
@@ -16,7 +16,7 @@
             type="email" 
             placeholder="seu@email.com" 
             required 
-          />
+          >
         </div>
       </div>
 
@@ -30,13 +30,13 @@
             type="password" 
             placeholder="••••••••" 
             required 
-          />
+          >
         </div>
       </div>
 
       <div class="auth-actions">
         <label class="remember-me">
-          <input type="checkbox" v-model="form.remember" />
+          <input v-model="form.remember" type="checkbox" >
           <span>Lembrar de mim</span>
         </label>
         <a href="#" class="forgot-password">Esqueceu a senha?</a>
@@ -44,7 +44,7 @@
 
       <button type="submit" class="btn-auth" :disabled="loading">
         <span v-if="!loading">Entrar</span>
-        <span v-else class="loader"></span>
+        <span v-else class="loader"/>
       </button>
 
       <div v-if="error" class="error-message">

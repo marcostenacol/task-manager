@@ -71,9 +71,9 @@ const roleColors: any = {
                         <div class="flex justify-end gap-2">
                             <button 
                                 v-if="user.status.slug !== 'banned'"
-                                @click="emit('ban', user)"
                                 class="p-2 text-slate-400 hover:text-rose-400 transition-colors"
                                 title="Banir"
+                                @click="emit('ban', user)"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M13.477 14.89A6 6 0 015.11 6.524l8.367 8.368zm1.414-1.414L6.524 5.11a6 6 0 018.367 8.367zM18 10a8 8 0 11-16 0 8 8 0 0116 0z" clip-rule="evenodd" />
@@ -81,18 +81,18 @@ const roleColors: any = {
                             </button>
                             <button 
                                 v-else
-                                @click="emit('activate', user)"
                                 class="p-2 text-slate-400 hover:text-emerald-400 transition-colors"
                                 title="Ativar"
+                                @click="emit('activate', user)"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                                 </svg>
                             </button>
                             <button 
-                                @click="emit('view', user)"
                                 class="p-2 text-slate-400 hover:text-blue-400 transition-colors"
                                 title="Detalhes"
+                                @click="emit('view', user)"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                     <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />

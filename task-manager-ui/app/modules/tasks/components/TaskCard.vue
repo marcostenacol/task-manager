@@ -35,7 +35,7 @@ const formatDate = (date: string) => {
         <div 
             class="absolute top-0 left-0 w-1 h-full"
             :class="[priorityColors[task.priority.slug] || 'bg-slate-500']"
-        ></div>
+        />
 
         <div class="flex flex-col gap-3">
             <div class="flex justify-between items-start gap-4">

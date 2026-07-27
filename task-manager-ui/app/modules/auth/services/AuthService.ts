@@ -1,4 +1,4 @@
-import type { LoginResponse, User } from '../models/auth'
+import type { LoginResponse } from '../models/auth'
 
 export const AuthService = {
   async login(credentials: any): Promise<LoginResponse> {

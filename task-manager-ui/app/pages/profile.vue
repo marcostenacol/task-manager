@@ -9,13 +9,13 @@
 
     <main class="container">
       <div v-if="loading && !profile" class="loading-state">
-        <div class="spinner"></div>
+        <div class="spinner"/>
         <p>Carregando perfil...</p>
       </div>
 
       <div v-else-if="error" class="error-state">
         <p>{{ error }}</p>
-        <button @click="fetchProfile" class="btn-retry">Tentar Novamente</button>
+        <button class="btn-retry" @click="fetchProfile">Tentar Novamente</button>
       </div>
 
       <div v-else-if="profile" class="profile-grid">
@@ -25,8 +25,8 @@
           <AvatarUpload 
             :current-avatar="profile?.avatar_url" 
             :loading="loading" 
-            @upload="uploadAvatar" 
-            class="mt-2"
+            class="mt-2" 
+            @upload="uploadAvatar"
           />
         </div>
 
@@ -40,9 +40,9 @@
           <ContactsSection 
             :contacts="profile?.contacts || []" 
             :loading="loading" 
+            class="mt-2"
             @add="addContact"
             @remove="removeContact"
-            class="mt-2"
           />
         </div>
       </div>

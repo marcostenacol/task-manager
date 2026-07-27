@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import type { Task, TaskStatus } from '../models/task';
 import TaskCard from './TaskCard.vue';
 import { TaskService } from '../services/TaskService';

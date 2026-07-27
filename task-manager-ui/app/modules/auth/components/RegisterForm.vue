@@ -5,7 +5,7 @@
       <p>Junte-se a nós e comece a organizar sua vida</p>
     </div>
 
-    <form @submit.prevent="handleSubmit" class="auth-form">
+    <form class="auth-form" @submit.prevent="handleSubmit">
       <div class="input-group">
         <label for="name">Nome Completo</label>
         <div class="input-wrapper">
@@ -16,7 +16,7 @@
             type="text" 
             placeholder="Seu nome" 
             required 
-          />
+          >
         </div>
       </div>
 
@@ -30,7 +30,7 @@
             type="email" 
             placeholder="seu@email.com" 
             required 
-          />
+          >
         </div>
       </div>
 
@@ -44,13 +44,13 @@
             type="password" 
             placeholder="Mínimo 8 caracteres" 
             required 
-          />
+          >
         </div>
       </div>
 
       <button type="submit" class="btn-auth" :disabled="loading">
         <span v-if="!loading">Criar Conta</span>
-        <span v-else class="loader"></span>
+        <span v-else class="loader"/>
       </button>
 
       <div v-if="error" class="error-message">
@@ -87,7 +87,7 @@ async function handleSubmit() {
     } else {
       error.value = response.message || 'Erro ao realizar cadastro.'
     }
-  } catch (err: any) {
+  } catch {
     error.value = 'Falha na conexão ou e-mail já em uso.'
   } finally {
     loading.value = false

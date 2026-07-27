@@ -12,8 +12,8 @@
       </div>
       
       <input 
-        type="file" 
         ref="fileInput" 
+        type="file" 
         style="display: none" 
         accept="image/*" 
         @change="handleFileChange"
@@ -26,11 +26,11 @@
     </div>
     
     <div v-if="selectedFile" class="actions">
-      <button @click="upload" :disabled="loading" class="btn-upload">
+      <button :disabled="loading" class="btn-upload" @click="upload">
         <span v-if="loading">Enviando...</span>
         <span v-else>Confirmar Novo Avatar</span>
       </button>
-      <button @click="cancel" :disabled="loading" class="btn-cancel">Cancelar</button>
+      <button :disabled="loading" class="btn-cancel" @click="cancel">Cancelar</button>
     </div>
   </div>
 </template>
@@ -38,7 +38,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const props = defineProps<{
+defineProps<{
   currentAvatar: string | null | undefined
   loading: boolean
 }>()

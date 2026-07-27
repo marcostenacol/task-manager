@@ -26,7 +26,7 @@
         <p class="role-text">{{ profile?.role?.name }}</p>
       </div>
       
-      <div class="info-group" v-if="profile?.bio">
+      <div v-if="profile?.bio" class="info-group">
         <label>Bio</label>
         <p class="bio-text">{{ profile.bio }}</p>
       </div>

@@ -1,8 +1,8 @@
 <template>
   <div class="register-page">
     <div class="bg-decoration">
-      <div class="circle circle-1"></div>
-      <div class="circle circle-2"></div>
+      <div class="circle circle-1"/>
+      <div class="circle circle-2"/>
     </div>
     
     <NuxtLink to="/" class="back-home">

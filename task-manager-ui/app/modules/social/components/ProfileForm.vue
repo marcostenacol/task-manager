@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="handleSubmit" class="profile-form glass">
+  <form class="profile-form glass" @submit.prevent="handleSubmit">
     <h3 class="form-title">Editar Perfil</h3>
     
     <div class="form-group">
@@ -22,7 +22,7 @@
         placeholder="Conte um pouco sobre você..."
         rows="4"
         class="form-input textarea"
-      ></textarea>
+      />
     </div>
     
     <div class="form-actions">

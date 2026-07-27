@@ -60,7 +60,7 @@ const handleSave = async () => {
 <template>
     <div v-if="show" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
         <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('close')"></div>
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('close')"/>
 
         <!-- Modal Content -->
         <div class="relative bg-slate-900 border border-white/10 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl">
@@ -69,14 +69,14 @@ const handleSave = async () => {
                     <h2 class="text-2xl font-bold text-white">
                         {{ taskId ? 'Editar Tarefa' : 'Nova Tarefa' }}
                     </h2>
-                    <button @click="emit('close')" class="text-slate-400 hover:text-white transition-colors">
+                    <button class="text-slate-400 hover:text-white transition-colors" @click="emit('close')">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
-                <form @submit.prevent="handleSave" class="space-y-5">
+                <form class="space-y-5" @submit.prevent="handleSave">
                     <div>
                         <label class="block text-sm font-medium text-slate-400 mb-1.5">Título</label>
                         <input 
@@ -84,7 +84,7 @@ const handleSave = async () => {
                             type="text" 
                             class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                             placeholder="O que precisa ser feito?"
-                        />
+                        >
                         <span v-if="errors?.title" class="text-xs text-rose-500 mt-1">{{ errors.title[0] }}</span>
                     </div>
 
@@ -95,7 +95,7 @@ const handleSave = async () => {
                             rows="3"
                             class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none"
                             placeholder="Adicione mais detalhes..."
-                        ></textarea>
+                        />
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
@@ -132,14 +132,14 @@ const handleSave = async () => {
                             v-model="form.due_date" 
                             type="datetime-local" 
                             class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                        />
+                        >
                     </div>
 
                     <div class="pt-4 flex gap-3">
                         <button 
                             type="button" 
-                            @click="emit('close')"
                             class="flex-1 px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-semibold transition-all border border-white/10"
+                            @click="emit('close')"
                         >
                             Cancelar
                         </button>

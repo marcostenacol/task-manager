@@ -2,9 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { TaskService } from '../services/TaskService';
 
-const props = defineProps<{
-    filters: any
-}>();
+const filters = defineModel<Record<string, unknown>>('filters', { required: true });
 
 const emit = defineEmits(['apply']);
 
@@ -34,7 +32,7 @@ onMounted(async () => {
                 placeholder="Pesquisar tarefas..."
                 class="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                 @input="emit('apply')"
-            />
+            >
         </div>
 
         <div class="w-40">

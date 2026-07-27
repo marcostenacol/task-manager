@@ -1,4 +1,4 @@
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive } from 'vue';
 import type { Task, TaskFilters } from '../models/task';
 import { TaskService } from '../services/TaskService';
 

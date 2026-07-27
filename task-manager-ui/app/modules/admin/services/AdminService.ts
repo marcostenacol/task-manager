@@ -1,4 +1,4 @@
-import type { AdminUser, AdminUserFilters } from '../models/admin';
+import type { AdminUserFilters } from '../models/admin';
 
 export const AdminService = {
     async listUsers(filters: AdminUserFilters) {

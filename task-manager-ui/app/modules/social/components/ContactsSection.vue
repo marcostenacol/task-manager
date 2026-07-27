@@ -2,7 +2,7 @@
   <div class="contacts-section glass">
     <div class="section-header">
       <h3 class="title">Contatos</h3>
-      <button @click="showAddForm = !showAddForm" class="btn-toggle">
+      <button class="btn-toggle" @click="showAddForm = !showAddForm">
         {{ showAddForm ? 'Cancelar' : '+ Adicionar' }}
       </button>
     </div>
@@ -33,9 +33,9 @@
           </div>
         </div>
         <button 
-          @click="handleAdd" 
           :disabled="loading || !newContact.value" 
-          class="btn-save"
+          class="btn-save" 
+          @click="handleAdd"
         >
           Salvar Contato
         </button>
@@ -55,7 +55,7 @@
             <span class="contact-value">{{ contact.value }}</span>
           </div>
         </div>
-        <button @click="emit('remove', contact.id)" :disabled="loading" class="btn-remove">
+        <button :disabled="loading" class="btn-remove" @click="emit('remove', contact.id)">
           🗑️
         </button>
       </div>
@@ -67,7 +67,7 @@
 import { ref } from 'vue'
 import type { UserContact, UpsertContactData } from '../models/social'
 
-const props = defineProps<{
+defineProps<{
   contacts: UserContact[]
   loading: boolean
 }>()

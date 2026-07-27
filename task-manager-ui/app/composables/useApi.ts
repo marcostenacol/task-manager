@@ -1,4 +1,4 @@
-import { type FetchOptions } from 'ofetch'
+import type { FetchOptions } from 'ofetch'
 
 export const useApi = async <T>(url: string, options: FetchOptions = {}) => {
   const config = useRuntimeConfig()
@@ -28,7 +28,7 @@ export const useApi = async <T>(url: string, options: FetchOptions = {}) => {
             // Recarrega a página ou repete a requisição (simplificado: recarrega)
             window.location.reload()
           }
-        } catch (err) {
+        } catch {
           // Se falhar o refresh, limpa tudo e vai para login
           token.value = null
           refreshToken.value = null
