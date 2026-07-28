@@ -80,7 +80,6 @@ onMounted(() => {
 
 <style scoped>
 .profile-page {
-  min-height: 100vh;
   padding-bottom: 4rem;
 }
 
