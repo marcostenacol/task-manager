@@ -11,23 +11,27 @@
 
     <div class="feature-cards">
       <div class="card floating">
-        <div class="card-icon">🎯</div>
+        <Target class="card-icon" :size="32" />
         <h3>Foco Total</h3>
         <p>Priorize o que importa com o nosso sistema de tags inteligentes.</p>
       </div>
       <div class="card floating delay-1">
-        <div class="card-icon">📊</div>
+        <BarChart3 class="card-icon" :size="32" />
         <h3>Métricas Reais</h3>
         <p>Acompanhe seu desempenho com gráficos detalhados em tempo real.</p>
       </div>
       <div class="card floating delay-2">
-        <div class="card-icon">⚡</div>
+        <Zap class="card-icon" :size="32" />
         <h3>Performance</h3>
         <p>Backend robusto em Laravel garantindo respostas em milissegundos.</p>
       </div>
     </div>
   </main>
 </template>
+
+<script setup lang="ts">
+import { BarChart3, Target, Zap } from 'lucide-vue-next'
+</script>
 
 <style scoped>
 .hero-section {
@@ -122,8 +126,8 @@
 }
 
 .card-icon {
-  font-size: 2rem;
   margin-bottom: 1.5rem;
+  color: var(--accent-primary);
 }
 
 .card h3 {

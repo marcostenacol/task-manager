@@ -49,14 +49,14 @@
       </div>
       <div v-for="contact in contacts" :key="contact.id" class="contact-item">
         <div class="contact-info">
-          <span class="contact-type-icon">{{ getIcon(contact.type) }}</span>
+          <component :is="getIconComponent(contact.type)" class="contact-type-icon" :size="20" />
           <div class="contact-details">
             <span class="contact-type-name">{{ contact.type }}</span>
             <span class="contact-value">{{ contact.value }}</span>
           </div>
         </div>
         <button :disabled="loading" class="btn-remove" @click="emit('remove', contact.id)">
-          🗑️
+          <Trash2 :size="18" />
         </button>
       </div>
     </div>
@@ -65,6 +65,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { Component } from 'vue'
+import { Bookmark, Github, Linkedin, Mail, MessageCircle, Phone, Trash2 } from 'lucide-vue-next'
 import type { UserContact, UpsertContactData } from '../models/social'
 
 defineProps<{
@@ -84,16 +86,17 @@ const newContact = ref<UpsertContactData>({
   is_primary: false
 })
 
-const getIcon = (type: string) => {
-  const icons: Record<string, string> = {
-    phone: '📞',
-    whatsapp: '💬',
-    email: '✉️',
-    linkedin: '🔗',
-    github: '💻',
-    other: '📌'
-  }
-  return icons[type] || '📌'
+const contactTypeIcons: Record<string, Component> = {
+  phone: Phone,
+  whatsapp: MessageCircle,
+  email: Mail,
+  linkedin: Linkedin,
+  github: Github,
+  other: Bookmark
+}
+
+const getIconComponent = (type: string): Component => {
+  return contactTypeIcons[type] || Bookmark
 }
 
 const handleAdd = () => {
@@ -225,7 +228,8 @@ const handleAdd = () => {
 }
 
 .contact-type-icon {
-  font-size: 1.2rem;
+  color: var(--text-primary);
+  flex-shrink: 0;
 }
 
 .contact-details {
@@ -251,6 +255,9 @@ const handleAdd = () => {
   cursor: pointer;
   opacity: 0.5;
   transition: opacity 0.3s;
+  display: flex;
+  align-items: center;
+  color: var(--text-primary);
 }
 
 .btn-remove:hover {

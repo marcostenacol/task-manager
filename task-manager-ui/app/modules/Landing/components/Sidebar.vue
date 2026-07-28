@@ -1,7 +1,7 @@
 <template>
   <aside class="sidebar">
     <div class="brand">
-      <span class="brand-icon">🚀</span>
+      <Rocket class="brand-icon" :size="20" />
       <span class="brand-text">TaskMaster</span>
     </div>
 
@@ -20,6 +20,8 @@
 </template>
 
 <script setup lang="ts">
+import { Rocket } from 'lucide-vue-next'
+
 const route = useRoute()
 
 const navItems = [
@@ -56,7 +58,7 @@ function isActive(to: string): boolean {
 }
 
 .brand-icon {
-  font-size: 1.25rem;
+  color: var(--accent);
 }
 
 .nav {

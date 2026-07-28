@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <div class="logo" @click="navigateTo('/')">
-      <span class="logo-icon">🚀</span>
+      <Rocket class="logo-icon" :size="24" />
       <span class="logo-text">TaskMaster</span>
     </div>
     
@@ -25,10 +25,10 @@
             </div>
             <div v-if="showMenu" class="user-dropdown glass">
               <NuxtLink to="/profile" class="dropdown-item" @click="showMenu = false">
-                <span class="icon">👤</span> Perfil
+                <User class="icon" :size="18" /> Perfil
               </NuxtLink>
               <button class="dropdown-item logout" @click="handleLogout">
-                <span class="icon">🚪</span> Sair
+                <LogOut class="icon" :size="18" /> Sair
               </button>
             </div>
           </div>
@@ -40,6 +40,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { LogOut, Rocket, User } from 'lucide-vue-next'
 import { useAuth } from '~/modules/auth/hooks/useAuth'
 
 const { user, isAuthenticated, logout } = useAuth()
@@ -77,6 +78,14 @@ const handleLogout = () => {
   font-weight: 800;
   letter-spacing: -0.5px;
   cursor: pointer;
+}
+
+.logo-icon {
+  color: var(--accent-primary);
+}
+
+.icon {
+  flex-shrink: 0;
 }
 
 .logo-text {

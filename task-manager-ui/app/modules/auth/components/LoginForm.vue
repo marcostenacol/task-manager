@@ -9,7 +9,7 @@
       <div class="input-group">
         <label for="email">E-mail</label>
         <div class="input-wrapper">
-          <span class="icon">📧</span>
+          <Mail class="icon" :size="18" />
           <input 
             id="email" 
             v-model="form.email" 
@@ -23,7 +23,7 @@
       <div class="input-group">
         <label for="password">Senha</label>
         <div class="input-wrapper">
-          <span class="icon">🔒</span>
+          <Lock class="icon" :size="18" />
           <input 
             id="password" 
             v-model="form.password" 
@@ -59,6 +59,7 @@
 </template>
 
 <script setup lang="ts">
+import { Lock, Mail } from 'lucide-vue-next'
 import { useAuth } from '../hooks/useAuth'
 
 const { login, loading } = useAuth()
@@ -141,7 +142,6 @@ async function handleSubmit() {
 .input-wrapper .icon {
   position: absolute;
   left: 1rem;
-  font-size: 1.1rem;
   opacity: 0.7;
 }
 

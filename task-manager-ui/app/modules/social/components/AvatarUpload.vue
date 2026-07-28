@@ -5,7 +5,7 @@
     <div class="upload-container">
       <div class="preview-area" @click="triggerFileInput">
         <img v-if="previewUrl || currentAvatar" :src="previewUrl || currentAvatar" alt="Preview" class="preview-img">
-        <div v-else class="placeholder-icon">📷</div>
+        <Camera v-else class="placeholder-icon" :size="40" />
         <div class="overlay">
           <span>Alterar</span>
         </div>
@@ -37,6 +37,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { Camera } from 'lucide-vue-next'
 
 defineProps<{
   currentAvatar: string | null | undefined
@@ -129,7 +130,7 @@ const cancel = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.5rem;
+  color: var(--text-secondary);
 }
 
 .overlay {
