@@ -1,4 +1,4 @@
-import type { UserProfile } from '../models/social';
+import type { UserProfile, UpsertContactData } from '../models/social';
 
 export const SocialService = {
     async getProfile() {
@@ -20,5 +20,13 @@ export const SocialService = {
 
     async updateContacts(contacts: any[]) {
         return useApi('/v1/social/contacts', { method: 'PUT', body: { contacts } });
+    },
+
+    async addContact(data: UpsertContactData) {
+        return useApi('/v1/social/contacts', { method: 'POST', body: data });
+    },
+
+    async removeContact(id: string) {
+        return useApi(`/v1/social/contacts/${id}`, { method: 'DELETE' });
     }
 };

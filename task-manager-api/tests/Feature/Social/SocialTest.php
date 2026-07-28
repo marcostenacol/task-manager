@@ -96,3 +96,23 @@ test('deve gerenciar contatos', function () {
     // O contato antigo (linkedin) deve ter sido removido pelo UpdateContactsService
     $this->assertDatabaseMissing('social.user_contacts', ['id' => $contactId]);
 });
+
+test('deve remover um contato individualmente', function () {
+    $response = withToken($this->token)
+        ->postJson('/api/v1/social/contacts', [
+            'type' => 'email',
+            'value' => 'contato@exemplo.com',
+            'is_primary' => false,
+        ]);
+
+    $response->assertStatus(200);
+    $contactId = $response->json('data.id');
+
+    $responseDelete = withToken($this->token)
+        ->deleteJson("/api/v1/social/contacts/{$contactId}");
+
+    $responseDelete->assertStatus(200)
+        ->assertJsonPath('success', true);
+
+    $this->assertDatabaseMissing('social.user_contacts', ['id' => $contactId]);
+});

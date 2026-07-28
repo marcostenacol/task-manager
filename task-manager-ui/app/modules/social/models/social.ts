@@ -5,6 +5,14 @@ export interface Contact {
     is_primary: boolean;
 }
 
+export type UserContact = Contact;
+
+export interface UpsertContactData {
+    type: string;
+    value: string;
+    is_primary?: boolean;
+}
+
 export interface UserProfile {
     id: string;
     name: string;

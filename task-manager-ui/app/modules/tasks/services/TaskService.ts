@@ -8,19 +8,23 @@ export const TaskService = {
     },
 
     async show(id: string): Promise<Task> {
-        return useApi(`${prefix}/${id}`);
+        const response = await useApi<{ data: Task }>(`${prefix}/${id}`);
+        return response.data;
     },
 
     async create(data: Partial<Task>): Promise<Task> {
-        return useApi(prefix, { method: 'POST', body: data });
+        const response = await useApi<{ data: Task }>(prefix, { method: 'POST', body: data });
+        return response.data;
     },
 
     async update(id: string, data: Partial<Task>): Promise<Task> {
-        return useApi(`${prefix}/${id}`, { method: 'PUT', body: data });
+        const response = await useApi<{ data: Task }>(`${prefix}/${id}`, { method: 'PUT', body: data });
+        return response.data;
     },
 
     async updateStatus(id: string, statusId: string): Promise<Task> {
-        return useApi(`${prefix}/${id}/status`, { method: 'PATCH', body: { status_id: statusId } });
+        const response = await useApi<{ data: Task }>(`${prefix}/${id}/status`, { method: 'PATCH', body: { status_id: statusId } });
+        return response.data;
     },
 
     async delete(id: string): Promise<void> {
@@ -29,10 +33,12 @@ export const TaskService = {
 
     // Auxiliares para carregar opções
     async getStatuses(): Promise<any[]> {
-        return useApi('/v1/task-statuses');
+        const response = await useApi<{ data: any[] }>('/v1/task-statuses');
+        return response.data;
     },
 
     async getPriorities(): Promise<any[]> {
-        return useApi('/v1/task-priorities');
+        const response = await useApi<{ data: any[] }>('/v1/task-priorities');
+        return response.data;
     }
 };

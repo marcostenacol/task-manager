@@ -23,7 +23,7 @@
         <div class="column">
           <ProfileCard :profile="profile" />
           <AvatarUpload 
-            :current-avatar="profile?.avatar_url" 
+            :current-avatar="profile?.avatar_path"
             :loading="loading" 
             class="mt-2" 
             @upload="uploadAvatar"

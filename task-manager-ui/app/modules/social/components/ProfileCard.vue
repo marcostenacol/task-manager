@@ -2,7 +2,7 @@
   <div class="profile-card glass">
     <div class="card-header">
       <div class="avatar-container">
-        <img v-if="profile?.avatar_url" :src="profile.avatar_url" alt="Avatar" class="profile-avatar">
+        <img v-if="profile?.avatar_path" :src="profile.avatar_path" alt="Avatar" class="profile-avatar">
         <div v-else class="profile-avatar-placeholder">
           {{ profile?.name?.charAt(0).toUpperCase() }}
         </div>
