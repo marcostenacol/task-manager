@@ -39,3 +39,4 @@ nuxt_output.log
 nuxt_debug.log
 Makefile.save
 task-manager-api/.docker/nginx/logs/
+.worktrees/
