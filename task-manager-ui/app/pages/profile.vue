@@ -98,14 +98,14 @@ onMounted(() => {
 .title {
   font-size: 2.5rem;
   font-weight: 800;
-  background: linear-gradient(135deg, var(--text-primary), var(--accent-primary));
+  background: linear-gradient(135deg, var(--ink), var(--accent));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 0.5rem;
 }
 
 .subtitle {
-  color: var(--text-secondary);
+  color: var(--muted);
   font-size: 1.1rem;
 }
 
@@ -139,7 +139,7 @@ onMounted(() => {
   width: 40px;
   height: 40px;
   border: 4px solid rgba(56, 189, 248, 0.1);
-  border-top-color: var(--accent-primary);
+  border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: 1rem;
@@ -152,7 +152,7 @@ onMounted(() => {
 .btn-retry {
   margin-top: 1rem;
   padding: 0.6rem 1.2rem;
-  background: var(--accent-primary);
+  background: var(--accent);
   color: #000;
   border: none;
   border-radius: 10px;
