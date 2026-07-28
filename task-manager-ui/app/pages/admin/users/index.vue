@@ -15,6 +15,7 @@
 import UserTable from '~/modules/admin/components/UserTable.vue'
 
 definePageMeta({
+  layout: false,
   middleware: 'auth'
 })
 

@@ -19,6 +19,7 @@
 import LoginForm from '~/modules/auth/components/LoginForm.vue'
 
 definePageMeta({
+  layout: false,
   middleware: ['auth']
 })
 </script>

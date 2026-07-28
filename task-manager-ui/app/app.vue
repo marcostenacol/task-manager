@@ -26,8 +26,8 @@ useHead({
 
 body {
   font-family: var(--font-primary);
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+  background-color: var(--bg);
+  color: var(--ink);
 }
 
 h1, h2, h3, h4, .font-outfit {

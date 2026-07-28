@@ -141,7 +141,7 @@ onMounted(async () => {
 
 <style scoped>
 .gradient-title {
-    background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+    background: linear-gradient(135deg, var(--ink), var(--accent));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }

@@ -19,6 +19,7 @@
 import RegisterForm from '~/modules/auth/components/RegisterForm.vue'
 
 definePageMeta({
+  layout: false,
   middleware: ['auth']
 })
 </script>

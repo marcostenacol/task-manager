@@ -44,8 +44,8 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
+  background-color: var(--bg);
+  color: var(--ink);
   line-height: 1.6;
   overflow-x: hidden;
 }
