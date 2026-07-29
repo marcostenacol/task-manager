@@ -48,7 +48,11 @@ class PermissionSeeder extends Seeder
 
         $ownerRole = Role::withTrashed()->where('slug', 'owner')->first();
         $adminRole = Role::withTrashed()->where('slug', 'admin')->first();
+        $orgAdminRole = Role::withTrashed()->where('slug', 'org-admin')->first();
         $userRole = Role::withTrashed()->where('slug', 'user')->first();
+
+        // Permissões que afetam a plataforma inteira (não escopáveis por organization)
+        $globalOnlyPermissions = ['admin.roles.manage', 'admin.settings.manage'];
 
         foreach ($permissions as $perm) {
             $permission = Permission::firstOrCreate(
@@ -69,6 +73,14 @@ class PermissionSeeder extends Seeder
                 'role_id' => $adminRole->id,
                 'permission_id' => $permission->id,
             ]);
+
+            // Org Admin gets everything except platform-wide-only permissions
+            if ($orgAdminRole && ! in_array($perm['name'], $globalOnlyPermissions)) {
+                DB::table('admin.role_has_permissions')->updateOrInsert([
+                    'role_id' => $orgAdminRole->id,
+                    'permission_id' => $permission->id,
+                ]);
+            }
 
             // User gets specific permissions
             if (str_starts_with($perm['name'], 'task.') || str_starts_with($perm['name'], 'social.')) {
