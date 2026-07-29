@@ -1,5 +1,8 @@
 <?php
 
+use App\Packages\Admin\AuditLogs\Controllers\AuditLogController;
+use App\Packages\Admin\Permissions\Controllers\PermissionController;
+use App\Packages\Admin\Roles\Controllers\RoleController;
 use App\Packages\Admin\Users\Controllers\AdminUserController;
 use App\Packages\Auth\Auth\Controllers\LoginController;
 use App\Packages\Auth\Auth\Controllers\LogoutController;
@@ -61,9 +64,21 @@ Route::group(['prefix' => 'v1', 'as' => 'v1.', 'middleware' => 'throttle:api'], 
         Route::get('task-priorities', [PriorityController::class, 'index'])->name('task-priorities.index');
 
         Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
+            Route::get('roles', [RoleController::class, 'index'])->middleware('auth.api:admin.users.list')->name('roles.index');
+            Route::get('audit-logs', [AuditLogController::class, 'index'])->middleware('auth.api:admin.audit-logs.list')->name('audit-logs.index');
+            Route::get('permissions', [PermissionController::class, 'index'])->middleware('auth.api:admin.roles.manage')->name('permissions.index');
+
+            Route::group(['prefix' => 'roles', 'as' => 'roles.', 'middleware' => 'auth.api:admin.roles.manage'], function () {
+                Route::get('{id}', [RoleController::class, 'show'])->name('show');
+                Route::post('/', [RoleController::class, 'store'])->name('store');
+                Route::put('{id}/permissions', [RoleController::class, 'syncPermissions'])->name('sync-permissions');
+            });
+
             Route::group(['prefix' => 'users', 'as' => 'users.'], function () {
                 Route::get('/', [AdminUserController::class, 'index'])->middleware('auth.api:admin.users.list')->name('index');
+                Route::post('/', [AdminUserController::class, 'store'])->middleware('auth.api:admin.users.create')->name('store');
                 Route::get('{id}', [AdminUserController::class, 'show'])->middleware('auth.api:admin.users.show')->name('show');
+                Route::put('{id}', [AdminUserController::class, 'update'])->middleware('auth.api:admin.users.update')->name('update');
                 Route::post('{id}/ban', [AdminUserController::class, 'ban'])->middleware('auth.api:admin.users.ban')->name('ban');
                 Route::post('{id}/activate', [AdminUserController::class, 'activate'])->middleware('auth.api:admin.users.activate')->name('activate');
                 Route::patch('{id}/role', [AdminUserController::class, 'changeRole'])->middleware('auth.api:admin.users.role')->name('change-role');
