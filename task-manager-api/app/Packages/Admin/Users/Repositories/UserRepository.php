@@ -38,6 +38,7 @@ class UserRepository extends BaseRepository
                     R.name as role_name,
                     R.slug as role_slug,
                     R.level as role_level,
+                    R.color as role_color,
                     S.name as status_name,
                     S.slug as status_slug
                 FROM admin.users U

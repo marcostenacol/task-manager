@@ -13,19 +13,23 @@ class UpdateRoleLevelService
         private RecordAuditLogService $recordAuditLogService,
     ) {}
 
-    public function execute(string $roleId, int $level, string $actorId): Role
+    public function execute(string $roleId, int $level, string $actorId, ?string $color = null): Role
     {
-        return DB::transaction(function () use ($roleId, $level, $actorId) {
+        return DB::transaction(function () use ($roleId, $level, $actorId, $color) {
             $actor = User::with('role')->findOrFail($actorId);
             $role = Role::findOrFail($roleId);
 
             $this->guardAgainstEditingSuperiorOrEqual($actor, $role);
             $this->guardAgainstElevatingAboveActor($actor, $level);
 
-            $role->update(['level' => $level]);
+            $role->update(array_filter([
+                'level' => $level,
+                'color' => $color,
+            ], fn ($value) => $value !== null));
 
             $this->recordAuditLogService->execute($actorId, 'role.level_update', 'Role', $role->id, [
                 'level' => $level,
+                'color' => $color,
             ]);
 
             return $role;

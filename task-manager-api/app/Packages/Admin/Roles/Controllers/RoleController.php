@@ -52,7 +52,7 @@ class RoleController extends Controller
     {
         try {
             $admin = userObject();
-            $data = $service->execute($request->validated('name'), $admin->id);
+            $data = $service->execute($request->validated('name'), $admin->id, $request->validated('color'));
 
             return self::successResponse(
                 RoleResource::make($data->loadCount('permissions')),
@@ -68,9 +68,14 @@ class RoleController extends Controller
     {
         try {
             $admin = userObject();
-            $data = $service->execute($id, (int) $request->validated('level'), $admin->id);
+            $data = $service->execute(
+                $id,
+                (int) $request->validated('level'),
+                $admin->id,
+                $request->validated('color')
+            );
 
-            return self::successResponse(RoleResource::make($data->loadCount('permissions')), 'Nível da role atualizado com sucesso.');
+            return self::successResponse(RoleResource::make($data->loadCount('permissions')), 'Role atualizada com sucesso.');
         } catch (\Exception $e) {
             return self::returnError($e);
         }

@@ -14,15 +14,16 @@ class CreateRoleService
         private RecordAuditLogService $recordAuditLogService,
     ) {}
 
-    public function execute(string $name, string $actorId): Role
+    public function execute(string $name, string $actorId, ?string $color = null): Role
     {
-        return DB::transaction(function () use ($name, $actorId) {
+        return DB::transaction(function () use ($name, $actorId, $color) {
             $actorLevel = User::with('role')->findOrFail($actorId)->role->level;
 
             $role = Role::create([
                 'name' => $name,
                 'slug' => Str::slug($name),
                 'level' => $actorLevel + 1,
+                'color' => $color ?? '#64748b',
             ]);
 
             $this->recordAuditLogService->execute($actorId, 'role.create', 'Role', $role->id, [

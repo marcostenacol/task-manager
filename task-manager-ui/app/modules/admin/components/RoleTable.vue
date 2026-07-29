@@ -31,7 +31,10 @@ function canManage(role: Role): boolean {
             </thead>
             <tbody>
                 <tr v-for="role in roles" :key="role.id" class="role-row">
-                    <td class="cell-name">{{ role.name }}</td>
+                    <td class="cell-name">
+                        <span class="color-dot" :style="{ background: role.color }"/>
+                        {{ role.name }}
+                    </td>
                     <td class="cell-muted">{{ role.slug }}</td>
                     <td class="cell-muted">{{ role.permissions_count }}</td>
                     <td class="text-right">
@@ -111,6 +114,14 @@ function canManage(role: Role): boolean {
 .cell-name {
     color: var(--ink);
     font-weight: 600;
+}
+
+.color-dot {
+    display: inline-block;
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 50%;
+    margin-right: 0.5rem;
 }
 
 .cell-muted {

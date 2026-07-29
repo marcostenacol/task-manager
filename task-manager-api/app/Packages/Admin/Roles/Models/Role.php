@@ -23,6 +23,7 @@ class Role extends Model
         'name',
         'slug',
         'level',
+        'color',
     ];
 
     public $timestamps = false;

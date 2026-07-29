@@ -17,6 +17,15 @@ function canManage(user: AdminUser): boolean {
     return user.role.level > props.currentUserLevel;
 }
 
+function roleBadgeStyle(color: string) {
+    const roleColor = color || '#64748b';
+    return {
+        background: `${roleColor}22`,
+        color: roleColor,
+        borderColor: `${roleColor}40`
+    };
+}
+
 const statusColors: Record<string, string> = {
     active: 'badge-success',
     inactive: 'badge-neutral',
@@ -53,7 +62,10 @@ const statusColors: Record<string, string> = {
                         </div>
                     </td>
                     <td>
-                        <span class="badge badge-role">
+                        <span
+                            class="badge"
+                            :style="roleBadgeStyle(user.role.color)"
+                        >
                             {{ user.role.name }}
                         </span>
                     </td>
@@ -223,7 +235,6 @@ const statusColors: Record<string, string> = {
 .badge-success { background: color-mix(in srgb, var(--success) 12%, transparent); color: var(--success); border-color: color-mix(in srgb, var(--success) 25%, transparent); }
 .badge-neutral { background: var(--surface-2); color: var(--muted); border-color: var(--border); }
 .badge-danger { background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger); border-color: color-mix(in srgb, var(--danger) 25%, transparent); }
-.badge-role { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 25%, transparent); }
 
 .actions {
     display: flex;

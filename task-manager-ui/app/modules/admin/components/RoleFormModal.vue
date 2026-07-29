@@ -17,9 +17,12 @@ const isEditing = () => !!props.role;
 
 const minLevel = computed(() => (props.currentRoleLevel ?? 0) + 1);
 
+const DEFAULT_COLOR = '#64748b';
+
 const form = reactive({
     name: '',
-    level: 0
+    level: 0,
+    color: DEFAULT_COLOR
 });
 
 const selectedPermissionIds = ref<string[]>([]);
@@ -50,10 +53,12 @@ watch(() => props.show, async (newVal) => {
     error.value = null;
     form.name = '';
     form.level = minLevel.value;
+    form.color = DEFAULT_COLOR;
     selectedPermissionIds.value = [];
 
     if (props.role) {
         form.level = props.role.level;
+        form.color = props.role.color || DEFAULT_COLOR;
         const detail = await AdminService.getRole(props.role.id) as any;
         selectedPermissionIds.value = detail.data.permission_ids || [];
     }
@@ -65,11 +70,11 @@ const handleSave = async () => {
     try {
         if (isEditing() && props.role) {
             await AdminService.syncRolePermissions(props.role.id, selectedPermissionIds.value);
-            if (form.level !== props.role.level) {
-                await AdminService.updateRoleLevel(props.role.id, form.level);
+            if (form.level !== props.role.level || form.color !== props.role.color) {
+                await AdminService.updateRoleLevel(props.role.id, form.level, form.color);
             }
         } else {
-            await AdminService.createRole(form.name);
+            await AdminService.createRole(form.name, form.color);
         }
         emit('saved');
         emit('close');
@@ -98,13 +103,21 @@ const handleSave = async () => {
 
                 <form class="modal-form" @submit.prevent="handleSave">
                     <div v-if="!isEditing()">
-                        <label class="field-label">Nome</label>
-                        <input
-                            v-model="form.name"
-                            type="text"
-                            class="field-input"
-                            placeholder="ex: Moderador"
-                        >
+                        <div class="field-group">
+                            <label class="field-label">Nome</label>
+                            <input
+                                v-model="form.name"
+                                type="text"
+                                class="field-input"
+                                placeholder="ex: Moderador"
+                            >
+                        </div>
+
+                        <div class="field-group color-field">
+                            <label class="field-label">Cor</label>
+                            <input v-model="form.color" type="color" class="color-input">
+                            <span class="color-value">{{ form.color }}</span>
+                        </div>
                     </div>
 
                     <div v-else>
@@ -116,6 +129,12 @@ const handleSave = async () => {
                                 class="field-input"
                                 :min="minLevel"
                             >
+                        </div>
+
+                        <div class="field-group color-field">
+                            <label class="field-label">Cor</label>
+                            <input v-model="form.color" type="color" class="color-input">
+                            <span class="color-value">{{ form.color }}</span>
                         </div>
 
                         <div class="permission-groups">
@@ -261,6 +280,32 @@ const handleSave = async () => {
 
 .field-group {
     margin-bottom: 1.25rem;
+}
+
+.color-field {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.color-field .field-label {
+    margin-bottom: 0;
+}
+
+.color-input {
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+}
+
+.color-value {
+    color: var(--muted);
+    font-size: 0.8125rem;
+    font-family: monospace;
 }
 
 .permission-groups {

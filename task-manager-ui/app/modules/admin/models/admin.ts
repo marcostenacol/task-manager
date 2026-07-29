@@ -3,6 +3,7 @@ export interface Role {
     name: string;
     slug: string;
     level: number;
+    color: string;
     permissions_count?: number;
 }
 
@@ -11,6 +12,7 @@ export interface RoleDetail {
     name: string;
     slug: string;
     level: number;
+    color: string;
     permission_ids: string[];
 }
 
@@ -36,6 +38,7 @@ export interface AdminUser {
         name: string;
         slug: string;
         level: number;
+        color: string;
     };
     status: {
         name: string;

@@ -45,16 +45,16 @@ export const AdminService = {
         return useApi(`/v1/admin/roles/${id}`);
     },
 
-    async createRole(name: string) {
-        return useApi('/v1/admin/roles', { method: 'POST', body: { name } });
+    async createRole(name: string, color?: string) {
+        return useApi('/v1/admin/roles', { method: 'POST', body: { name, color } });
     },
 
     async syncRolePermissions(id: string, permission_ids: string[]) {
         return useApi(`/v1/admin/roles/${id}/permissions`, { method: 'PUT', body: { permission_ids } });
     },
 
-    async updateRoleLevel(id: string, level: number) {
-        return useApi(`/v1/admin/roles/${id}/level`, { method: 'PATCH', body: { level } });
+    async updateRoleLevel(id: string, level: number, color?: string) {
+        return useApi(`/v1/admin/roles/${id}/level`, { method: 'PATCH', body: { level, color } });
     },
 
     async deleteRole(id: string) {

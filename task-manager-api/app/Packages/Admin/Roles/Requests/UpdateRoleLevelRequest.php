@@ -15,6 +15,7 @@ class UpdateRoleLevelRequest extends FormRequest
     {
         return [
             'level' => 'required|integer',
+            'color' => 'sometimes|string|regex:/^#[0-9A-Fa-f]{6}$/',
         ];
     }
 }

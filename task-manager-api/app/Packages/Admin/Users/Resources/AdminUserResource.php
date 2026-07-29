@@ -20,6 +20,7 @@ class AdminUserResource extends JsonResource
                 'name' => $this->role_name ?? ($this->role->name ?? null),
                 'slug' => $this->role_slug ?? ($this->role->slug ?? null),
                 'level' => $this->role_level ?? ($this->role->level ?? null),
+                'color' => $this->role_color ?? ($this->role->color ?? null),
             ],
             'status' => [
                 'name' => $this->status_name ?? ($this->lastStatus->name ?? null),
