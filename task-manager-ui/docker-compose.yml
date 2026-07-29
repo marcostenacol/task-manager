@@ -7,6 +7,7 @@ services:
     environment:
       NUXT_PUBLIC_API_BASE: ${NUXT_PUBLIC_API_BASE:-http://localhost/api}
       PORT: ${PORT:-25565}
+      TZ: ${TZ:-America/Boa_Vista}
     networks:
       - shared-network
 
