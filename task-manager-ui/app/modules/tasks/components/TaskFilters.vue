@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { Search } from 'lucide-vue-next';
 import { TaskService } from '../services/TaskService';
 
 const filters = defineModel<Record<string, unknown>>('filters', { required: true });
@@ -24,50 +25,109 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div class="flex flex-wrap items-center gap-4 bg-white/5 backdrop-blur-md border border-white/10 p-4 rounded-2xl">
-        <div class="flex-1 min-w-[200px]">
-            <input 
-                v-model="filters.search" 
-                type="text" 
+    <div class="filters-bar">
+        <div class="filter-search">
+            <input
+                v-model="filters.search"
+                type="text"
                 placeholder="Pesquisar tarefas..."
-                class="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                class="filter-input"
                 @input="emit('apply')"
             >
         </div>
 
-        <div class="w-40">
-            <select 
+        <div class="filter-select">
+            <select
                 v-model="filters.status_id"
-                class="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none cursor-pointer"
+                class="filter-input"
                 @change="emit('apply')"
             >
-                <option value="" class="bg-slate-900">Todos Status</option>
-                <option v-for="s in statuses" :key="s.id" :value="s.id" class="bg-slate-900">
+                <option value="">Todos Status</option>
+                <option v-for="s in statuses" :key="s.id" :value="s.id">
                     {{ s.name }}
                 </option>
             </select>
         </div>
 
-        <div class="w-40">
-            <select 
+        <div class="filter-select">
+            <select
                 v-model="filters.priority_id"
-                class="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none cursor-pointer"
+                class="filter-input"
                 @change="emit('apply')"
             >
-                <option value="" class="bg-slate-900">Todas Prioridades</option>
-                <option v-for="p in priorities" :key="p.id" :value="p.id" class="bg-slate-900">
+                <option value="">Todas Prioridades</option>
+                <option v-for="p in priorities" :key="p.id" :value="p.id">
                     {{ p.name }}
                 </option>
             </select>
         </div>
 
-        <button 
-            class="p-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-colors"
-            @click="emit('apply')"
-        >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-            </svg>
+        <button class="filter-apply" @click="emit('apply')">
+            <Search class="filter-apply-icon" :size="20" />
         </button>
     </div>
 </template>
+
+<style scoped>
+.filters-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    border-radius: 12px;
+}
+
+.filter-search {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filter-select {
+    width: 10rem;
+}
+
+.filter-input {
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    color: var(--ink);
+    transition: all 0.2s;
+}
+
+.filter-input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.filter-input option {
+    background: var(--surface);
+    color: var(--ink);
+}
+
+.filter-apply {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.filter-apply:hover {
+    opacity: 0.9;
+}
+
+.filter-apply-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+</style>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { FolderOpen, Plus } from 'lucide-vue-next';
 import { useTasks } from '~/modules/tasks/hooks/useTasks';
 import { TaskService } from '~/modules/tasks/services/TaskService';
 import TaskCard from '~/modules/tasks/components/TaskCard.vue';
@@ -11,7 +12,7 @@ definePageMeta({
     middleware: ['auth']
 });
 
-const { tasks, loading, filters, fetchTasks, applyFilters } = useTasks();
+const { tasks, loading, filters, fetchTasks, applyFilters, deleteTask } = useTasks();
 
 const viewMode = ref<'list' | 'kanban'>('list');
 const showModal = ref(false);
@@ -28,10 +29,21 @@ const openEditModal = (task: any) => {
     showModal.value = true;
 };
 
+const handleDelete = (task: any) => {
+    if (window.confirm(`Excluir a tarefa "${task.title}"? Essa ação não pode ser desfeita.`)) {
+        deleteTask(task.id);
+    }
+};
+
+const STATUS_ORDER = ['pending', 'in_progress', 'done'];
+
 onMounted(async () => {
     fetchTasks();
     try {
-        statuses.value = await TaskService.getStatuses();
+        const fetchedStatuses = await TaskService.getStatuses();
+        statuses.value = [...fetchedStatuses].sort(
+            (a, b) => STATUS_ORDER.indexOf(a.slug) - STATUS_ORDER.indexOf(b.slug)
+        );
     } catch {
         // Falha ao carregar status para o Kanban não é crítica para a listagem
     }
@@ -41,37 +53,35 @@ onMounted(async () => {
 <template>
     <div>
         <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+        <div class="page-header">
             <div>
-                <h1 class="text-4xl font-extrabold text-white tracking-tight">
+                <h1 class="page-title">
                     Suas <span class="gradient-title">Tarefas</span>
                 </h1>
-                <p class="text-slate-400 mt-2">Gerencie sua produtividade com foco e clareza.</p>
+                <p class="page-subtitle">Gerencie sua produtividade com foco e clareza.</p>
             </div>
 
             <button
-                class="group relative inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold transition-all shadow-xl shadow-blue-500/20 active:scale-95"
+                class="btn-new-task"
                 @click="openCreateModal"
             >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-                </svg>
+                <Plus class="btn-icon" :size="20" />
                 Nova Tarefa
             </button>
         </div>
 
         <!-- View Switcher -->
-        <div class="flex items-center justify-between mb-8">
-            <div class="view-switcher inline-flex p-1">
+        <div class="toolbar">
+            <div class="view-switcher">
                 <button
-                    class="view-switcher-btn px-4 py-1.5 rounded-lg text-sm font-semibold transition-all"
+                    class="view-switcher-btn"
                     :class="{ 'is-active': viewMode === 'list' }"
                     @click="viewMode = 'list'"
                 >
                     Lista
                 </button>
                 <button
-                    class="view-switcher-btn px-4 py-1.5 rounded-lg text-sm font-semibold transition-all"
+                    class="view-switcher-btn"
                     :class="{ 'is-active': viewMode === 'kanban' }"
                     @click="viewMode = 'kanban'"
                 >
@@ -79,25 +89,26 @@ onMounted(async () => {
                 </button>
             </div>
 
-            <div v-if="viewMode === 'list'">
+            <div v-if="viewMode === 'list'" class="toolbar-filters">
                 <TaskFilters v-model:filters="filters" @apply="applyFilters" />
             </div>
         </div>
 
         <!-- Content -->
-        <div v-if="loading" class="flex flex-col items-center justify-center py-20">
-            <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-500/20 border-t-blue-500"/>
-            <p class="text-slate-500 mt-4 font-medium">Carregando suas tarefas...</p>
+        <div v-if="loading" class="loading-state">
+            <div class="spinner"/>
+            <p>Carregando suas tarefas...</p>
         </div>
 
         <template v-else>
             <div v-if="tasks.length > 0">
-                <div v-if="viewMode === 'list'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div v-if="viewMode === 'list'" class="task-grid">
                     <TaskCard
                         v-for="task in tasks"
                         :key="task.id"
                         :task="task"
                         @click="openEditModal"
+                        @delete="handleDelete"
                     />
                 </div>
                 <div v-else>
@@ -106,22 +117,21 @@ onMounted(async () => {
                         :statuses="statuses"
                         @task-click="openEditModal"
                         @task-updated="fetchTasks"
+                        @task-delete="handleDelete"
                     />
                 </div>
             </div>
 
-            <div v-else class="empty-state flex flex-col items-center justify-center py-20">
-                <div class="w-16 h-16 bg-slate-800 rounded-2xl flex items-center justify-center text-slate-500 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                    </svg>
+            <div v-else class="empty-state">
+                <div class="empty-icon">
+                    <FolderOpen class="empty-svg-icon" :size="32" />
                 </div>
-                <h3 class="text-xl font-semibold text-white">Nenhuma tarefa encontrada</h3>
-                <p class="text-slate-500 mt-1 max-w-xs text-center">
+                <h3 class="empty-title">Nenhuma tarefa encontrada</h3>
+                <p class="empty-text">
                     Parece que você está com tudo em dia! Que tal criar uma nova tarefa para começar?
                 </p>
                 <button
-                    class="mt-6 text-blue-400 hover:text-blue-300 font-medium transition-colors"
+                    class="empty-cta"
                     @click="openCreateModal"
                 >
                     Criar minha primeira tarefa →
@@ -140,20 +150,96 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.page-header {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+    .page-header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+    }
+}
+
+.page-title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+}
+
+.page-subtitle {
+    color: var(--muted);
+    margin-top: 0.5rem;
+}
+
 .gradient-title {
     background: linear-gradient(135deg, var(--ink), var(--accent));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
+.btn-new-task {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: none;
+    border-radius: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--shadow);
+    transition: opacity 0.2s;
+}
+
+.btn-new-task:hover {
+    opacity: 0.9;
+}
+
+.toolbar {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.toolbar-filters {
+    width: 100%;
+    flex: 1;
+    min-width: 280px;
+}
+
 .view-switcher {
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
     background: var(--surface-2);
     border: 1px solid var(--border);
     border-radius: 12px;
 }
 
 .view-switcher-btn {
+    padding: 0.375rem 1rem;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
     color: var(--muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.view-switcher-btn:hover:not(.is-active) {
+    color: var(--ink);
 }
 
 .view-switcher-btn.is-active {
@@ -161,9 +247,104 @@ onMounted(async () => {
     color: var(--accent-ink);
 }
 
+.task-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .task-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+    .task-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem 0;
+}
+
+.loading-state p {
+    color: var(--muted);
+    margin-top: 1rem;
+    font-weight: 500;
+}
+
+.spinner {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    border: 4px solid var(--accent-soft);
+    border-top-color: var(--accent);
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem 0;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 18px;
+}
+
+.empty-icon {
+    width: 4rem;
+    height: 4rem;
+    background: var(--surface-2);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    margin-bottom: 1rem;
+}
+
+.empty-svg-icon {
+    width: 2rem;
+    height: 2rem;
+}
+
+.btn-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.empty-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.empty-text {
+    color: var(--muted);
+    margin-top: 0.25rem;
+    max-width: 20rem;
+    text-align: center;
+}
+
+.empty-cta {
+    margin-top: 1.5rem;
+    background: transparent;
+    border: none;
+    color: var(--accent);
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.empty-cta:hover {
+    opacity: 0.8;
 }
 </style>

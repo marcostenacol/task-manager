@@ -1,23 +1,24 @@
 <script setup lang="ts">
+import { Calendar, Trash2 } from 'lucide-vue-next';
 import type { Task } from '../models/task';
 
 defineProps<{
     task: Task
 }>();
 
-const emit = defineEmits(['click', 'status-change']);
+const emit = defineEmits(['click', 'status-change', 'delete']);
 
-const priorityColors: any = {
-    low: 'bg-emerald-500/10 text-emerald-500',
-    medium: 'bg-amber-500/10 text-amber-500',
-    high: 'bg-orange-500/10 text-orange-500',
-    urgent: 'bg-rose-500/10 text-rose-500'
+const priorityColors: Record<string, string> = {
+    low: 'priority-low',
+    medium: 'priority-medium',
+    high: 'priority-high',
+    urgent: 'priority-urgent'
 };
 
-const statusColors: any = {
-    pending: 'bg-slate-500/10 text-slate-500',
-    in_progress: 'bg-blue-500/10 text-blue-500',
-    done: 'bg-emerald-500/10 text-emerald-500'
+const statusColors: Record<string, string> = {
+    pending: 'status-pending',
+    in_progress: 'status-in-progress',
+    done: 'status-done'
 };
 
 const formatDate = (date: string) => {
@@ -27,50 +28,193 @@ const formatDate = (date: string) => {
 </script>
 
 <template>
-    <div 
-        class="group relative bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 hover:bg-white/10 transition-all duration-300 cursor-pointer overflow-hidden"
+    <div
+        class="task-card"
         @click="emit('click', task)"
     >
-        <!-- Priority Indicator Line -->
-        <div 
-            class="absolute top-0 left-0 w-1 h-full"
-            :class="[priorityColors[task.priority.slug] || 'bg-slate-500']"
+        <div
+            class="priority-line"
+            :class="[priorityColors[task.priority.slug] || 'priority-low']"
         />
 
-        <div class="flex flex-col gap-3">
-            <div class="flex justify-between items-start gap-4">
-                <h3 class="text-white font-semibold text-lg leading-tight group-hover:text-blue-400 transition-colors">
+        <div class="card-body">
+            <div class="card-header">
+                <h3 class="card-title">
                     {{ task.title }}
                 </h3>
-                <span 
-                    class="shrink-0 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
-                    :class="[statusColors[task.status.slug]]"
-                >
-                    {{ task.status.name }}
-                </span>
+                <div class="card-header-actions">
+                    <span
+                        class="status-badge"
+                        :class="[statusColors[task.status.slug]]"
+                    >
+                        {{ task.status.name }}
+                    </span>
+                    <button class="delete-btn" title="Excluir" @click.stop="emit('delete', task)">
+                        <Trash2 class="delete-icon" :size="16" />
+                    </button>
+                </div>
             </div>
 
-            <p class="text-slate-400 text-sm line-clamp-2">
+            <p class="card-description">
                 {{ task.description || 'Nenhuma descrição fornecida.' }}
             </p>
 
-            <div class="flex justify-between items-center mt-2 pt-4 border-t border-white/5">
-                <div class="flex items-center gap-2">
-                    <span 
-                        class="px-2 py-0.5 rounded text-[10px] font-medium"
-                        :class="[priorityColors[task.priority.slug]]"
-                    >
-                        {{ task.priority.name }}
-                    </span>
-                </div>
-                
-                <div class="flex items-center gap-1.5 text-slate-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                    </svg>
-                    <span class="text-xs">{{ formatDate(task.due_date) }}</span>
+            <div class="card-footer">
+                <span
+                    class="priority-badge"
+                    :class="[priorityColors[task.priority.slug]]"
+                >
+                    {{ task.priority.name }}
+                </span>
+
+                <div class="due-date">
+                    <Calendar class="due-date-icon" :size="14" />
+                    <span>{{ formatDate(task.due_date) }}</span>
                 </div>
             </div>
         </div>
     </div>
 </template>
+
+<style scoped>
+.task-card {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1.25rem;
+    cursor: pointer;
+    overflow: hidden;
+    transition: background 0.2s;
+}
+
+.task-card:hover {
+    background: var(--surface-2);
+}
+
+.task-card:hover .card-title {
+    color: var(--accent);
+}
+
+.priority-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+}
+
+.priority-low { background: var(--success); }
+.priority-medium { background: #d99a3d; }
+.priority-high { background: #d9773d; }
+.priority-urgent { background: var(--danger); }
+
+.card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.card-title {
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 1.125rem;
+    line-height: 1.3;
+    transition: color 0.2s;
+}
+
+.status-badge {
+    flex-shrink: 0;
+    padding: 0.25rem 0.625rem;
+    border-radius: 999px;
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: var(--surface-2);
+    color: var(--muted);
+}
+
+.card-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    flex-shrink: 0;
+}
+
+.delete-btn {
+    display: flex;
+    padding: 0.25rem;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    opacity: 0.7;
+    cursor: pointer;
+    transition: color 0.2s, opacity 0.2s;
+}
+
+.delete-btn:hover {
+    color: var(--danger);
+    opacity: 1;
+}
+
+.delete-icon {
+    width: 1rem;
+    height: 1rem;
+}
+
+.status-pending { background: var(--surface-2); color: var(--muted); }
+.status-in-progress { background: var(--accent-soft); color: var(--accent); }
+.status-done { background: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success); }
+
+.card-description {
+    color: var(--muted);
+    font-size: 0.875rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.priority-badge {
+    padding: 0.125rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.625rem;
+    font-weight: 500;
+}
+
+.priority-badge.priority-low { background: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success); }
+.priority-badge.priority-medium { background: color-mix(in srgb, #d99a3d 15%, transparent); color: #d99a3d; }
+.priority-badge.priority-high { background: color-mix(in srgb, #d9773d 15%, transparent); color: #d9773d; }
+.priority-badge.priority-urgent { background: color-mix(in srgb, var(--danger) 15%, transparent); color: var(--danger); }
+
+.due-date {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--muted);
+    font-size: 0.75rem;
+}
+
+.due-date-icon {
+    width: 0.875rem;
+    height: 0.875rem;
+    flex-shrink: 0;
+}
+</style>

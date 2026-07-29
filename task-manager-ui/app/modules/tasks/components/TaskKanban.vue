@@ -9,7 +9,7 @@ const props = defineProps<{
     statuses: TaskStatus[];
 }>();
 
-const emit = defineEmits(['task-click', 'task-updated']);
+const emit = defineEmits(['task-click', 'task-updated', 'task-delete']);
 
 const tasksByStatus = computed(() => {
     const map: any = {};
@@ -51,39 +51,108 @@ const handleDragOver = (event: DragEvent) => {
 </script>
 
 <template>
-    <div class="flex gap-6 overflow-x-auto pb-8 snap-x">
-        <div 
-            v-for="status in statuses" 
+    <div class="kanban-board">
+        <div
+            v-for="status in statuses"
             :key="status.id"
-            class="flex-1 min-w-[320px] max-w-[400px] flex flex-col gap-4 snap-center"
+            class="kanban-column"
             @dragover="handleDragOver"
             @drop="handleDrop($event, status.id)"
         >
-            <div class="flex items-center justify-between px-2">
-                <div class="flex items-center gap-2">
-                    <h3 class="text-slate-200 font-bold tracking-wide uppercase text-sm">
-                        {{ status.name }}
-                    </h3>
-                    <span class="bg-white/10 text-slate-400 text-[10px] px-2 py-0.5 rounded-full font-bold">
-                        {{ tasksByStatus[status.slug]?.length || 0 }}
-                    </span>
-                </div>
+            <div class="column-header">
+                <h3 class="column-title">
+                    {{ status.name }}
+                </h3>
+                <span class="column-count">
+                    {{ tasksByStatus[status.slug]?.length || 0 }}
+                </span>
             </div>
 
-            <div class="flex-1 flex flex-col gap-4 min-h-[500px] bg-white/[0.02] border border-dashed border-white/5 rounded-3xl p-4 transition-colors hover:bg-white/[0.04]">
-                <TaskCard 
-                    v-for="task in tasksByStatus[status.slug]" 
-                    :key="task.id" 
+            <div class="column-body">
+                <TaskCard
+                    v-for="task in tasksByStatus[status.slug]"
+                    :key="task.id"
                     :task="task"
                     draggable="true"
                     @dragstart="handleDragStart($event, task)"
                     @click="emit('task-click', task)"
+                    @delete="emit('task-delete', task)"
                 />
-                
-                <div v-if="!tasksByStatus[status.slug]?.length" class="flex-1 flex items-center justify-center">
-                    <p class="text-slate-600 text-sm font-medium italic">Vazio</p>
+
+                <div v-if="!tasksByStatus[status.slug]?.length" class="column-empty">
+                    <p>Vazio</p>
                 </div>
             </div>
         </div>
     </div>
 </template>
+
+<style scoped>
+.kanban-board {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    padding-bottom: 2rem;
+}
+
+.kanban-column {
+    flex: 1;
+    min-width: 320px;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.column-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0 0.5rem;
+}
+
+.column-title {
+    color: var(--ink);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+}
+
+.column-count {
+    background: var(--surface-2);
+    color: var(--muted);
+    font-size: 0.625rem;
+    padding: 0.125rem 0.5rem;
+    border-radius: 999px;
+    font-weight: 700;
+}
+
+.column-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-height: 500px;
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: 24px;
+    padding: 1rem;
+    transition: background 0.2s;
+}
+
+.column-empty {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.column-empty p {
+    color: var(--muted);
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-style: italic;
+}
+</style>

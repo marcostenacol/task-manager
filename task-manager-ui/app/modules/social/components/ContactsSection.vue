@@ -183,6 +183,11 @@ const handleAdd = () => {
   font-family: inherit;
 }
 
+.form-input option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
 .btn-save {
   width: 100%;
   padding: 0.7rem;

@@ -41,6 +41,17 @@ export const useTasks = () => {
         fetchTasks();
     };
 
+    const deleteTask = async (id: string) => {
+        try {
+            await TaskService.delete(id);
+            await fetchTasks();
+            return true;
+        } catch (error) {
+            console.error('Erro ao excluir tarefa:', error);
+            return false;
+        }
+    };
+
     return {
         tasks,
         loading,
@@ -48,6 +59,7 @@ export const useTasks = () => {
         filters,
         fetchTasks,
         changePage,
-        applyFilters
+        applyFilters,
+        deleteTask
     };
 };

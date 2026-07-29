@@ -23,12 +23,20 @@ export const useTaskForm = () => {
         errors.value = null;
     };
 
+    const toDatetimeLocal = (isoDate: string | null | undefined): string => {
+        if (!isoDate) return '';
+        const date = new Date(isoDate);
+        if (Number.isNaN(date.getTime())) return '';
+        const pad = (n: number) => String(n).padStart(2, '0');
+        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    };
+
     const fillForm = (task: Task) => {
         form.title = task.title;
         form.description = task.description;
         form.status_id = task.status.id;
         form.priority_id = task.priority.id;
-        form.due_date = task.due_date;
+        form.due_date = toDatetimeLocal(task.due_date);
     };
 
     const submit = async (id?: string) => {

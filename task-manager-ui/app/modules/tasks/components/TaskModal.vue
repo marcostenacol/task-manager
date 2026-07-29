@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { X } from 'lucide-vue-next';
 import { TaskService } from '../services/TaskService';
 import { useTaskForm } from '../hooks/useTaskForm';
 
@@ -58,68 +59,64 @@ const handleSave = async () => {
 </script>
 
 <template>
-    <div v-if="show" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <!-- Backdrop -->
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="emit('close')"/>
+    <div v-if="show" class="modal-overlay">
+        <div class="backdrop" @click="emit('close')"/>
 
-        <!-- Modal Content -->
-        <div class="relative bg-slate-900 border border-white/10 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl">
-            <div class="p-6 sm:p-8">
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-2xl font-bold text-white">
+        <div class="modal-content">
+            <div class="modal-inner">
+                <div class="modal-header">
+                    <h2 class="modal-title">
                         {{ taskId ? 'Editar Tarefa' : 'Nova Tarefa' }}
                     </h2>
-                    <button class="text-slate-400 hover:text-white transition-colors" @click="emit('close')">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                    <button class="close-btn" @click="emit('close')">
+                        <X class="close-icon" :size="24" />
                     </button>
                 </div>
 
-                <form class="space-y-5" @submit.prevent="handleSave">
+                <form class="modal-form" @submit.prevent="handleSave">
                     <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1.5">Título</label>
-                        <input 
-                            v-model="form.title" 
-                            type="text" 
-                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        <label class="field-label">Título</label>
+                        <input
+                            v-model="form.title"
+                            type="text"
+                            class="field-input"
                             placeholder="O que precisa ser feito?"
                         >
-                        <span v-if="errors?.title" class="text-xs text-rose-500 mt-1">{{ errors.title[0] }}</span>
+                        <span v-if="errors?.title" class="field-error">{{ errors.title[0] }}</span>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1.5">Descrição</label>
-                        <textarea 
-                            v-model="form.description" 
+                        <label class="field-label">Descrição</label>
+                        <textarea
+                            v-model="form.description"
                             rows="3"
-                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none"
+                            class="field-input"
                             placeholder="Adicione mais detalhes..."
                         />
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="field-grid">
                         <div>
-                            <label class="block text-sm font-medium text-slate-400 mb-1.5">Status</label>
-                            <select 
+                            <label class="field-label">Status</label>
+                            <select
                                 v-model="form.status_id"
-                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none"
+                                class="field-input"
                             >
-                                <option value="" disabled class="bg-slate-900">Selecione...</option>
-                                <option v-for="s in statuses" :key="s.id" :value="s.id" class="bg-slate-900">
+                                <option value="" disabled>Selecione...</option>
+                                <option v-for="s in statuses" :key="s.id" :value="s.id">
                                     {{ s.name }}
                                 </option>
                             </select>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-slate-400 mb-1.5">Prioridade</label>
-                            <select 
+                            <label class="field-label">Prioridade</label>
+                            <select
                                 v-model="form.priority_id"
-                                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none"
+                                class="field-input"
                             >
-                                <option value="" disabled class="bg-slate-900">Selecione...</option>
-                                <option v-for="p in priorities" :key="p.id" :value="p.id" class="bg-slate-900">
+                                <option value="" disabled>Selecione...</option>
+                                <option v-for="p in priorities" :key="p.id" :value="p.id">
                                     {{ p.name }}
                                 </option>
                             </select>
@@ -127,26 +124,26 @@ const handleSave = async () => {
                     </div>
 
                     <div>
-                        <label class="block text-sm font-medium text-slate-400 mb-1.5">Data de Entrega</label>
-                        <input 
-                            v-model="form.due_date" 
-                            type="datetime-local" 
-                            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        <label class="field-label">Data de Entrega</label>
+                        <input
+                            v-model="form.due_date"
+                            type="datetime-local"
+                            class="field-input"
                         >
                     </div>
 
-                    <div class="pt-4 flex gap-3">
-                        <button 
-                            type="button" 
-                            class="flex-1 px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-semibold transition-all border border-white/10"
+                    <div class="modal-actions">
+                        <button
+                            type="button"
+                            class="btn-cancel"
                             @click="emit('close')"
                         >
                             Cancelar
                         </button>
-                        <button 
-                            type="submit" 
+                        <button
+                            type="submit"
                             :disabled="loading"
-                            class="flex-2 px-8 py-3 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl font-semibold shadow-lg shadow-blue-500/20 transition-all"
+                            class="btn-submit"
                         >
                             {{ loading ? 'Salvando...' : (taskId ? 'Atualizar' : 'Criar Tarefa') }}
                         </button>
@@ -156,3 +153,158 @@ const handleSave = async () => {
         </div>
     </div>
 </template>
+
+<style scoped>
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+}
+
+.modal-content {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 32rem;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.modal-inner {
+    padding: 2rem;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.modal-title {
+    color: var(--ink);
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.close-btn {
+    display: flex;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+.close-btn:hover {
+    color: var(--ink);
+}
+
+.modal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.field-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 0.375rem;
+}
+
+.field-input {
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    color: var(--ink);
+    resize: none;
+    transition: border-color 0.2s;
+}
+
+.field-input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.field-input option {
+    background: var(--surface);
+    color: var(--ink);
+}
+
+.field-error {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--danger);
+    margin-top: 0.25rem;
+}
+
+.field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.modal-actions {
+    padding-top: 1rem;
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn-cancel {
+    flex: 1;
+    padding: 0.75rem 1.5rem;
+    background: var(--surface-2);
+    color: var(--ink);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-cancel:hover {
+    opacity: 0.85;
+}
+
+.btn-submit {
+    flex: 2;
+    padding: 0.75rem 2rem;
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-submit:hover {
+    opacity: 0.9;
+}
+
+.btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+</style>
