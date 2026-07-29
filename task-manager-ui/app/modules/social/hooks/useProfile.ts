@@ -32,6 +32,16 @@ export const useProfile = () => {
         }
     };
 
+    const changePassword = async (data: { current_password: string; new_password: string; new_password_confirmation: string }) => {
+        try {
+            await SocialService.changePassword(data);
+            return { success: true };
+        } catch (err: any) {
+            console.error('Erro ao trocar senha:', err);
+            return { success: false, message: err?.data?.message || 'Erro ao trocar senha.' };
+        }
+    };
+
     const uploadAvatar = async (file: File) => {
         try {
             const response = await SocialService.uploadAvatar(file);
@@ -77,6 +87,7 @@ export const useProfile = () => {
         error,
         fetchProfile,
         updateProfile,
+        changePassword,
         uploadAvatar,
         addContact,
         removeContact

@@ -9,6 +9,10 @@ export const SocialService = {
         return useApi('/v1/social/profile', { method: 'PUT', body: data });
     },
 
+    async changePassword(data: { current_password: string; new_password: string; new_password_confirmation: string }) {
+        return useApi('/v1/social/profile/password', { method: 'PUT', body: data });
+    },
+
     async uploadAvatar(file: File) {
         const formData = new FormData();
         formData.append('avatar', file);

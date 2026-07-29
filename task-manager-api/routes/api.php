@@ -44,6 +44,7 @@ Route::group(['prefix' => 'v1', 'as' => 'v1.', 'middleware' => 'throttle:api'], 
             Route::get('profile', [PersonController::class, 'show'])->name('profile.show');
             Route::put('profile', [PersonController::class, 'update'])->name('profile.update');
             Route::post('profile/avatar', [PersonController::class, 'avatar'])->name('profile.avatar');
+            Route::put('profile/password', [PersonController::class, 'changePassword'])->name('profile.password');
 
             Route::get('contacts', [ContactController::class, 'index'])->name('contacts.index');
             Route::post('contacts', [ContactController::class, 'store'])->name('contacts.store');
@@ -72,6 +73,7 @@ Route::group(['prefix' => 'v1', 'as' => 'v1.', 'middleware' => 'throttle:api'], 
                 Route::get('{id}', [RoleController::class, 'show'])->name('show');
                 Route::post('/', [RoleController::class, 'store'])->name('store');
                 Route::put('{id}/permissions', [RoleController::class, 'syncPermissions'])->name('sync-permissions');
+                Route::patch('{id}/level', [RoleController::class, 'updateLevel'])->name('update-level');
                 Route::delete('{id}', [RoleController::class, 'destroy'])->name('destroy');
             });
 

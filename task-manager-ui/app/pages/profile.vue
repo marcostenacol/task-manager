@@ -32,12 +32,13 @@
 
         <!-- Coluna Direita: Edição + Contatos -->
         <div class="column">
-          <ProfileForm 
-            :profile="profile" 
-            :loading="loading" 
-            @update="updateProfile" 
+          <ProfileForm
+            :profile="profile"
+            :loading="loading"
+            @update="updateProfile"
           />
-          <ContactsSection 
+          <ChangePasswordForm :on-change-password="changePassword" />
+          <ContactsSection
             :contacts="profile?.contacts || []" 
             :loading="loading" 
             class="mt-2"
@@ -55,6 +56,7 @@ import { onMounted } from 'vue'
 import { useProfile } from '~/modules/social/hooks/useProfile'
 import ProfileCard from '~/modules/social/components/ProfileCard.vue'
 import ProfileForm from '~/modules/social/components/ProfileForm.vue'
+import ChangePasswordForm from '~/modules/social/components/ChangePasswordForm.vue'
 import AvatarUpload from '~/modules/social/components/AvatarUpload.vue'
 import ContactsSection from '~/modules/social/components/ContactsSection.vue'
 
