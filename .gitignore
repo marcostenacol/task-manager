@@ -40,3 +40,8 @@ nuxt_debug.log
 Makefile.save
 task-manager-api/.docker/nginx/logs/
 .worktrees/
+
+# planning/spec docs — local only, never committed (see feedback memory)
+/docs/
+task-manager-api/docs/
+task-manager-ui/docs/
