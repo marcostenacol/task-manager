@@ -16,8 +16,10 @@ class AdminUserResource extends JsonResource
             'email' => $this->email,
             'avatar_path' => $this->avatar_path ? Storage::disk('public')->url($this->avatar_path) : null,
             'role' => [
+                'id' => $this->role_id ?? ($this->role->id ?? null),
                 'name' => $this->role_name ?? ($this->role->name ?? null),
                 'slug' => $this->role_slug ?? ($this->role->slug ?? null),
+                'level' => $this->role_level ?? ($this->role->level ?? null),
             ],
             'status' => [
                 'name' => $this->status_name ?? ($this->lastStatus->name ?? null),

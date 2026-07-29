@@ -20,9 +20,12 @@
         class="user-table-wrap"
         :users="users"
         :loading="loading"
+        :current-user-id="user?.id"
+        :current-user-level="currentUserLevel"
         @ban="handleBan"
         @activate="handleActivate"
         @edit="openEditModal"
+        @delete="handleDelete"
       />
       <UserFormModal
         :show="showModal"
@@ -49,7 +52,7 @@ definePageMeta({
 })
 
 const { user } = useAuth()
-const { users, roles, loading, fetchUsers, fetchRoles, banUser, activateUser } = useUsers()
+const { users, roles, loading, fetchUsers, fetchRoles, banUser, activateUser, deleteUser } = useUsers()
 
 const showModal = ref(false)
 const selectedUser = ref<AdminUser | null>(null)
@@ -59,6 +62,11 @@ const accessDenied = computed(() => {
   const isAdmin = user.value.role?.slug === 'admin'
   const hasPermission = user.value.permissions?.includes('admin.users.list')
   return !isAdmin && !hasPermission
+})
+
+const currentUserLevel = computed(() => {
+  const currentRole = roles.value.find((role) => role.slug === user.value?.role_slug)
+  return currentRole?.level ?? null
 })
 
 watchEffect(() => {
@@ -83,6 +91,12 @@ function handleBan(targetUser: { id: string }) {
 
 function handleActivate(targetUser: { id: string }) {
   activateUser(targetUser.id)
+}
+
+function handleDelete(targetUser: { id: string; name: string }) {
+  if (window.confirm(`Excluir o usuário "${targetUser.name}"? Essa ação não pode ser desfeita pela tela.`)) {
+    deleteUser(targetUser.id)
+  }
 }
 
 function openCreateModal() {

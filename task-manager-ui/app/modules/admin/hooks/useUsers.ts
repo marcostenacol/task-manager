@@ -58,6 +58,18 @@ export const useUsers = () => {
         }
     };
 
+    const deleteUser = async (id: string) => {
+        try {
+            await AdminService.deleteUser(id);
+            await fetchUsers();
+            return true;
+        } catch (error: any) {
+            console.error('Erro ao excluir usuário:', error);
+            window.alert(error?.data?.message || 'Não foi possível excluir o usuário.');
+            return false;
+        }
+    };
+
     const fetchRoles = async () => {
         try {
             const response = await AdminService.listRoles() as any;
@@ -77,6 +89,7 @@ export const useUsers = () => {
         fetchRoles,
         applyFilters,
         banUser,
-        activateUser
+        activateUser,
+        deleteUser
     };
 };

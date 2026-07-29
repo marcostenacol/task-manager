@@ -48,6 +48,18 @@ export const useRoles = () => {
         await fetchRoles();
     };
 
+    const deleteRole = async (id: string) => {
+        try {
+            await AdminService.deleteRole(id);
+            await fetchRoles();
+            return true;
+        } catch (error: any) {
+            console.error('Erro ao excluir role:', error);
+            window.alert(error?.data?.message || 'Não foi possível excluir a role.');
+            return false;
+        }
+    };
+
     return {
         roles,
         permissions,
@@ -56,6 +68,7 @@ export const useRoles = () => {
         fetchPermissions,
         getRole,
         createRole,
-        syncRolePermissions
+        syncRolePermissions,
+        deleteRole
     };
 };

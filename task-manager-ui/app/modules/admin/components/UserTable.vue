@@ -1,13 +1,21 @@
 <script setup lang="ts">
-import { Ban, CircleCheck, Pencil } from 'lucide-vue-next';
+import { Ban, CircleCheck, Pencil, Trash2 } from 'lucide-vue-next';
 import type { AdminUser } from '../models/admin';
 
-defineProps<{
+const props = defineProps<{
     users: AdminUser[];
     loading: boolean;
+    currentUserId?: string | null;
+    currentUserLevel?: number | null;
 }>();
 
-const emit = defineEmits(['ban', 'activate', 'edit']);
+const emit = defineEmits(['ban', 'activate', 'edit', 'delete']);
+
+function canDelete(user: AdminUser): boolean {
+    if (user.id === props.currentUserId) return false;
+    if (props.currentUserLevel == null) return false;
+    return user.role.level > props.currentUserLevel;
+}
 
 const statusColors: Record<string, string> = {
     active: 'badge-success',
@@ -92,6 +100,14 @@ const roleColors: Record<string, string> = {
                                 @click="emit('edit', user)"
                             >
                                 <Pencil class="action-icon" :size="18" />
+                            </button>
+                            <button
+                                v-if="canDelete(user)"
+                                class="action-btn action-danger"
+                                title="Excluir"
+                                @click="emit('delete', user)"
+                            >
+                                <Trash2 class="action-icon" :size="18" />
                             </button>
                         </div>
                     </td>

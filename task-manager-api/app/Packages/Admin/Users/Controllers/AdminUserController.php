@@ -11,6 +11,7 @@ use App\Packages\Admin\Users\Services\ActivateUserService;
 use App\Packages\Admin\Users\Services\BanUserService;
 use App\Packages\Admin\Users\Services\ChangeUserRoleService;
 use App\Packages\Admin\Users\Services\CreateUserService;
+use App\Packages\Admin\Users\Services\DeleteUserService;
 use App\Packages\Admin\Users\Services\DetailUserService;
 use App\Packages\Admin\Users\Services\ListUsersService;
 use App\Packages\Admin\Users\Services\UpdateUserService;
@@ -95,6 +96,18 @@ class AdminUserController extends Controller
             $service->execute($id, $admin->id);
 
             return self::successResponse(null, 'Usuário ativado com sucesso.');
+        } catch (\Exception $e) {
+            return self::returnError($e);
+        }
+    }
+
+    public function destroy(string $id, DeleteUserService $service): JsonResponse
+    {
+        try {
+            $admin = userObject();
+            $service->execute($id, $admin->id);
+
+            return self::successResponse(null, 'Usuário excluído com sucesso.');
         } catch (\Exception $e) {
             return self::returnError($e);
         }

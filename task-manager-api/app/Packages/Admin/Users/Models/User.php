@@ -11,13 +11,14 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
-    use HasFactory, HasUuids, Notifiable;
+    use HasFactory, HasUuids, Notifiable, SoftDeletes;
 
     protected $table = 'admin.users';
 
@@ -49,6 +50,7 @@ class User extends Authenticatable
             'last_status_id' => 'string',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
+            'deleted_at' => 'datetime',
         ];
     }
 

@@ -72,6 +72,7 @@ Route::group(['prefix' => 'v1', 'as' => 'v1.', 'middleware' => 'throttle:api'], 
                 Route::get('{id}', [RoleController::class, 'show'])->name('show');
                 Route::post('/', [RoleController::class, 'store'])->name('store');
                 Route::put('{id}/permissions', [RoleController::class, 'syncPermissions'])->name('sync-permissions');
+                Route::delete('{id}', [RoleController::class, 'destroy'])->name('destroy');
             });
 
             Route::group(['prefix' => 'users', 'as' => 'users.'], function () {
@@ -82,6 +83,7 @@ Route::group(['prefix' => 'v1', 'as' => 'v1.', 'middleware' => 'throttle:api'], 
                 Route::post('{id}/ban', [AdminUserController::class, 'ban'])->middleware('auth.api:admin.users.ban')->name('ban');
                 Route::post('{id}/activate', [AdminUserController::class, 'activate'])->middleware('auth.api:admin.users.activate')->name('activate');
                 Route::patch('{id}/role', [AdminUserController::class, 'changeRole'])->middleware('auth.api:admin.users.role')->name('change-role');
+                Route::delete('{id}', [AdminUserController::class, 'destroy'])->middleware('auth.api:admin.users.delete')->name('destroy');
             });
         });
     });

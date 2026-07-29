@@ -29,6 +29,10 @@ export const AdminService = {
         return useApi(`/v1/admin/users/${id}/activate`, { method: 'POST' });
     },
 
+    async deleteUser(id: string) {
+        return useApi(`/v1/admin/users/${id}`, { method: 'DELETE' });
+    },
+
     async changeRole(id: string, role_id: string) {
         return useApi(`/v1/admin/users/${id}/role`, { method: 'PATCH', body: { role_id } });
     },
@@ -47,6 +51,10 @@ export const AdminService = {
 
     async syncRolePermissions(id: string, permission_ids: string[]) {
         return useApi(`/v1/admin/roles/${id}/permissions`, { method: 'PUT', body: { permission_ids } });
+    },
+
+    async deleteRole(id: string) {
+        return useApi(`/v1/admin/roles/${id}`, { method: 'DELETE' });
     },
 
     async listPermissions() {

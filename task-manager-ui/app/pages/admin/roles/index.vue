@@ -20,7 +20,10 @@
         class="role-table-wrap"
         :roles="roles"
         :loading="loading"
+        :current-role-id="currentRole?.id"
+        :current-role-level="currentRole?.level"
         @edit="openEditModal"
+        @delete="handleDelete"
       />
       <RoleFormModal
         :show="showModal"
@@ -47,7 +50,7 @@ definePageMeta({
 })
 
 const { user } = useAuth()
-const { roles, permissions, loading, fetchRoles, fetchPermissions } = useRoles()
+const { roles, permissions, loading, fetchRoles, fetchPermissions, deleteRole } = useRoles()
 
 const showModal = ref(false)
 const selectedRole = ref<Role | null>(null)
@@ -56,6 +59,8 @@ const accessDenied = computed(() => {
   if (!user.value) return true
   return !user.value.permissions?.includes('admin.roles.manage')
 })
+
+const currentRole = computed(() => roles.value.find((role) => role.slug === user.value?.role_slug) ?? null)
 
 watchEffect(() => {
   if (accessDenied.value) {
@@ -78,6 +83,12 @@ function openCreateModal() {
 function openEditModal(role: Role) {
   selectedRole.value = role
   showModal.value = true
+}
+
+function handleDelete(role: Role) {
+  if (window.confirm(`Excluir a role "${role.name}"? Essa ação não pode ser desfeita pela tela.`)) {
+    deleteRole(role.id)
+  }
 }
 </script>
 

@@ -1,13 +1,21 @@
 <script setup lang="ts">
-import { Pencil } from 'lucide-vue-next';
+import { Pencil, Trash2 } from 'lucide-vue-next';
 import type { Role } from '../models/admin';
 
-defineProps<{
+const props = defineProps<{
     roles: Role[];
     loading: boolean;
+    currentRoleId?: string | null;
+    currentRoleLevel?: number | null;
 }>();
 
-const emit = defineEmits(['edit']);
+const emit = defineEmits(['edit', 'delete']);
+
+function canDelete(role: Role): boolean {
+    if (role.id === props.currentRoleId) return false;
+    if (props.currentRoleLevel == null) return false;
+    return role.level > props.currentRoleLevel;
+}
 </script>
 
 <template>
@@ -27,9 +35,19 @@ const emit = defineEmits(['edit']);
                     <td class="cell-muted">{{ role.slug }}</td>
                     <td class="cell-muted">{{ role.permissions_count }}</td>
                     <td class="text-right">
-                        <button class="action-btn" title="Gerenciar permissões" @click="emit('edit', role)">
-                            <Pencil class="action-icon" :size="18" />
-                        </button>
+                        <div class="actions">
+                            <button class="action-btn" title="Gerenciar permissões" @click="emit('edit', role)">
+                                <Pencil class="action-icon" :size="18" />
+                            </button>
+                            <button
+                                v-if="canDelete(role)"
+                                class="action-btn action-danger"
+                                title="Excluir"
+                                @click="emit('delete', role)"
+                            >
+                                <Trash2 class="action-icon" :size="18" />
+                            </button>
+                        </div>
                     </td>
                 </tr>
             </tbody>
@@ -95,9 +113,14 @@ const emit = defineEmits(['edit']);
     font-size: 0.875rem;
 }
 
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
 .action-btn {
     display: flex;
-    margin-left: auto;
     padding: 0.5rem;
     background: transparent;
     border: none;
@@ -110,6 +133,10 @@ const emit = defineEmits(['edit']);
 .action-btn:hover {
     color: var(--accent);
     opacity: 1;
+}
+
+.action-danger:hover {
+    color: var(--danger);
 }
 
 .empty-row {

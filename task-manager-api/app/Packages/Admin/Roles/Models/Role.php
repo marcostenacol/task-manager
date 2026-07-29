@@ -6,10 +6,11 @@ use App\Packages\Admin\Permissions\Models\Permission;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Role extends Model
 {
-    use HasUuids;
+    use HasUuids, SoftDeletes;
 
     protected $table = 'admin.roles';
 
@@ -21,6 +22,7 @@ class Role extends Model
         'id',
         'name',
         'slug',
+        'level',
     ];
 
     public $timestamps = false;
@@ -29,6 +31,8 @@ class Role extends Model
     {
         return [
             'id' => 'string',
+            'level' => 'integer',
+            'deleted_at' => 'datetime',
         ];
     }
 
