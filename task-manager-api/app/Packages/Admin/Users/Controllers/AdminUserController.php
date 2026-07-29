@@ -28,7 +28,8 @@ class AdminUserController extends Controller
     public function index(Request $request, ListUsersService $service): JsonResponse
     {
         try {
-            $data = $service->execute($request->all());
+            $admin = userObject();
+            $data = $service->execute($request->all(), $admin->id);
 
             return self::successResponse($data, 'Usuários listados com sucesso.');
         } catch (\Exception $e) {

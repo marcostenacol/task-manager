@@ -20,7 +20,7 @@ class UserRepository extends BaseRepository
         return $this->model->where('email', $email)->first();
     }
 
-    public function listWithFilters(array $filters): LengthAwarePaginator
+    public function listWithFilters(array $filters, ?array $organizationIds = null): LengthAwarePaginator
     {
         $page = (int) ($filters['page'] ?? 1);
         $limit = (int) ($filters['limit'] ?? 15);
@@ -49,6 +49,20 @@ class UserRepository extends BaseRepository
         ';
 
         $params = [];
+
+        if ($organizationIds !== null) {
+            if (empty($organizationIds)) {
+                $sql .= ' AND FALSE';
+            } else {
+                $placeholders = [];
+                foreach (array_values($organizationIds) as $index => $organizationId) {
+                    $placeholder = "org_scope_{$index}";
+                    $placeholders[] = ":{$placeholder}";
+                    $params[$placeholder] = $organizationId;
+                }
+                $sql .= ' AND U.active_organization_id IN ('.implode(',', $placeholders).')';
+            }
+        }
 
         if (! empty($filters['search'])) {
             $sql .= ' AND (U.name ILIKE :search OR U.email ILIKE :search)';
