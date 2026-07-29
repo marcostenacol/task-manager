@@ -42,8 +42,7 @@ import { BarChart3, Target, Zap } from 'lucide-vue-next'
   justify-content: center;
   text-align: center;
   padding: 5rem 5%;
-  background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent),
-              radial-gradient(circle at bottom left, rgba(129, 140, 248, 0.1), transparent);
+  background: var(--bg);
 }
 
 .hero-title {
@@ -54,14 +53,12 @@ import { BarChart3, Target, Zap } from 'lucide-vue-next'
 }
 
 .gradient-text {
-  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--accent);
 }
 
 .hero-subtitle {
   font-size: 1.25rem;
-  color: var(--text-secondary);
+  color: var(--muted);
   max-width: 600px;
   margin-bottom: 3rem;
 }
@@ -82,24 +79,23 @@ import { BarChart3, Target, Zap } from 'lucide-vue-next'
 }
 
 .btn-primary {
-  background: var(--accent-primary);
-  color: #000;
-  box-shadow: 0 4px 20px rgba(56, 189, 248, 0.3);
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: var(--shadow);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 25px rgba(56, 189, 248, 0.5);
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.05);
-  color: #fff;
-  border: 1px solid var(--glass-border);
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--border);
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--surface-2);
 }
 
 .feature-cards {
@@ -111,23 +107,23 @@ import { BarChart3, Target, Zap } from 'lucide-vue-next'
 }
 
 .card {
-  background: var(--bg-secondary);
+  background: var(--surface);
   padding: 2.5rem;
-  border-radius: 24px;
-  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
   text-align: left;
   transition: all 0.4s ease;
 }
 
 .card:hover {
   transform: translateY(-10px);
-  border-color: var(--accent-primary);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  border-color: var(--accent);
 }
 
 .card-icon {
   margin-bottom: 1.5rem;
-  color: var(--accent-primary);
+  color: var(--accent);
 }
 
 .card h3 {
@@ -136,7 +132,7 @@ import { BarChart3, Target, Zap } from 'lucide-vue-next'
 }
 
 .card p {
-  color: var(--text-secondary);
+  color: var(--muted);
 }
 
 @keyframes float {

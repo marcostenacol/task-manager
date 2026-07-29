@@ -18,7 +18,7 @@ export const useAuth = () => {
         refreshToken.value = response.data.refresh_token.token
         user.value = response.data.user
 
-        navigateTo('/')
+        navigateTo('/tasks')
       }
       return response
     } catch (err) {
@@ -40,11 +40,30 @@ export const useAuth = () => {
     }
   }
 
+  async function restoreSession() {
+    if (!refreshToken.value) return
+    try {
+      const response = await AuthService.refresh(refreshToken.value)
+      if (response.success) {
+        token.value = response.data.access_token.token
+        refreshToken.value = response.data.refresh_token.token
+        user.value = response.data.user
+        return
+      }
+    } catch (err) {
+      console.error('Error restoring session:', err)
+    }
+    token.value = null
+    refreshToken.value = null
+    user.value = null
+  }
+
   return {
     user,
     loading,
     isAuthenticated,
     login,
-    logout
+    logout,
+    restoreSession
   }
 }

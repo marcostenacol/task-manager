@@ -12,13 +12,14 @@
   min-height: 100vh;
   background: var(--bg);
   display: flex;
+  align-items: flex-start;
   gap: 16px;
   padding: 16px;
 }
 
 .app-main {
   flex: 1;
-  max-width: 960px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 </style>

@@ -6,9 +6,8 @@
     </div>
     
     <div v-if="isAuthenticated" class="nav-links">
-      <NuxtLink to="/tasks" class="nav-link">Dashboard</NuxtLink>
-      <NuxtLink to="/" class="nav-link">Projetos</NuxtLink>
-      <NuxtLink to="/tasks" class="nav-link active">Tarefas</NuxtLink>
+      <NuxtLink to="/tasks" class="nav-link">Tarefas</NuxtLink>
+      <NuxtLink v-if="isAdmin" to="/admin/users" class="nav-link">Usuários</NuxtLink>
     </div>
 
     <div class="auth-group">
@@ -21,7 +20,8 @@
           <span class="user-name">{{ user?.name }}</span>
           <div class="user-menu-container">
             <div class="avatar" @click="toggleMenu">
-              {{ user?.name?.charAt(0) || 'U' }}
+              <img v-if="profile?.avatar_path" :src="profile.avatar_path" alt="Avatar" class="avatar-image">
+              <template v-else>{{ user?.name?.charAt(0) || 'U' }}</template>
             </div>
             <div v-if="showMenu" class="user-dropdown glass">
               <NuxtLink to="/profile" class="dropdown-item" @click="showMenu = false">
@@ -39,12 +39,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
 import { LogOut, Rocket, User } from 'lucide-vue-next'
 import { useAuth } from '~/modules/auth/hooks/useAuth'
+import { useProfile } from '~/modules/social/hooks/useProfile'
 
 const { user, isAuthenticated, logout } = useAuth()
+const { profile, fetchProfile } = useProfile()
 const showMenu = ref(false)
+
+const isAdmin = computed(() => user.value?.permissions?.includes('admin.users.list') ?? false)
+
+watchEffect(() => {
+  if (isAuthenticated.value && !profile.value) {
+    fetchProfile()
+  }
+})
 
 const toggleMenu = () => {
   showMenu.value = !showMenu.value
@@ -62,9 +72,8 @@ const handleLogout = () => {
   justify-content: space-between;
   align-items: center;
   padding: 1rem 5%;
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--glass-border);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -81,7 +90,7 @@ const handleLogout = () => {
 }
 
 .logo-icon {
-  color: var(--accent-primary);
+  color: var(--accent);
 }
 
 .icon {
@@ -89,9 +98,7 @@ const handleLogout = () => {
 }
 
 .logo-text {
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--ink);
 }
 
 .nav-links {
@@ -100,14 +107,14 @@ const handleLogout = () => {
 }
 
 .nav-link {
-  color: var(--text-secondary);
+  color: var(--muted);
   text-decoration: none;
   font-weight: 500;
   transition: all 0.3s ease;
 }
 
 .nav-link:hover, .nav-link.router-link-active {
-  color: var(--accent-primary);
+  color: var(--accent);
 }
 
 .auth-group {
@@ -118,8 +125,8 @@ const handleLogout = () => {
 
 .btn-register {
   padding: 0.5rem 1.2rem;
-  background: var(--accent-primary);
-  color: #000;
+  background: var(--accent);
+  color: var(--accent-ink);
   border-radius: 10px;
   font-weight: 600;
   text-decoration: none;
@@ -128,7 +135,7 @@ const handleLogout = () => {
 
 .btn-register:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(56, 189, 248, 0.4);
+  box-shadow: var(--shadow);
 }
 
 .user-info {
@@ -140,25 +147,33 @@ const handleLogout = () => {
 .user-name {
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--muted);
 }
 
 .avatar {
   width: 38px;
   height: 38px;
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  background: var(--accent-soft);
+  color: var(--accent);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  color: #000;
   cursor: pointer;
   transition: transform 0.3s;
+  overflow: hidden;
 }
 
 .avatar:hover {
   transform: scale(1.1);
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .user-menu-container {
@@ -170,12 +185,11 @@ const handleLogout = () => {
   top: calc(100% + 10px);
   right: 0;
   width: 180px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 0.5rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow);
   z-index: 1000;
   display: flex;
   flex-direction: column;
@@ -186,7 +200,7 @@ const handleLogout = () => {
   align-items: center;
   gap: 0.7rem;
   padding: 0.8rem 1rem;
-  color: var(--text-primary);
+  color: var(--ink);
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 500;
@@ -200,13 +214,13 @@ const handleLogout = () => {
 }
 
 .dropdown-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--accent-primary);
+  background: var(--surface-2);
+  color: var(--accent);
 }
 
 .dropdown-item.logout:hover {
-  color: #f87171;
-  background: rgba(239, 68, 68, 0.05);
+  color: var(--danger);
+  background: var(--surface-2);
 }
 
 @media (max-width: 768px) {

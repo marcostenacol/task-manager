@@ -67,6 +67,10 @@ defineProps<{
   flex-shrink: 0;
 }
 
+.header-info {
+  min-width: 0;
+}
+
 .profile-avatar, .profile-avatar-placeholder {
   width: 80px;
   height: 80px;
@@ -123,11 +127,18 @@ defineProps<{
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
+  background: var(--surface-2);
+  color: var(--muted);
 }
 
 .status-badge.active {
   background: rgba(34, 197, 94, 0.2);
   color: #4ade80;
+}
+
+.status-badge.banned {
+  background: rgba(244, 63, 94, 0.2);
+  color: #fb7185;
 }
 
 .role-text, .bio-text {

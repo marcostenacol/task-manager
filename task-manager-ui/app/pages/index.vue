@@ -12,7 +12,8 @@ import Hero from '~/modules/Landing/components/Hero.vue'
 import Footer from '~/modules/Landing/components/Footer.vue'
 
 definePageMeta({
-  layout: false
+  layout: false,
+  middleware: ['auth']
 })
 </script>
 

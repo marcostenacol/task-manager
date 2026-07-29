@@ -17,5 +17,12 @@ export const AuthService = {
 
   async logout(): Promise<void> {
     await useApi('/v1/auth/logout', { method: 'POST' })
+  },
+
+  async refresh(refreshToken: string): Promise<LoginResponse> {
+    return useApi<LoginResponse>('/v1/auth/refresh', {
+      method: 'POST',
+      body: { refresh_token: refreshToken }
+    })
   }
 }

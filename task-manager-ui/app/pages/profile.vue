@@ -89,7 +89,7 @@ onMounted(() => {
 }
 
 .container {
-  max-width: 1100px;
+  max-width: 1300px;
   margin: 0 auto;
   padding: 0 5%;
 }
@@ -110,7 +110,7 @@ onMounted(() => {
 
 .profile-grid {
   display: grid;
-  grid-template-columns: 1fr 1.5fr;
+  grid-template-columns: 1fr 1.3fr;
   gap: 2rem;
   margin-top: 2rem;
 }
