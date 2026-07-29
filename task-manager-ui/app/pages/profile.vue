@@ -64,15 +64,16 @@ definePageMeta({
   middleware: 'auth'
 })
 
-const { 
-  profile, 
-  loading, 
-  error, 
-  fetchProfile, 
-  updateProfile, 
-  uploadAvatar, 
-  addContact, 
-  removeContact 
+const {
+  profile,
+  loading,
+  error,
+  fetchProfile,
+  updateProfile,
+  changePassword,
+  uploadAvatar,
+  addContact,
+  removeContact
 } = useProfile()
 
 onMounted(() => {

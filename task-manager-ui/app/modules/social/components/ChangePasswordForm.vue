@@ -93,6 +93,9 @@ async function handleSubmit() {
       return
     }
     errorMessage.value = result?.message || 'Não foi possível trocar a senha.'
+  } catch (err) {
+    console.error('Erro inesperado ao trocar senha:', err)
+    errorMessage.value = 'Erro inesperado ao trocar a senha.'
   } finally {
     submitting.value = false
   }
