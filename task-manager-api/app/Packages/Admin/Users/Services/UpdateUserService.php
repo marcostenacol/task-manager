@@ -3,6 +3,7 @@
 namespace App\Packages\Admin\Users\Services;
 
 use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
+use App\Packages\Admin\Roles\Models\Role;
 use App\Packages\Admin\Users\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -19,6 +20,7 @@ class UpdateUserService
             $user = User::with('role')->findOrFail($id);
 
             $this->guardAgainstEditingSuperiorOrEqual($actor, $user);
+            $this->guardAgainstAssigningSuperiorOrEqualRole($actor, $data);
 
             $user->update($data);
 
@@ -36,6 +38,19 @@ class UpdateUserService
 
         if ($user->role->level <= $actor->role->level) {
             throw new \InvalidArgumentException('Você não pode editar um usuário com role igual ou superior à sua.');
+        }
+    }
+
+    private function guardAgainstAssigningSuperiorOrEqualRole(User $actor, array $data): void
+    {
+        if (! isset($data['role_id'])) {
+            return;
+        }
+
+        $newRole = Role::findOrFail($data['role_id']);
+
+        if ($newRole->level <= $actor->role->level) {
+            throw new \InvalidArgumentException('Você não pode atribuir uma role igual ou superior à sua.');
         }
     }
 }

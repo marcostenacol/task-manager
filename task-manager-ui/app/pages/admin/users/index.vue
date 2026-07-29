@@ -31,6 +31,7 @@
         :show="showModal"
         :user="selectedUser"
         :roles="roles"
+        :current-user-level="currentUserLevel"
         @close="showModal = false"
         @saved="fetchUsers"
       />

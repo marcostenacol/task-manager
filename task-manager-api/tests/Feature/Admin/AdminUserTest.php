@@ -75,6 +75,22 @@ test('deve permitir que admin banir um usuário', function () {
     ]);
 });
 
+test('não deve permitir que admin promova um usuário a admin via edição (PUT)', function () {
+    $response = withToken($this->adminToken)
+        ->putJson("/api/v1/admin/users/{$this->user->id}", [
+            'name' => $this->user->name,
+            'email' => $this->user->email,
+            'role_id' => $this->adminRole->id,
+        ]);
+
+    $response->assertStatus(400)->assertJsonPath('success', false);
+
+    $this->assertDatabaseHas('admin.users', [
+        'id' => $this->user->id,
+        'role_id' => $this->userRole->id,
+    ]);
+});
+
 test('não deve permitir que admin bana a si mesmo', function () {
     $response = withToken($this->adminToken)
         ->postJson("/api/v1/admin/users/{$this->admin->id}/ban", [
@@ -89,8 +105,30 @@ test('não deve permitir que admin bana a si mesmo', function () {
     ]);
 });
 
-test('deve permitir que admin altere a role de um usuário', function () {
+test('não deve permitir que admin promova um usuário a uma role igual ou superior à sua', function () {
     $response = withToken($this->adminToken)
+        ->patchJson("/api/v1/admin/users/{$this->user->id}/role", [
+            'role_id' => $this->adminRole->id,
+        ]);
+
+    $response->assertStatus(400)->assertJsonPath('success', false);
+
+    $this->assertDatabaseHas('admin.users', [
+        'id' => $this->user->id,
+        'role_id' => $this->userRole->id,
+    ]);
+});
+
+test('deve permitir que owner altere a role de um usuário para admin', function () {
+    $ownerRole = Role::where('slug', 'owner')->first();
+    $owner = User::factory()->create(['role_id' => $ownerRole->id, 'password' => 'password123']);
+
+    $ownerToken = postJson(route('v1.auth.login'), [
+        'email' => $owner->email,
+        'password' => 'password123',
+    ])->json('data.access_token.token');
+
+    $response = withToken($ownerToken)
         ->patchJson("/api/v1/admin/users/{$this->user->id}/role", [
             'role_id' => $this->adminRole->id,
         ]);

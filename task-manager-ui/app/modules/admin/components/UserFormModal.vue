@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue';
+import { computed, reactive, ref, watch } from 'vue';
 import { X } from 'lucide-vue-next';
 import type { AdminUser, Role } from '../models/admin';
 import { AdminService } from '../services/AdminService';
@@ -8,7 +8,13 @@ const props = defineProps<{
     show: boolean;
     user?: AdminUser | null;
     roles: Role[];
+    currentUserLevel?: number | null;
 }>();
+
+const assignableRoles = computed(() => {
+    if (props.currentUserLevel == null) return [];
+    return props.roles.filter((role) => role.level > props.currentUserLevel!);
+});
 
 const emit = defineEmits(['close', 'saved']);
 
@@ -129,7 +135,7 @@ const handleSave = async () => {
                             class="field-input"
                         >
                             <option value="" disabled>Selecione...</option>
-                            <option v-for="role in roles" :key="role.id" :value="role.id">
+                            <option v-for="role in assignableRoles" :key="role.id" :value="role.id">
                                 {{ role.name }}
                             </option>
                         </select>
