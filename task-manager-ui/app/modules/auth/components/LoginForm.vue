@@ -39,7 +39,9 @@
           <input v-model="form.remember" type="checkbox" >
           <span>Lembrar de mim</span>
         </label>
-        <a href="#" class="forgot-password">Esqueceu a senha?</a>
+        <button type="button" class="forgot-password" @click="showForgotPasswordInfo = true">
+          Esqueceu a senha?
+        </button>
       </div>
 
       <button type="submit" class="btn-auth" :disabled="loading">
@@ -49,6 +51,10 @@
 
       <div v-if="error" class="error-message">
         {{ error }}
+      </div>
+
+      <div v-if="showForgotPasswordInfo" class="info-message">
+        A recuperação de senha por e-mail ainda não está disponível. Peça a um administrador para redefinir sua senha.
       </div>
     </form>
 
@@ -69,6 +75,7 @@ const form = reactive({
   remember: false
 })
 const error = ref('')
+const showForgotPasswordInfo = ref(false)
 
 async function handleSubmit() {
   error.value = ''
@@ -179,8 +186,13 @@ async function handleSubmit() {
 }
 
 .forgot-password {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
   color: var(--accent-primary);
   text-decoration: none;
+  cursor: pointer;
   transition: opacity 0.2s;
 }
 
@@ -224,6 +236,16 @@ async function handleSubmit() {
   border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 10px;
   color: #f87171;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.info-message {
+  padding: 0.8rem;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 10px;
+  color: var(--accent-primary);
   font-size: 0.85rem;
   text-align: center;
 }
