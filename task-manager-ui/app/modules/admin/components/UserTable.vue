@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['ban', 'activate', 'edit', 'delete']);
 
-function canDelete(user: AdminUser): boolean {
+function canManage(user: AdminUser): boolean {
     if (user.id === props.currentUserId) return false;
     if (props.currentUserLevel == null) return false;
     return user.role.level > props.currentUserLevel;
@@ -21,11 +21,6 @@ const statusColors: Record<string, string> = {
     active: 'badge-success',
     inactive: 'badge-neutral',
     banned: 'badge-danger'
-};
-
-const roleColors: Record<string, string> = {
-    admin: 'badge-admin',
-    user: 'badge-user'
 };
 </script>
 
@@ -58,10 +53,7 @@ const roleColors: Record<string, string> = {
                         </div>
                     </td>
                     <td>
-                        <span
-                            class="badge"
-                            :class="[roleColors[user.role.slug]]"
-                        >
+                        <span class="badge badge-role">
                             {{ user.role.name }}
                         </span>
                     </td>
@@ -79,7 +71,7 @@ const roleColors: Record<string, string> = {
                     <td class="text-right">
                         <div class="actions">
                             <button
-                                v-if="user.status.slug !== 'banned'"
+                                v-if="user.status.slug !== 'banned' && user.id !== currentUserId"
                                 class="action-btn action-danger"
                                 title="Banir"
                                 @click="emit('ban', user)"
@@ -87,7 +79,7 @@ const roleColors: Record<string, string> = {
                                 <Ban class="action-icon" :size="18" />
                             </button>
                             <button
-                                v-else
+                                v-else-if="user.status.slug === 'banned'"
                                 class="action-btn action-success"
                                 title="Ativar"
                                 @click="emit('activate', user)"
@@ -95,6 +87,7 @@ const roleColors: Record<string, string> = {
                                 <CircleCheck class="action-icon" :size="18" />
                             </button>
                             <button
+                                v-if="canManage(user)"
                                 class="action-btn action-view"
                                 title="Editar"
                                 @click="emit('edit', user)"
@@ -102,7 +95,7 @@ const roleColors: Record<string, string> = {
                                 <Pencil class="action-icon" :size="18" />
                             </button>
                             <button
-                                v-if="canDelete(user)"
+                                v-if="canManage(user)"
                                 class="action-btn action-danger"
                                 title="Excluir"
                                 @click="emit('delete', user)"
@@ -230,8 +223,7 @@ const roleColors: Record<string, string> = {
 .badge-success { background: color-mix(in srgb, var(--success) 12%, transparent); color: var(--success); border-color: color-mix(in srgb, var(--success) 25%, transparent); }
 .badge-neutral { background: var(--surface-2); color: var(--muted); border-color: var(--border); }
 .badge-danger { background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger); border-color: color-mix(in srgb, var(--danger) 25%, transparent); }
-.badge-admin { background: color-mix(in srgb, #9d6fd9 12%, transparent); color: #9d6fd9; border-color: color-mix(in srgb, #9d6fd9 25%, transparent); }
-.badge-user { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 25%, transparent); }
+.badge-role { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 25%, transparent); }
 
 .actions {
     display: flex;

@@ -8,14 +8,18 @@ const props = defineProps<{
     show: boolean;
     role?: Role | null;
     permissions: Permission[];
+    currentRoleLevel?: number | null;
 }>();
 
 const emit = defineEmits(['close', 'saved']);
 
 const isEditing = () => !!props.role;
 
+const minLevel = computed(() => (props.currentRoleLevel ?? 0) + 1);
+
 const form = reactive({
-    name: ''
+    name: '',
+    level: 0
 });
 
 const selectedPermissionIds = ref<string[]>([]);
@@ -45,9 +49,11 @@ watch(() => props.show, async (newVal) => {
     if (!newVal) return;
     error.value = null;
     form.name = '';
+    form.level = minLevel.value;
     selectedPermissionIds.value = [];
 
     if (props.role) {
+        form.level = props.role.level;
         const detail = await AdminService.getRole(props.role.id) as any;
         selectedPermissionIds.value = detail.data.permission_ids || [];
     }
@@ -59,13 +65,16 @@ const handleSave = async () => {
     try {
         if (isEditing() && props.role) {
             await AdminService.syncRolePermissions(props.role.id, selectedPermissionIds.value);
+            if (form.level !== props.role.level) {
+                await AdminService.updateRoleLevel(props.role.id, form.level);
+            }
         } else {
             await AdminService.createRole(form.name);
         }
         emit('saved');
         emit('close');
     } catch (err: any) {
-        error.value = err?.data?.data?.errors?.name?.[0] || 'Erro ao salvar role.';
+        error.value = err?.data?.message || err?.data?.data?.errors?.name?.[0] || 'Erro ao salvar role.';
     } finally {
         loading.value = false;
     }
@@ -98,17 +107,29 @@ const handleSave = async () => {
                         >
                     </div>
 
-                    <div v-else class="permission-groups">
-                        <div v-for="(items, group) in permissionGroups" :key="group" class="permission-group">
-                            <h4 class="group-title">{{ group }}</h4>
-                            <label v-for="permission in items" :key="permission.id" class="permission-item">
-                                <input
-                                    type="checkbox"
-                                    :checked="selectedPermissionIds.includes(permission.id)"
-                                    @change="togglePermission(permission.id)"
-                                >
-                                <span>{{ permission.description || permission.name }}</span>
-                            </label>
+                    <div v-else>
+                        <div class="field-group">
+                            <label class="field-label">Nível (quanto menor, mais privilegiada)</label>
+                            <input
+                                v-model.number="form.level"
+                                type="number"
+                                class="field-input"
+                                :min="minLevel"
+                            >
+                        </div>
+
+                        <div class="permission-groups">
+                            <div v-for="(items, group) in permissionGroups" :key="group" class="permission-group">
+                                <h4 class="group-title">{{ group }}</h4>
+                                <label v-for="permission in items" :key="permission.id" class="permission-item">
+                                    <input
+                                        type="checkbox"
+                                        :checked="selectedPermissionIds.includes(permission.id)"
+                                        @change="togglePermission(permission.id)"
+                                    >
+                                    <span>{{ permission.description || permission.name }}</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
 
@@ -236,6 +257,10 @@ const handleSave = async () => {
     display: block;
     font-size: 0.75rem;
     color: var(--danger);
+}
+
+.field-group {
+    margin-bottom: 1.25rem;
 }
 
 .permission-groups {

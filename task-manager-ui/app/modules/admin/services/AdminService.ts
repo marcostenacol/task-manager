@@ -53,6 +53,10 @@ export const AdminService = {
         return useApi(`/v1/admin/roles/${id}/permissions`, { method: 'PUT', body: { permission_ids } });
     },
 
+    async updateRoleLevel(id: string, level: number) {
+        return useApi(`/v1/admin/roles/${id}/level`, { method: 'PATCH', body: { level } });
+    },
+
     async deleteRole(id: string) {
         return useApi(`/v1/admin/roles/${id}`, { method: 'DELETE' });
     },

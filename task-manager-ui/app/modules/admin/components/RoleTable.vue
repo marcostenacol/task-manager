@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['edit', 'delete']);
 
-function canDelete(role: Role): boolean {
+function canManage(role: Role): boolean {
     if (role.id === props.currentRoleId) return false;
     if (props.currentRoleLevel == null) return false;
     return role.level > props.currentRoleLevel;
@@ -36,11 +36,16 @@ function canDelete(role: Role): boolean {
                     <td class="cell-muted">{{ role.permissions_count }}</td>
                     <td class="text-right">
                         <div class="actions">
-                            <button class="action-btn" title="Gerenciar permissões" @click="emit('edit', role)">
+                            <button
+                                v-if="canManage(role)"
+                                class="action-btn"
+                                title="Gerenciar permissões"
+                                @click="emit('edit', role)"
+                            >
                                 <Pencil class="action-icon" :size="18" />
                             </button>
                             <button
-                                v-if="canDelete(role)"
+                                v-if="canManage(role)"
                                 class="action-btn action-danger"
                                 title="Excluir"
                                 @click="emit('delete', role)"

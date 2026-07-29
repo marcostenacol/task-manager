@@ -21,6 +21,10 @@ class BanUserService
     public function execute(string $userId, string $reason, string $bannedBy): void
     {
         DB::transaction(function () use ($userId, $reason, $bannedBy) {
+            if ($userId === $bannedBy) {
+                throw new \InvalidArgumentException('Você não pode banir a si mesmo.');
+            }
+
             $user = User::findOrFail($userId);
             $status = UserStatus::where('slug', 'banned')->firstOrFail();
 

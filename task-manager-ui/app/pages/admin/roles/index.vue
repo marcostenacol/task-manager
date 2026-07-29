@@ -29,6 +29,7 @@
         :show="showModal"
         :role="selectedRole"
         :permissions="permissions"
+        :current-role-level="currentRole?.level"
         @close="showModal = false"
         @saved="fetchRoles"
       />
