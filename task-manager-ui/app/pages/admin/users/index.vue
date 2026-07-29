@@ -65,7 +65,7 @@ const accessDenied = computed(() => {
 })
 
 const currentUserLevel = computed(() => {
-  const currentRole = roles.value.find((role) => role.slug === user.value?.role_slug)
+  const currentRole = roles.value.find((role) => role.slug === user.value?.role?.slug)
   return currentRole?.level ?? null
 })
 

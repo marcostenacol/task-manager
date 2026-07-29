@@ -60,7 +60,7 @@ const accessDenied = computed(() => {
   return !user.value.permissions?.includes('admin.roles.manage')
 })
 
-const currentRole = computed(() => roles.value.find((role) => role.slug === user.value?.role_slug) ?? null)
+const currentRole = computed(() => roles.value.find((role) => role.slug === user.value?.role?.slug) ?? null)
 
 watchEffect(() => {
   if (accessDenied.value) {
