@@ -3,6 +3,7 @@
 namespace App\Packages\Admin\AuditLogs\Resources;
 
 use App\Packages\Admin\Roles\Models\Role;
+use App\Packages\Admin\Settings\Models\Setting;
 use App\Packages\Admin\Users\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -36,6 +37,10 @@ class AuditLogResource extends JsonResource
 
         if ($this->target_type === 'Role') {
             return Role::find($this->target_id)?->name;
+        }
+
+        if ($this->target_type === 'Setting') {
+            return Setting::find($this->target_id)?->name;
         }
 
         return null;

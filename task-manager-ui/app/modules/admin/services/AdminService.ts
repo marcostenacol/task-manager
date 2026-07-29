@@ -53,6 +53,10 @@ export const AdminService = {
         return useApi(`/v1/admin/roles/${id}/permissions`, { method: 'PUT', body: { permission_ids } });
     },
 
+    async updateRoleName(id: string, name: string) {
+        return useApi(`/v1/admin/roles/${id}/name`, { method: 'PATCH', body: { name } });
+    },
+
     async updateRoleLevel(id: string, level: number, color?: string) {
         return useApi(`/v1/admin/roles/${id}/level`, { method: 'PATCH', body: { level, color } });
     },
@@ -63,5 +67,17 @@ export const AdminService = {
 
     async listPermissions() {
         return useApi('/v1/admin/permissions');
+    },
+
+    async listSettings() {
+        return useApi('/v1/admin/settings');
+    },
+
+    async updateSetting(id: number, value: string) {
+        return useApi(`/v1/admin/settings/${id}`, { method: 'PUT', body: { value } });
+    },
+
+    async resetUserPassword(id: string, password: string) {
+        return useApi(`/v1/admin/users/${id}/password`, { method: 'PUT', body: { password } });
     }
 };

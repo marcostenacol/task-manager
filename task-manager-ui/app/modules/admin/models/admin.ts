@@ -16,6 +16,13 @@ export interface RoleDetail {
     permission_ids: string[];
 }
 
+export interface Setting {
+    id: number;
+    name: string;
+    value: string;
+    description: string | null;
+}
+
 export interface Permission {
     id: string;
     name: string;

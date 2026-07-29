@@ -49,6 +49,7 @@ if (!profile.value) {
 const isAdmin = computed(() => user.value?.permissions?.includes('admin.users.list') ?? false)
 const canViewAuditLogs = computed(() => user.value?.permissions?.includes('admin.audit-logs.list') ?? false)
 const canManageRoles = computed(() => user.value?.permissions?.includes('admin.roles.manage') ?? false)
+const canManageSettings = computed(() => user.value?.permissions?.includes('admin.settings.manage') ?? false)
 
 const navItems = computed(() => {
   const items = [
@@ -63,6 +64,9 @@ const navItems = computed(() => {
   }
   if (canViewAuditLogs.value) {
     items.push({ label: 'Auditoria', to: '/admin/audit-logs' })
+  }
+  if (canManageSettings.value) {
+    items.push({ label: 'Configurações', to: '/admin/settings' })
   }
   return items
 })

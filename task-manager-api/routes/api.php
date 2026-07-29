@@ -3,6 +3,7 @@
 use App\Packages\Admin\AuditLogs\Controllers\AuditLogController;
 use App\Packages\Admin\Permissions\Controllers\PermissionController;
 use App\Packages\Admin\Roles\Controllers\RoleController;
+use App\Packages\Admin\Settings\Controllers\SettingController;
 use App\Packages\Admin\Users\Controllers\AdminUserController;
 use App\Packages\Auth\Auth\Controllers\LoginController;
 use App\Packages\Auth\Auth\Controllers\LogoutController;
@@ -73,8 +74,14 @@ Route::group(['prefix' => 'v1', 'as' => 'v1.', 'middleware' => 'throttle:api'], 
                 Route::get('{id}', [RoleController::class, 'show'])->name('show');
                 Route::post('/', [RoleController::class, 'store'])->name('store');
                 Route::put('{id}/permissions', [RoleController::class, 'syncPermissions'])->name('sync-permissions');
+                Route::patch('{id}/name', [RoleController::class, 'updateName'])->name('update-name');
                 Route::patch('{id}/level', [RoleController::class, 'updateLevel'])->name('update-level');
                 Route::delete('{id}', [RoleController::class, 'destroy'])->name('destroy');
+            });
+
+            Route::group(['prefix' => 'settings', 'as' => 'settings.', 'middleware' => 'auth.api:admin.settings.manage'], function () {
+                Route::get('/', [SettingController::class, 'index'])->name('index');
+                Route::put('{id}', [SettingController::class, 'update'])->name('update');
             });
 
             Route::group(['prefix' => 'users', 'as' => 'users.'], function () {
@@ -85,6 +92,7 @@ Route::group(['prefix' => 'v1', 'as' => 'v1.', 'middleware' => 'throttle:api'], 
                 Route::post('{id}/ban', [AdminUserController::class, 'ban'])->middleware('auth.api:admin.users.ban')->name('ban');
                 Route::post('{id}/activate', [AdminUserController::class, 'activate'])->middleware('auth.api:admin.users.activate')->name('activate');
                 Route::patch('{id}/role', [AdminUserController::class, 'changeRole'])->middleware('auth.api:admin.users.role')->name('change-role');
+                Route::put('{id}/password', [AdminUserController::class, 'resetPassword'])->middleware('auth.api:admin.users.reset-password')->name('reset-password');
                 Route::delete('{id}', [AdminUserController::class, 'destroy'])->middleware('auth.api:admin.users.delete')->name('destroy');
             });
         });

@@ -26,8 +26,10 @@ class PermissionSeeder extends Seeder
             ['name' => 'admin.users.create', 'description' => 'Criar usuário'],
             ['name' => 'admin.users.update', 'description' => 'Editar usuário'],
             ['name' => 'admin.users.delete', 'description' => 'Excluir usuário'],
+            ['name' => 'admin.users.reset-password', 'description' => 'Redefinir senha do usuário'],
             ['name' => 'admin.audit-logs.list', 'description' => 'Ver logs de auditoria'],
             ['name' => 'admin.roles.manage', 'description' => 'Gerenciar roles e permissões'],
+            ['name' => 'admin.settings.manage', 'description' => 'Gerenciar configurações do sistema'],
 
             // Task Permissions
             ['name' => 'task.tasks.create', 'description' => 'Criar tarefas'],
