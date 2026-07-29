@@ -4,7 +4,6 @@ namespace App\Packages\Admin\AuditLogs\Controllers;
 
 use App\Base\Traits\Response;
 use App\Http\Controllers\Controller;
-use App\Packages\Admin\AuditLogs\Resources\AuditLogResource;
 use App\Packages\Admin\AuditLogs\Services\ListAuditLogsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,7 +21,7 @@ class AuditLogController extends Controller
         try {
             $data = $this->listAuditLogsService->execute($request->all());
 
-            return self::successResponse(AuditLogResource::collection($data), 'Logs de auditoria recuperados com sucesso.');
+            return self::successResponse($data, 'Logs de auditoria recuperados com sucesso.');
         } catch (\Exception $e) {
             return self::returnError($e);
         }

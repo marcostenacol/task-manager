@@ -1,16 +1,36 @@
-import { ref } from 'vue';
+import { reactive, ref } from 'vue';
 import type { AuditLog } from '../models/admin';
 import { AdminService } from '../services/AdminService';
+
+export interface AuditLogFilters {
+    action: string;
+    actor_name: string;
+    date_from: string;
+    date_to: string;
+}
 
 export const useAuditLogs = () => {
     const logs = ref<AuditLog[]>([]);
     const loading = ref(false);
+    const currentPage = ref(1);
+    const lastPage = ref(1);
+    const total = ref(0);
 
-    const fetchLogs = async () => {
+    const filters = reactive<AuditLogFilters>({
+        action: '',
+        actor_name: '',
+        date_from: '',
+        date_to: ''
+    });
+
+    const fetchLogs = async (page = 1) => {
         loading.value = true;
         try {
-            const response = await AdminService.listAuditLogs() as any;
-            logs.value = response.data || [];
+            const response = await AdminService.listAuditLogs({ ...filters, page }) as any;
+            logs.value = response.data?.data || [];
+            currentPage.value = response.data?.current_page || 1;
+            lastPage.value = response.data?.last_page || 1;
+            total.value = response.data?.total || 0;
         } catch (error) {
             console.error('Erro ao buscar logs de auditoria:', error);
         } finally {
@@ -18,9 +38,30 @@ export const useAuditLogs = () => {
         }
     };
 
+    const applyFilters = () => fetchLogs(1);
+
+    const nextPage = () => {
+        if (currentPage.value < lastPage.value) {
+            fetchLogs(currentPage.value + 1);
+        }
+    };
+
+    const previousPage = () => {
+        if (currentPage.value > 1) {
+            fetchLogs(currentPage.value - 1);
+        }
+    };
+
     return {
         logs,
         loading,
-        fetchLogs
+        currentPage,
+        lastPage,
+        total,
+        filters,
+        fetchLogs,
+        applyFilters,
+        nextPage,
+        previousPage
     };
 };

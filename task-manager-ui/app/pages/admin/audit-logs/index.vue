@@ -8,7 +8,27 @@
     <div v-else>
       <h1 class="page-title">Auditoria</h1>
       <p class="page-subtitle">Histórico de ações administrativas na plataforma.</p>
+
+      <form class="filters" @submit.prevent="applyFilters">
+        <select v-model="filters.action" class="filter-input">
+          <option value="">Todas as ações</option>
+          <option v-for="(label, action) in ACTION_LABELS" :key="action" :value="action">
+            {{ label }}
+          </option>
+        </select>
+        <input v-model="filters.actor_name" type="text" class="filter-input" placeholder="Nome de quem executou">
+        <input v-model="filters.date_from" type="date" class="filter-input">
+        <input v-model="filters.date_to" type="date" class="filter-input">
+        <button type="submit" class="btn-filter">Filtrar</button>
+      </form>
+
       <AuditLogTable class="log-table-wrap" :logs="logs" :loading="loading" />
+
+      <div v-if="!loading && logs.length > 0" class="pagination">
+        <button class="btn-page" :disabled="currentPage <= 1" @click="previousPage">Anterior</button>
+        <span class="page-info">Página {{ currentPage }} de {{ lastPage }} ({{ total }} registros)</span>
+        <button class="btn-page" :disabled="currentPage >= lastPage" @click="nextPage">Próxima</button>
+      </div>
     </div>
   </div>
 </template>
@@ -16,6 +36,7 @@
 <script setup lang="ts">
 import { computed, onMounted, watchEffect } from 'vue'
 import AuditLogTable from '~/modules/admin/components/AuditLogTable.vue'
+import { ACTION_LABELS } from '~/modules/admin/constants/auditLogActions'
 import { useAuth } from '~/modules/auth/hooks/useAuth'
 import { useAuditLogs } from '~/modules/admin/hooks/useAuditLogs'
 
@@ -24,7 +45,7 @@ definePageMeta({
 })
 
 const { user } = useAuth()
-const { logs, loading, fetchLogs } = useAuditLogs()
+const { logs, loading, currentPage, lastPage, total, filters, fetchLogs, applyFilters, nextPage, previousPage } = useAuditLogs()
 
 const accessDenied = computed(() => {
   if (!user.value) return true
@@ -56,9 +77,82 @@ onMounted(() => {
   margin-top: 0.25rem;
 }
 
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.filter-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.6rem 0.85rem;
+  color: var(--ink);
+  font-size: 0.875rem;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.filter-input option {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.btn-filter {
+  padding: 0.6rem 1.25rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-filter:hover {
+  opacity: 0.9;
+}
+
 .log-table-wrap {
   display: block;
   margin-top: 1.5rem;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.page-info {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.btn-page {
+  padding: 0.5rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-page:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.btn-page:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .access-denied {
