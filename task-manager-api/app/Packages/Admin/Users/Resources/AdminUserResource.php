@@ -4,6 +4,7 @@ namespace App\Packages\Admin\Users\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class AdminUserResource extends JsonResource
 {
@@ -13,7 +14,7 @@ class AdminUserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'avatar_path' => $this->avatar_path,
+            'avatar_path' => $this->avatar_path ? Storage::disk('public')->url($this->avatar_path) : null,
             'role' => [
                 'name' => $this->role_name ?? ($this->role->name ?? null),
                 'slug' => $this->role_slug ?? ($this->role->slug ?? null),

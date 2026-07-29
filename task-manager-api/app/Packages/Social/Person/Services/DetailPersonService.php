@@ -13,9 +13,9 @@ class DetailPersonService
     public function execute(string $userId): PersonResource
     {
         $user = $this->cache(
-            key: 'user_profile_' . $userId,
+            key: 'user_profile_'.$userId,
             callback: function () use ($userId) {
-                return User::with(['role', 'contacts'])->findOrFail($userId);
+                return User::with(['role', 'lastStatus', 'contacts'])->findOrFail($userId);
             }
         );
 

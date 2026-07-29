@@ -2,19 +2,22 @@
 
 namespace App\Packages\Admin\Users\Models;
 
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Packages\Admin\Roles\Models\Role;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Packages\Admin\UserStatuses\Models\UserStatus;
+use App\Packages\Social\Contacts\Models\UserContact;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
-    use HasUuids, HasFactory, Notifiable;
+    use HasFactory, HasUuids, Notifiable;
 
     protected $table = 'admin.users';
 
@@ -52,7 +55,7 @@ class User extends Authenticatable
     protected function password(): Attribute
     {
         return Attribute::make(
-            set: fn (string $value) => DB::selectOne("SELECT admin.generate_password_hash(?) as hash", [$value])->hash,
+            set: fn (string $value) => DB::selectOne('SELECT admin.generate_password_hash(?) as hash', [$value])->hash,
         );
     }
 
@@ -61,8 +64,13 @@ class User extends Authenticatable
         return $this->belongsTo(Role::class, 'role_id');
     }
 
-    public function contacts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function lastStatus(): BelongsTo
     {
-        return $this->hasMany(\App\Packages\Social\Contacts\Models\UserContact::class, 'user_id');
+        return $this->belongsTo(UserStatus::class, 'last_status_id');
+    }
+
+    public function contacts(): HasMany
+    {
+        return $this->hasMany(UserContact::class, 'user_id');
     }
 }
