@@ -8,28 +8,26 @@
     <div v-else>
       <div class="page-header">
         <div>
-          <h1 class="page-title">Usuários</h1>
-          <p class="page-subtitle">Gerencie os usuários da plataforma.</p>
+          <h1 class="page-title">Roles</h1>
+          <p class="page-subtitle">Gerencie roles e suas permissões.</p>
         </div>
-        <button class="btn-new-user" @click="openCreateModal">
+        <button class="btn-new-role" @click="openCreateModal">
           <Plus class="btn-icon" :size="20" />
-          Novo Usuário
+          Nova Role
         </button>
       </div>
-      <UserTable
-        class="user-table-wrap"
-        :users="users"
+      <RoleTable
+        class="role-table-wrap"
+        :roles="roles"
         :loading="loading"
-        @ban="handleBan"
-        @activate="handleActivate"
         @edit="openEditModal"
       />
-      <UserFormModal
+      <RoleFormModal
         :show="showModal"
-        :user="selectedUser"
-        :roles="roles"
+        :role="selectedRole"
+        :permissions="permissions"
         @close="showModal = false"
-        @saved="fetchUsers"
+        @saved="fetchRoles"
       />
     </div>
   </div>
@@ -38,27 +36,25 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watchEffect } from 'vue'
 import { Plus } from 'lucide-vue-next'
-import UserTable from '~/modules/admin/components/UserTable.vue'
-import UserFormModal from '~/modules/admin/components/UserFormModal.vue'
+import RoleTable from '~/modules/admin/components/RoleTable.vue'
+import RoleFormModal from '~/modules/admin/components/RoleFormModal.vue'
 import { useAuth } from '~/modules/auth/hooks/useAuth'
-import { useUsers } from '~/modules/admin/hooks/useUsers'
-import type { AdminUser } from '~/modules/admin/models/admin'
+import { useRoles } from '~/modules/admin/hooks/useRoles'
+import type { Role } from '~/modules/admin/models/admin'
 
 definePageMeta({
   middleware: 'auth'
 })
 
 const { user } = useAuth()
-const { users, roles, loading, fetchUsers, fetchRoles, banUser, activateUser } = useUsers()
+const { roles, permissions, loading, fetchRoles, fetchPermissions } = useRoles()
 
 const showModal = ref(false)
-const selectedUser = ref<AdminUser | null>(null)
+const selectedRole = ref<Role | null>(null)
 
 const accessDenied = computed(() => {
   if (!user.value) return true
-  const isAdmin = user.value.role?.slug === 'admin'
-  const hasPermission = user.value.permissions?.includes('admin.users.list')
-  return !isAdmin && !hasPermission
+  return !user.value.permissions?.includes('admin.roles.manage')
 })
 
 watchEffect(() => {
@@ -69,29 +65,18 @@ watchEffect(() => {
 
 onMounted(() => {
   if (!accessDenied.value) {
-    fetchUsers()
     fetchRoles()
+    fetchPermissions()
   }
 })
 
-function handleBan(targetUser: { id: string }) {
-  const reason = window.prompt('Motivo do banimento:')
-  if (reason) {
-    banUser(targetUser.id, reason)
-  }
-}
-
-function handleActivate(targetUser: { id: string }) {
-  activateUser(targetUser.id)
-}
-
 function openCreateModal() {
-  selectedUser.value = null
+  selectedRole.value = null
   showModal.value = true
 }
 
-function openEditModal(targetUser: AdminUser) {
-  selectedUser.value = targetUser
+function openEditModal(role: Role) {
+  selectedRole.value = role
   showModal.value = true
 }
 </script>
@@ -116,7 +101,7 @@ function openEditModal(targetUser: AdminUser) {
   margin-top: 0.25rem;
 }
 
-.btn-new-user {
+.btn-new-role {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -131,7 +116,7 @@ function openEditModal(targetUser: AdminUser) {
   transition: opacity 0.2s;
 }
 
-.btn-new-user:hover {
+.btn-new-role:hover {
   opacity: 0.9;
 }
 
@@ -140,7 +125,7 @@ function openEditModal(targetUser: AdminUser) {
   height: 1.25rem;
 }
 
-.user-table-wrap {
+.role-table-wrap {
   display: block;
   margin-top: 1.5rem;
 }

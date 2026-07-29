@@ -2,6 +2,20 @@ export interface Role {
     id: string;
     name: string;
     slug: string;
+    permissions_count?: number;
+}
+
+export interface RoleDetail {
+    id: string;
+    name: string;
+    slug: string;
+    permission_ids: string[];
+}
+
+export interface Permission {
+    id: string;
+    name: string;
+    description: string | null;
 }
 
 export interface UserStatus {
@@ -32,4 +46,33 @@ export interface AdminUserFilters {
     status_id?: string;
     page: number;
     limit: number;
+}
+
+export interface CreateUserData {
+    name: string;
+    email: string;
+    password: string;
+    role_id: string;
+}
+
+export interface UpdateUserData {
+    name?: string;
+    email?: string;
+    role_id?: string;
+}
+
+export interface AuditLog {
+    id: string;
+    action: string;
+    actor: {
+        id: string | null;
+        name: string | null;
+    };
+    target: {
+        type: string;
+        id: string;
+        name: string | null;
+    };
+    metadata: Record<string, unknown> | [];
+    created_at: string;
 }

@@ -1,9 +1,10 @@
 import { ref, reactive } from 'vue';
-import type { AdminUser, AdminUserFilters } from '../models/admin';
+import type { AdminUser, AdminUserFilters, Role } from '../models/admin';
 import { AdminService } from '../services/AdminService';
 
 export const useUsers = () => {
     const users = ref<AdminUser[]>([]);
+    const roles = ref<Role[]>([]);
     const loading = ref(false);
     const meta = ref<any>(null);
 
@@ -57,12 +58,23 @@ export const useUsers = () => {
         }
     };
 
+    const fetchRoles = async () => {
+        try {
+            const response = await AdminService.listRoles() as any;
+            roles.value = response.data || [];
+        } catch (error) {
+            console.error('Erro ao buscar roles:', error);
+        }
+    };
+
     return {
         users,
+        roles,
         loading,
         meta,
         filters,
         fetchUsers,
+        fetchRoles,
         applyFilters,
         banUser,
         activateUser
