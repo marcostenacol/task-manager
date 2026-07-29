@@ -2,6 +2,7 @@
 
 namespace App\Packages\Admin\Users\Models;
 
+use App\Packages\Admin\Organizations\Models\UserOrganization;
 use App\Packages\Admin\Roles\Models\Role;
 use App\Packages\Admin\UserStatuses\Models\UserStatus;
 use App\Packages\Social\Contacts\Models\UserContact;
@@ -33,6 +34,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role_id',
+        'global_role_id',
         'last_status_id',
         'avatar_path',
         'bio',
@@ -47,6 +49,7 @@ class User extends Authenticatable
         return [
             'id' => 'string',
             'role_id' => 'string',
+            'global_role_id' => 'string',
             'last_status_id' => 'string',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
@@ -64,6 +67,16 @@ class User extends Authenticatable
     public function role(): BelongsTo
     {
         return $this->belongsTo(Role::class, 'role_id');
+    }
+
+    public function globalRole(): BelongsTo
+    {
+        return $this->belongsTo(Role::class, 'global_role_id');
+    }
+
+    public function organizationMemberships(): HasMany
+    {
+        return $this->hasMany(UserOrganization::class, 'user_id');
     }
 
     public function lastStatus(): BelongsTo

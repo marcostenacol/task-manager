@@ -24,6 +24,7 @@ class Role extends Model
         'slug',
         'level',
         'color',
+        'scope',
     ];
 
     public $timestamps = false;
