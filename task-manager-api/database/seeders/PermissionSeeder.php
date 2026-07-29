@@ -44,14 +44,23 @@ class PermissionSeeder extends Seeder
             ['name' => 'social.contacts.manage', 'description' => 'Gerenciar contatos'],
         ];
 
-        $adminRole = Role::where('slug', 'admin')->first();
-        $userRole = Role::where('slug', 'user')->first();
+        $ownerRole = Role::withTrashed()->where('slug', 'owner')->first();
+        $adminRole = Role::withTrashed()->where('slug', 'admin')->first();
+        $userRole = Role::withTrashed()->where('slug', 'user')->first();
 
         foreach ($permissions as $perm) {
             $permission = Permission::firstOrCreate(
                 ['name' => $perm['name']],
                 ['id' => (string) Str::uuid(), 'description' => $perm['description']]
             );
+
+            // Owner gets everything
+            if ($ownerRole) {
+                DB::table('admin.role_has_permissions')->updateOrInsert([
+                    'role_id' => $ownerRole->id,
+                    'permission_id' => $permission->id,
+                ]);
+            }
 
             // Admin gets everything
             DB::table('admin.role_has_permissions')->updateOrInsert([

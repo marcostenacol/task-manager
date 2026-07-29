@@ -6,24 +6,22 @@ use App\Packages\Admin\Users\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use function Pest\Laravel\postJson;
-use function Pest\Laravel\getJson;
-use function Pest\Laravel\putJson;
-use function Pest\Laravel\deleteJson;
-use function Pest\Laravel\withToken;
+
 use function Pest\Laravel\artisan;
+use function Pest\Laravel\postJson;
+use function Pest\Laravel\withToken;
 
 uses(DatabaseTransactions::class);
 
 beforeEach(function () {
     artisan('optimize:clear');
     $this->user = User::factory()->create(['password' => 'password123']);
-    
+
     $response = postJson(route('v1.auth.login'), [
         'email' => $this->user->email,
         'password' => 'password123',
     ]);
-    
+
     $this->token = $response->json('data.access_token.token');
 });
 
@@ -40,7 +38,7 @@ test('deve atualizar a bio do usuário', function () {
     $response = withToken($this->token)
         ->putJson('/api/v1/social/profile', [
             'name' => 'Novo Nome',
-            'bio' => 'Minha nova bio estilosa'
+            'bio' => 'Minha nova bio estilosa',
         ]);
 
     $response->assertStatus(200)
@@ -48,7 +46,7 @@ test('deve atualizar a bio do usuário', function () {
 
     $this->assertDatabaseHas('admin.users', [
         'id' => $this->user->id,
-        'bio' => 'Minha nova bio estilosa'
+        'bio' => 'Minha nova bio estilosa',
     ]);
 });
 
@@ -57,14 +55,14 @@ test('deve fazer upload de avatar', function () {
 
     $response = withToken($this->token)
         ->postJson('/api/v1/social/profile/avatar', [
-            'avatar' => $file
+            'avatar' => $file,
         ]);
 
     $response->assertStatus(200);
     $this->user->refresh();
     $this->assertNotNull($this->user->avatar_path);
     Storage::disk('public')->assertExists($this->user->avatar_path);
-    
+
     // Limpeza
     Storage::disk('public')->delete($this->user->avatar_path);
 });
@@ -75,7 +73,7 @@ test('deve gerenciar contatos', function () {
         ->postJson('/api/v1/social/contacts', [
             'type' => 'linkedin',
             'value' => 'linkedin.com/in/user',
-            'is_primary' => true
+            'is_primary' => true,
         ]);
 
     $response->assertStatus(200);
@@ -86,8 +84,8 @@ test('deve gerenciar contatos', function () {
         ->putJson('/api/v1/social/contacts', [
             'contacts' => [
                 ['type' => 'github', 'value' => 'github.com/user', 'is_primary' => true],
-                ['type' => 'whatsapp', 'value' => '11999999999', 'is_primary' => false]
-            ]
+                ['type' => 'whatsapp', 'value' => '11999999999', 'is_primary' => false],
+            ],
         ]);
 
     $responseUpdate->assertStatus(200);
@@ -115,4 +113,36 @@ test('deve remover um contato individualmente', function () {
         ->assertJsonPath('success', true);
 
     $this->assertDatabaseMissing('social.user_contacts', ['id' => $contactId]);
+});
+
+test('não deve trocar a senha com a senha atual incorreta', function () {
+    $response = withToken($this->token)
+        ->putJson('/api/v1/social/profile/password', [
+            'current_password' => 'senha-errada',
+            'new_password' => 'nova-senha-123',
+            'new_password_confirmation' => 'nova-senha-123',
+        ]);
+
+    $response->assertStatus(400)->assertJsonPath('success', false);
+});
+
+test('deve trocar a senha com a senha atual correta e permitir login com a nova senha', function () {
+    $response = withToken($this->token)
+        ->putJson('/api/v1/social/profile/password', [
+            'current_password' => 'password123',
+            'new_password' => 'nova-senha-123',
+            'new_password_confirmation' => 'nova-senha-123',
+        ]);
+
+    $response->assertStatus(200)->assertJsonPath('success', true);
+
+    postJson(route('v1.auth.login'), [
+        'email' => $this->user->email,
+        'password' => 'password123',
+    ])->assertJsonPath('success', false);
+
+    postJson(route('v1.auth.login'), [
+        'email' => $this->user->email,
+        'password' => 'nova-senha-123',
+    ])->assertJsonPath('success', true);
 });
