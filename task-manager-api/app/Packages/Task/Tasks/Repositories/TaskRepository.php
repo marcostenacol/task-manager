@@ -25,7 +25,7 @@ class TaskRepository extends BaseRepository
         $priorityId = $filters['priority_id'] ?? null;
         $dueDate = $filters['due_date'] ?? null;
 
-        $query = "
+        $query = '
             WITH tasks_filtered AS (
                 SELECT 
                     T.*,
@@ -38,26 +38,35 @@ class TaskRepository extends BaseRepository
                 JOIN public.task_statuses S ON T.status_id = S.id
                 JOIN public.task_priorities P ON T.priority_id = P.id
                 WHERE T.user_id = :user_id
-                " . ($search ? "AND (T.title ILIKE :search OR T.description ILIKE :search)" : "") . "
-                " . ($statusId ? "AND T.status_id = :status_id" : "") . "
-                " . ($priorityId ? "AND T.priority_id = :priority_id" : "") . "
-                " . ($dueDate ? "AND T.due_date::date = :due_date::date" : "") . "
+                AND T.deleted_at IS NULL
+                '.($search ? 'AND (T.title ILIKE :search OR T.description ILIKE :search)' : '').'
+                '.($statusId ? 'AND T.status_id = :status_id' : '').'
+                '.($priorityId ? 'AND T.priority_id = :priority_id' : '').'
+                '.($dueDate ? 'AND T.due_date::date = :due_date::date' : '').'
             )
             SELECT * FROM tasks_filtered
             ORDER BY priority_order DESC, due_date ASC NULLS LAST, created_at DESC
-        ";
+        ';
 
         $params = ['user_id' => $userId];
-        if ($search) $params['search'] = "%{$search}%";
-        if ($statusId) $params['status_id'] = $statusId;
-        if ($priorityId) $params['priority_id'] = $priorityId;
-        if ($dueDate) $params['due_date'] = $dueDate;
+        if ($search) {
+            $params['search'] = "%{$search}%";
+        }
+        if ($statusId) {
+            $params['status_id'] = $statusId;
+        }
+        if ($priorityId) {
+            $params['priority_id'] = $priorityId;
+        }
+        if ($dueDate) {
+            $params['due_date'] = $dueDate;
+        }
 
         $results = DB::select($query, $params);
         $collection = collect($results);
 
-        $page = (int)request()->get('page', 1);
-        
+        $page = (int) request()->get('page', 1);
+
         return new LengthAwarePaginator(
             $collection->forPage($page, $limit)->values(),
             $collection->count(),
