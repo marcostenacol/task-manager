@@ -26,6 +26,7 @@
         @activate="handleActivate"
         @edit="openEditModal"
         @delete="handleDelete"
+        @reset-password="handleResetPassword"
       />
       <UserFormModal
         :show="showModal"
@@ -53,7 +54,7 @@ definePageMeta({
 })
 
 const { user } = useAuth()
-const { users, roles, loading, fetchUsers, fetchRoles, banUser, activateUser, deleteUser } = useUsers()
+const { users, roles, loading, fetchUsers, fetchRoles, banUser, activateUser, deleteUser, resetPassword } = useUsers()
 
 const showModal = ref(false)
 const selectedUser = ref<AdminUser | null>(null)
@@ -97,6 +98,16 @@ function handleActivate(targetUser: { id: string }) {
 function handleDelete(targetUser: { id: string; name: string }) {
   if (window.confirm(`Excluir o usuário "${targetUser.name}"? Essa ação não pode ser desfeita pela tela.`)) {
     deleteUser(targetUser.id)
+  }
+}
+
+async function handleResetPassword(targetUser: { id: string; name: string }) {
+  const password = window.prompt(`Nova senha para "${targetUser.name}" (mínimo 8 caracteres):`)
+  if (!password) return
+
+  const result = await resetPassword(targetUser.id, password)
+  if (!result.success) {
+    window.alert(result.message)
   }
 }
 

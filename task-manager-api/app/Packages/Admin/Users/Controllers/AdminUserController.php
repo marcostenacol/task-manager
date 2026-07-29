@@ -5,6 +5,7 @@ namespace App\Packages\Admin\Users\Controllers;
 use App\Base\Traits\Response;
 use App\Http\Controllers\Controller;
 use App\Packages\Admin\Users\Requests\CreateUserRequest;
+use App\Packages\Admin\Users\Requests\ResetUserPasswordRequest;
 use App\Packages\Admin\Users\Requests\UpdateUserRequest;
 use App\Packages\Admin\Users\Resources\AdminUserResource;
 use App\Packages\Admin\Users\Services\ActivateUserService;
@@ -14,6 +15,7 @@ use App\Packages\Admin\Users\Services\CreateUserService;
 use App\Packages\Admin\Users\Services\DeleteUserService;
 use App\Packages\Admin\Users\Services\DetailUserService;
 use App\Packages\Admin\Users\Services\ListUsersService;
+use App\Packages\Admin\Users\Services\ResetUserPasswordService;
 use App\Packages\Admin\Users\Services\UpdateUserService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -96,6 +98,18 @@ class AdminUserController extends Controller
             $service->execute($id, $admin->id);
 
             return self::successResponse(null, 'Usuário ativado com sucesso.');
+        } catch (\Exception $e) {
+            return self::returnError($e);
+        }
+    }
+
+    public function resetPassword(string $id, ResetUserPasswordRequest $request, ResetUserPasswordService $service): JsonResponse
+    {
+        try {
+            $admin = userObject();
+            $service->execute($id, $request->validated('password'), $admin->id);
+
+            return self::successResponse(null, 'Senha do usuário redefinida com sucesso.');
         } catch (\Exception $e) {
             return self::returnError($e);
         }

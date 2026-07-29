@@ -70,6 +70,16 @@ export const useUsers = () => {
         }
     };
 
+    const resetPassword = async (id: string, password: string) => {
+        try {
+            await AdminService.resetUserPassword(id, password);
+            return { success: true };
+        } catch (error: any) {
+            console.error('Erro ao redefinir senha:', error);
+            return { success: false, message: error?.data?.message || 'Não foi possível redefinir a senha.' };
+        }
+    };
+
     const fetchRoles = async () => {
         try {
             const response = await AdminService.listRoles() as any;
@@ -90,6 +100,7 @@ export const useUsers = () => {
         applyFilters,
         banUser,
         activateUser,
-        deleteUser
+        deleteUser,
+        resetPassword
     };
 };

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Ban, CircleCheck, Pencil, Trash2 } from 'lucide-vue-next';
+import { Ban, CircleCheck, KeyRound, Pencil, Trash2 } from 'lucide-vue-next';
 import type { AdminUser } from '../models/admin';
 
 const props = defineProps<{
@@ -9,7 +9,7 @@ const props = defineProps<{
     currentUserLevel?: number | null;
 }>();
 
-const emit = defineEmits(['ban', 'activate', 'edit', 'delete']);
+const emit = defineEmits(['ban', 'activate', 'edit', 'delete', 'reset-password']);
 
 function canManage(user: AdminUser): boolean {
     if (user.id === props.currentUserId) return false;
@@ -105,6 +105,14 @@ const statusColors: Record<string, string> = {
                                 @click="emit('edit', user)"
                             >
                                 <Pencil class="action-icon" :size="18" />
+                            </button>
+                            <button
+                                v-if="canManage(user)"
+                                class="action-btn"
+                                title="Redefinir senha"
+                                @click="emit('reset-password', user)"
+                            >
+                                <KeyRound class="action-icon" :size="18" />
                             </button>
                             <button
                                 v-if="canManage(user)"

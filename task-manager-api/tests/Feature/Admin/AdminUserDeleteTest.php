@@ -96,3 +96,29 @@ test('owner pode excluir um admin (level superior ao owner numericamente)', func
 
     $this->assertSoftDeleted('admin.users', ['id' => $this->admin->id]);
 });
+
+test('não deve permitir redefinir a própria senha pelo endpoint de admin', function () {
+    $response = withToken($this->adminToken)
+        ->putJson("/api/v1/admin/users/{$this->admin->id}/password", ['password' => 'novaSenha123']);
+
+    $response->assertStatus(400)->assertJsonPath('success', false);
+});
+
+test('não deve permitir redefinir a senha de um usuário igual ou superior', function () {
+    $response = withToken($this->adminToken)
+        ->putJson("/api/v1/admin/users/{$this->owner->id}/password", ['password' => 'novaSenha123']);
+
+    $response->assertStatus(400)->assertJsonPath('success', false);
+});
+
+test('deve permitir que admin redefina a senha de um usuário comum', function () {
+    $response = withToken($this->adminToken)
+        ->putJson("/api/v1/admin/users/{$this->normalUser->id}/password", ['password' => 'novaSenha123']);
+
+    $response->assertStatus(200)->assertJsonPath('success', true);
+
+    postJson(route('v1.auth.login'), [
+        'email' => $this->normalUser->email,
+        'password' => 'novaSenha123',
+    ])->assertJsonPath('success', true);
+});
