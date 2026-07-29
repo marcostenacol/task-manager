@@ -57,6 +57,7 @@ watch(() => props.show, async (newVal) => {
     selectedPermissionIds.value = [];
 
     if (props.role) {
+        form.name = props.role.name;
         form.level = props.role.level;
         form.color = props.role.color || DEFAULT_COLOR;
         const detail = await AdminService.getRole(props.role.id) as any;
@@ -70,6 +71,9 @@ const handleSave = async () => {
     try {
         if (isEditing() && props.role) {
             await AdminService.syncRolePermissions(props.role.id, selectedPermissionIds.value);
+            if (form.name !== props.role.name) {
+                await AdminService.updateRoleName(props.role.id, form.name);
+            }
             if (form.level !== props.role.level || form.color !== props.role.color) {
                 await AdminService.updateRoleLevel(props.role.id, form.level, form.color);
             }
@@ -121,6 +125,16 @@ const handleSave = async () => {
                     </div>
 
                     <div v-else>
+                        <div class="field-group">
+                            <label class="field-label">Nome</label>
+                            <input
+                                v-model="form.name"
+                                type="text"
+                                class="field-input"
+                                placeholder="ex: Moderador"
+                            >
+                        </div>
+
                         <div class="field-group">
                             <label class="field-label">Nível (quanto menor, mais privilegiada)</label>
                             <input

@@ -110,3 +110,33 @@ test('deve permitir alterar o level de uma role para um valor válido (mais frac
 
     $this->assertDatabaseHas('admin.roles', ['id' => $disposableRole->id, 'level' => $newLevel]);
 });
+
+test('não deve permitir renomear a própria role', function () {
+    $response = withToken($this->ownerToken)
+        ->patchJson("/api/v1/admin/roles/{$this->ownerRole->id}/name", ['name' => 'Novo Nome']);
+
+    $response->assertStatus(400)->assertJsonPath('success', false);
+});
+
+test('não deve permitir renomear uma role igual ou superior', function () {
+    $response = withToken($this->adminToken)
+        ->patchJson("/api/v1/admin/roles/{$this->ownerRole->id}/name", ['name' => 'Novo Nome']);
+
+    $response->assertStatus(400)->assertJsonPath('success', false);
+});
+
+test('deve permitir renomear uma role de level inferior (mais fraca)', function () {
+    $disposableRole = Role::create([
+        'id' => (string) Str::uuid(),
+        'name' => 'Disposable Rename',
+        'slug' => 'disposable-role-rename-'.Str::random(6),
+        'level' => 999,
+    ]);
+
+    $response = withToken($this->ownerToken)
+        ->patchJson("/api/v1/admin/roles/{$disposableRole->id}/name", ['name' => 'Renamed Role']);
+
+    $response->assertStatus(200)->assertJsonPath('success', true);
+
+    $this->assertDatabaseHas('admin.roles', ['id' => $disposableRole->id, 'name' => 'Renamed Role', 'slug' => 'renamed-role']);
+});

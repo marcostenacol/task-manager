@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Packages\Admin\Roles\Requests\CreateRoleRequest;
 use App\Packages\Admin\Roles\Requests\SyncRolePermissionsRequest;
 use App\Packages\Admin\Roles\Requests\UpdateRoleLevelRequest;
+use App\Packages\Admin\Roles\Requests\UpdateRoleNameRequest;
 use App\Packages\Admin\Roles\Resources\RoleDetailResource;
 use App\Packages\Admin\Roles\Resources\RoleResource;
 use App\Packages\Admin\Roles\Services\CreateRoleService;
@@ -15,6 +16,7 @@ use App\Packages\Admin\Roles\Services\DetailRoleService;
 use App\Packages\Admin\Roles\Services\ListRolesService;
 use App\Packages\Admin\Roles\Services\SyncRolePermissionsService;
 use App\Packages\Admin\Roles\Services\UpdateRoleLevelService;
+use App\Packages\Admin\Roles\Services\UpdateRoleNameService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
@@ -59,6 +61,18 @@ class RoleController extends Controller
                 'Role criada com sucesso.',
                 HttpResponse::HTTP_CREATED
             );
+        } catch (\Exception $e) {
+            return self::returnError($e);
+        }
+    }
+
+    public function updateName(string $id, UpdateRoleNameRequest $request, UpdateRoleNameService $service): JsonResponse
+    {
+        try {
+            $admin = userObject();
+            $data = $service->execute($id, $request->validated('name'), $admin->id);
+
+            return self::successResponse(RoleResource::make($data->loadCount('permissions')), 'Nome da role atualizado com sucesso.');
         } catch (\Exception $e) {
             return self::returnError($e);
         }
