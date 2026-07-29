@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Packages\Admin\Permissions\Models\Permission;
 use App\Packages\Admin\Roles\Models\Role;
-use Illuminate\Support\Str;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class PermissionSeeder extends Seeder
 {
@@ -23,6 +23,10 @@ class PermissionSeeder extends Seeder
             ['name' => 'admin.users.activate', 'description' => 'Reativar usuário'],
             ['name' => 'admin.users.role', 'description' => 'Alterar role do usuário'],
             ['name' => 'admin.users.status-history', 'description' => 'Ver histórico de status do usuário'],
+            ['name' => 'admin.users.create', 'description' => 'Criar usuário'],
+            ['name' => 'admin.users.update', 'description' => 'Editar usuário'],
+            ['name' => 'admin.audit-logs.list', 'description' => 'Ver logs de auditoria'],
+            ['name' => 'admin.roles.manage', 'description' => 'Gerenciar roles e permissões'],
 
             // Task Permissions
             ['name' => 'task.tasks.create', 'description' => 'Criar tarefas'],
@@ -51,14 +55,14 @@ class PermissionSeeder extends Seeder
             // Admin gets everything
             DB::table('admin.role_has_permissions')->updateOrInsert([
                 'role_id' => $adminRole->id,
-                'permission_id' => $permission->id
+                'permission_id' => $permission->id,
             ]);
 
             // User gets specific permissions
             if (str_starts_with($perm['name'], 'task.') || str_starts_with($perm['name'], 'social.')) {
                 DB::table('admin.role_has_permissions')->updateOrInsert([
                     'role_id' => $userRole->id,
-                    'permission_id' => $permission->id
+                    'permission_id' => $permission->id,
                 ]);
             }
         }

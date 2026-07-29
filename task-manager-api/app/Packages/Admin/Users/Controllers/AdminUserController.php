@@ -2,15 +2,21 @@
 
 namespace App\Packages\Admin\Users\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Base\Traits\Response;
-use App\Packages\Admin\Users\Services\ListUsersService;
-use App\Packages\Admin\Users\Services\DetailUserService;
-use App\Packages\Admin\Users\Services\BanUserService;
+use App\Http\Controllers\Controller;
+use App\Packages\Admin\Users\Requests\CreateUserRequest;
+use App\Packages\Admin\Users\Requests\UpdateUserRequest;
+use App\Packages\Admin\Users\Resources\AdminUserResource;
 use App\Packages\Admin\Users\Services\ActivateUserService;
+use App\Packages\Admin\Users\Services\BanUserService;
 use App\Packages\Admin\Users\Services\ChangeUserRoleService;
-use Illuminate\Http\Request;
+use App\Packages\Admin\Users\Services\CreateUserService;
+use App\Packages\Admin\Users\Services\DetailUserService;
+use App\Packages\Admin\Users\Services\ListUsersService;
+use App\Packages\Admin\Users\Services\UpdateUserService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class AdminUserController extends Controller
 {
@@ -20,7 +26,36 @@ class AdminUserController extends Controller
     {
         try {
             $data = $service->execute($request->all());
+
             return self::successResponse($data, 'Usuários listados com sucesso.');
+        } catch (\Exception $e) {
+            return self::returnError($e);
+        }
+    }
+
+    public function store(CreateUserRequest $request, CreateUserService $service): JsonResponse
+    {
+        try {
+            $admin = userObject();
+            $data = $service->execute($request->validated(), $admin->id);
+
+            return self::successResponse(
+                AdminUserResource::make($data),
+                'Usuário criado com sucesso.',
+                HttpResponse::HTTP_CREATED
+            );
+        } catch (\Exception $e) {
+            return self::returnError($e);
+        }
+    }
+
+    public function update(string $id, UpdateUserRequest $request, UpdateUserService $service): JsonResponse
+    {
+        try {
+            $admin = userObject();
+            $data = $service->execute($id, $request->validated(), $admin->id);
+
+            return self::successResponse(AdminUserResource::make($data), 'Usuário atualizado com sucesso.');
         } catch (\Exception $e) {
             return self::returnError($e);
         }
@@ -30,6 +65,7 @@ class AdminUserController extends Controller
     {
         try {
             $data = $service->execute($id);
+
             return self::successResponse($data, 'Usuário recuperado com sucesso.');
         } catch (\Exception $e) {
             return self::returnError($e);
@@ -40,7 +76,7 @@ class AdminUserController extends Controller
     {
         try {
             $request->validate([
-                'reason' => 'required|string|max:255'
+                'reason' => 'required|string|max:255',
             ]);
 
             $admin = userObject();
@@ -68,10 +104,11 @@ class AdminUserController extends Controller
     {
         try {
             $request->validate([
-                'role_id' => 'required|uuid|exists:App\Packages\Admin\Roles\Models\Role,id'
+                'role_id' => 'required|uuid|exists:App\Packages\Admin\Roles\Models\Role,id',
             ]);
 
-            $service->execute($id, $request->role_id);
+            $admin = userObject();
+            $service->execute($id, $request->role_id, $admin->id);
 
             return self::successResponse(null, 'Role do usuário alterada com sucesso.');
         } catch (\Exception $e) {

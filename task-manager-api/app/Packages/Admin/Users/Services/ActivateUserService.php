@@ -2,15 +2,21 @@
 
 namespace App\Packages\Admin\Users\Services;
 
+use App\Base\Traits\CacheTrait;
+use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
 use App\Packages\Admin\Users\Models\User;
 use App\Packages\Admin\UserStatuses\Models\UserStatus;
-use App\Base\Traits\CacheTrait;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ActivateUserService
 {
     use CacheTrait;
+
+    public function __construct(
+        private RecordAuditLogService $recordAuditLogService,
+    ) {}
 
     public function execute(string $userId, string $activatedBy): void
     {
@@ -19,17 +25,19 @@ class ActivateUserService
             $status = UserStatus::where('slug', 'active')->firstOrFail();
 
             $user->update([
-                'last_status_id' => $status->id
+                'last_status_id' => $status->id,
             ]);
 
             DB::table('admin.user_has_statuses')->insert([
-                'id' => \Illuminate\Support\Str::uuid(),
+                'id' => Str::uuid(),
                 'user_id' => $userId,
                 'status_id' => $status->id,
                 'reason' => 'Reativado pelo administrador',
                 'created_by' => $activatedBy,
                 'created_at' => now(),
             ]);
+
+            $this->recordAuditLogService->execute($activatedBy, 'user.activate', 'User', $userId);
 
             Cache::forget("admin_user_detail_{$userId}");
             $this->clearUserCache($userId);
