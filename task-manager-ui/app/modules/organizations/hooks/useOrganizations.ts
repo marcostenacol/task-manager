@@ -104,6 +104,16 @@ export const useOrganizations = () => {
         }
     };
 
+    const transferOwnership = async (newOwnerUserId: string, organizationId?: string) => {
+        try {
+            await OrganizationService.transferOwnership(newOwnerUserId, organizationId);
+            return { success: true };
+        } catch (error: any) {
+            console.error('Erro ao transferir titularidade:', error);
+            return { success: false, message: error?.data?.message || 'Não foi possível transferir a titularidade.' };
+        }
+    };
+
     const createOrganization = async (name: string, parentId?: string, ownerCpf?: string) => {
         try {
             await OrganizationService.create(name, parentId, ownerCpf);
@@ -128,6 +138,7 @@ export const useOrganizations = () => {
         addMember,
         createMember,
         updateOrganization,
-        createOrganization
+        createOrganization,
+        transferOwnership
     };
 };

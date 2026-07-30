@@ -6,6 +6,7 @@ export interface Role {
     color: string;
     scope: 'global' | 'organization';
     organization_id: string | null;
+    organization_name?: string | null;
     permissions_count?: number;
 }
 

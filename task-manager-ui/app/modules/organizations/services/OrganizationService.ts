@@ -43,5 +43,12 @@ export const OrganizationService = {
 
     async listMembers(organizationId: string) {
         return useApi(`/v1/admin/organizations/${organizationId}/members`);
+    },
+
+    async transferOwnership(newOwnerUserId: string, organizationId?: string) {
+        return useApi('/v1/organizations/transfer-ownership', {
+            method: 'POST',
+            body: { new_owner_user_id: newOwnerUserId, organization_id: organizationId }
+        });
     }
 };

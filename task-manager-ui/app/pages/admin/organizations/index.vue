@@ -6,9 +6,9 @@
       <NuxtLink to="/tasks">Voltar para tarefas</NuxtLink>
     </div>
     <div v-else>
-      <h1 class="page-title">Organizations</h1>
+      <h1 class="page-title">Membros e Organizations</h1>
       <p class="page-subtitle">
-        {{ canListAll ? 'Gerencie todas as organizations da plataforma.' : 'Gerencie a sua organization.' }}
+        {{ canListAll ? 'Gerencie todas as organizations da plataforma.' : 'Gerencie a sua organization e seus membros.' }}
       </p>
 
       <div class="layout">
@@ -25,44 +25,39 @@
             <span class="org-item-count">{{ org.members_count }} membro(s)</span>
           </button>
 
-          <button class="btn-secondary btn-new-org" @click="showCreateForm = !showCreateForm">
-            {{ showCreateForm ? 'Cancelar' : '+ Nova Organization' }}
+          <button class="btn-secondary btn-new-org" @click="showCreateOrgModal = true">
+            + Nova Organization
           </button>
-
-          <form v-if="showCreateForm" class="create-form" @submit.prevent="handleCreate">
-            <input v-model="newOrgName" type="text" class="field-input" placeholder="Nome da organization" required>
-            <select v-model="newOrgParentId" class="field-input">
-              <option value="">Sem organization-pai</option>
-              <option v-for="org in allOrganizations" :key="org.id" :value="org.id">
-                {{ org.name }}
-              </option>
-            </select>
-            <input v-model="newOrgOwnerCpf" type="text" class="field-input" placeholder="CPF do responsável (opcional)" maxlength="11">
-            <button type="submit" class="btn-add" :disabled="creating">
-              {{ creating ? 'Criando...' : 'Criar' }}
-            </button>
-          </form>
         </div>
 
         <div v-if="selectedOrganizationId" class="org-detail">
-          <form class="rename-form" @submit.prevent="handleRename">
-            <input v-model="orgName" type="text" class="field-input" placeholder="Nome da organization">
-            <button type="submit" class="btn-secondary" :disabled="renaming">
-              {{ renaming ? 'Salvando...' : 'Renomear' }}
-            </button>
-          </form>
-
-          <template v-if="!canListAll">
-            <h3 class="section-title">Fundar outra organization</h3>
-            <p class="section-hint">Você vira administrador dela e ela passa a ser sua organization ativa.</p>
-            <form class="rename-form" @submit.prevent="handleFound">
-              <input v-model="newOrgName" type="text" class="field-input" placeholder="Nome da nova organization" required>
-              <button type="submit" class="btn-secondary" :disabled="founding">
-                {{ founding ? 'Criando...' : 'Fundar' }}
+          <div class="org-header">
+            <template v-if="!editingName">
+              <h2 class="org-name">{{ orgName }}</h2>
+              <button class="icon-btn" title="Renomear" @click="editingName = true">
+                <Pencil :size="16" />
               </button>
+            </template>
+            <form v-else class="rename-form" @submit.prevent="handleRename">
+              <input v-model="orgName" type="text" class="field-input" placeholder="Nome da organization">
+              <button type="submit" class="btn-secondary" :disabled="renaming">
+                {{ renaming ? 'Salvando...' : 'Salvar' }}
+              </button>
+              <button type="button" class="btn-cancel" @click="editingName = false">Cancelar</button>
             </form>
-            <p v-if="foundError" class="error-message">{{ foundError }}</p>
-          </template>
+          </div>
+
+          <div class="actions-row">
+            <button v-if="!canListAll" class="btn-secondary" @click="showFoundModal = true">
+              Fundar outra organization
+            </button>
+            <button class="btn-secondary" @click="showAddMemberModal = true">
+              + Adicionar membro
+            </button>
+            <button v-if="canTransferOwnership" class="btn-secondary" @click="showTransferModal = true">
+              Transferir titularidade
+            </button>
+          </div>
 
           <h3 class="section-title">Membros</h3>
           <table class="members-table">
@@ -81,56 +76,59 @@
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
 
-          <h3 class="section-title">Adicionar membro por CPF</h3>
-          <form class="lookup-form" @submit.prevent="handleLookup">
-            <input v-model="cpf" type="text" class="field-input" placeholder="CPF (somente números)" maxlength="11">
-            <button type="submit" class="btn-secondary" :disabled="loadingLookup">
-              {{ loadingLookup ? 'Buscando...' : 'Buscar' }}
+    <FoundOrganizationModal
+      :show="showFoundModal"
+      @close="showFoundModal = false"
+      @founded="handleFounded"
+    />
+
+    <AddMemberModal
+      v-if="selectedOrganizationId"
+      :show="showAddMemberModal"
+      :organization-id="selectedOrganizationId"
+      :organization-roles="organizationRoles"
+      @close="showAddMemberModal = false"
+      @added="fetchMembers(selectedOrganizationId)"
+    />
+
+    <TransferOwnershipModal
+      v-if="selectedOrganizationId"
+      :show="showTransferModal"
+      :organization-id="selectedOrganizationId"
+      :current-user-id="user?.id"
+      :members="members"
+      @close="showTransferModal = false"
+      @transferred="handleTransferred"
+    />
+
+    <div v-if="showCreateOrgModal" class="modal-overlay">
+      <div class="backdrop" @click="showCreateOrgModal = false" />
+      <div class="modal-content">
+        <div class="modal-inner">
+          <div class="modal-header">
+            <h2 class="modal-title">Nova Organization</h2>
+            <button class="close-btn" @click="showCreateOrgModal = false">
+              <X class="close-icon" :size="24" />
             </button>
-          </form>
-
-          <p v-if="lookupError" class="error-message">{{ lookupError }}</p>
-
-          <div v-if="searched && !lookupResult && !lookupError" class="result-card">
-            <p class="empty-message">Nenhum usuário encontrado com esse CPF. Você pode criar um novo usuário já com esse CPF.</p>
-
-            <form class="create-form" @submit.prevent="handleCreateMember">
-              <input v-model="newMemberName" type="text" class="field-input" placeholder="Nome completo" required>
-              <input v-model="newMemberEmail" type="email" class="field-input" placeholder="E-mail" required>
-
-              <select v-model="newMemberRoleId" class="field-input role-select">
-                <option value="" disabled>Selecione a role...</option>
-                <option v-for="role in organizationRoles" :key="role.id" :value="role.id">
-                  {{ role.name }}
-                </option>
-              </select>
-
-              <p class="section-hint">A senha inicial do usuário será o próprio CPF.</p>
-
-              <button type="submit" class="btn-add" :disabled="!newMemberRoleId || creatingMember">
-                {{ creatingMember ? 'Criando...' : 'Criar e adicionar à organization' }}
-              </button>
-            </form>
           </div>
 
-          <div v-if="lookupResult" class="result-card">
-            <div class="result-info">
-              <strong>{{ lookupResult.name }}</strong>
-              <span class="result-email">{{ lookupResult.email }}</span>
-            </div>
-
-            <select v-model="selectedRoleId" class="field-input role-select">
-              <option value="" disabled>Selecione a role...</option>
-              <option v-for="role in organizationRoles" :key="role.id" :value="role.id">
-                {{ role.name }}
+          <form class="create-form" @submit.prevent="handleCreate">
+            <input v-model="newOrgName" type="text" class="field-input" placeholder="Nome da organization" required>
+            <select v-model="newOrgParentId" class="field-input">
+              <option value="">Sem organization-pai</option>
+              <option v-for="org in allOrganizations" :key="org.id" :value="org.id">
+                {{ org.name }}
               </option>
             </select>
-
-            <button class="btn-add" :disabled="!selectedRoleId || addingMember" @click="handleAdd">
-              {{ addingMember ? 'Adicionando...' : 'Adicionar à organization' }}
+            <input v-model="newOrgOwnerCpf" type="text" class="field-input" placeholder="CPF do responsável (opcional)" maxlength="11">
+            <button type="submit" class="btn-add" :disabled="creating">
+              {{ creating ? 'Criando...' : 'Criar' }}
             </button>
-          </div>
+          </form>
         </div>
       </div>
     </div>
@@ -139,10 +137,13 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch, watchEffect } from 'vue'
+import { Pencil, X } from 'lucide-vue-next'
 import { useAuth } from '~/modules/auth/hooks/useAuth'
 import { useOrganizations } from '~/modules/organizations/hooks/useOrganizations'
 import { useRoles } from '~/modules/admin/hooks/useRoles'
-import type { MemberLookupResult } from '~/modules/organizations/models/organization'
+import FoundOrganizationModal from '~/modules/organizations/components/FoundOrganizationModal.vue'
+import AddMemberModal from '~/modules/organizations/components/AddMemberModal.vue'
+import TransferOwnershipModal from '~/modules/organizations/components/TransferOwnershipModal.vue'
 
 definePageMeta({
   middleware: 'auth'
@@ -154,45 +155,31 @@ const {
   members,
   fetchAllOrganizations,
   fetchMembers,
-  lookupMember,
-  addMember,
   updateOrganization,
-  createOrganization,
-  createMember,
-  onboard
+  createOrganization
 } = useOrganizations()
 const { roles, fetchRoles } = useRoles()
 
 const canListAll = computed(() => user.value?.permissions?.includes('admin.organizations.list') ?? false)
 const accessDenied = computed(() => !user.value?.permissions?.includes('admin.organizations.manage-members'))
+const canTransferOwnership = computed(() => canListAll.value || user.value?.role?.slug === 'org-admin')
 
 const organizationRoles = computed(() => roles.value.filter((role) => role.scope === 'organization'))
 
 const selectedOrganizationId = ref('')
 const orgName = ref('')
 const renaming = ref(false)
+const editingName = ref(false)
 
-const cpf = ref('')
-const lookupResult = ref<MemberLookupResult | null>(null)
-const lookupError = ref('')
-const searched = ref(false)
-const loadingLookup = ref(false)
-const selectedRoleId = ref('')
-const addingMember = ref(false)
+const showFoundModal = ref(false)
+const showAddMemberModal = ref(false)
+const showTransferModal = ref(false)
+const showCreateOrgModal = ref(false)
 
-const newMemberName = ref('')
-const newMemberEmail = ref('')
-const newMemberRoleId = ref('')
-const creatingMember = ref(false)
-
-const showCreateForm = ref(false)
 const newOrgName = ref('')
 const newOrgParentId = ref('')
 const newOrgOwnerCpf = ref('')
 const creating = ref(false)
-
-const founding = ref(false)
-const foundError = ref('')
 
 watchEffect(() => {
   if (accessDenied.value) {
@@ -217,6 +204,7 @@ onMounted(async () => {
 
 async function selectOrganization(organizationId: string) {
   selectedOrganizationId.value = organizationId
+  editingName.value = false
   const org = allOrganizations.value.find((item) => item.id === organizationId)
   orgName.value = org?.name || user.value?.organization?.name || ''
   await fetchMembers(organizationId)
@@ -236,6 +224,7 @@ async function handleRename() {
       window.alert(result.message)
       return
     }
+    editingName.value = false
     if (canListAll.value) {
       await fetchAllOrganizations()
     }
@@ -255,100 +244,24 @@ async function handleCreate() {
     newOrgName.value = ''
     newOrgParentId.value = ''
     newOrgOwnerCpf.value = ''
-    showCreateForm.value = false
+    showCreateOrgModal.value = false
     await fetchAllOrganizations()
   } finally {
     creating.value = false
   }
 }
 
-async function handleFound() {
-  founding.value = true
-  foundError.value = ''
-  try {
-    const result = await onboard(newOrgName.value)
-    if (!result.success) {
-      foundError.value = result.message || 'Não foi possível fundar a organization.'
-      return
-    }
-    newOrgName.value = ''
-    await restoreSession()
-    if (user.value?.organization) {
-      selectOrganization(user.value.organization.id)
-    }
-  } finally {
-    founding.value = false
+async function handleFounded() {
+  await restoreSession()
+  if (user.value?.organization) {
+    selectOrganization(user.value.organization.id)
   }
 }
 
-async function handleLookup() {
-  loadingLookup.value = true
-  lookupError.value = ''
-  lookupResult.value = null
-  searched.value = false
-  try {
-    const result = await lookupMember(cpf.value, canListAll.value ? selectedOrganizationId.value : undefined)
-    searched.value = true
-    if (!result.success) {
-      lookupError.value = result.message || 'Erro ao buscar usuário.'
-      return
-    }
-    lookupResult.value = result.result ?? null
-  } finally {
-    loadingLookup.value = false
-  }
-}
-
-async function handleCreateMember() {
-  if (!newMemberRoleId.value) return
-
-  creatingMember.value = true
-  try {
-    const result = await createMember(
-      newMemberName.value,
-      newMemberEmail.value,
-      cpf.value,
-      newMemberRoleId.value,
-      canListAll.value ? selectedOrganizationId.value : undefined
-    )
-    if (!result.success) {
-      window.alert(result.message)
-      return
-    }
-    window.alert('Usuário criado e adicionado com sucesso.')
-    newMemberName.value = ''
-    newMemberEmail.value = ''
-    newMemberRoleId.value = ''
-    cpf.value = ''
-    searched.value = false
+async function handleTransferred() {
+  await restoreSession()
+  if (selectedOrganizationId.value) {
     await fetchMembers(selectedOrganizationId.value)
-  } finally {
-    creatingMember.value = false
-  }
-}
-
-async function handleAdd() {
-  if (!lookupResult.value || !selectedRoleId.value) return
-
-  addingMember.value = true
-  try {
-    const result = await addMember(
-      lookupResult.value.user_id,
-      selectedRoleId.value,
-      canListAll.value ? selectedOrganizationId.value : undefined
-    )
-    if (!result.success) {
-      window.alert(result.message)
-      return
-    }
-    window.alert('Membro adicionado com sucesso.')
-    lookupResult.value = null
-    cpf.value = ''
-    selectedRoleId.value = ''
-    searched.value = false
-    await fetchMembers(selectedOrganizationId.value)
-  } finally {
-    addingMember.value = false
   }
 }
 </script>
@@ -413,15 +326,44 @@ async function handleAdd() {
   margin-top: 0.5rem;
 }
 
-.create-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
 .org-detail {
   flex: 1;
   min-width: 0;
+}
+
+.org-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.org-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.icon-btn {
+  display: flex;
+  padding: 0.4rem;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.icon-btn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.actions-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
 }
 
 .section-title {
@@ -433,16 +375,10 @@ async function handleAdd() {
   margin: 1.5rem 0 0.75rem;
 }
 
-.rename-form, .lookup-form {
+.rename-form {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   max-width: 28rem;
-}
-
-.section-hint {
-  color: var(--muted);
-  font-size: 0.85rem;
-  margin-bottom: 0.75rem;
 }
 
 .field-input {
@@ -457,6 +393,11 @@ async function handleAdd() {
 .field-input:focus {
   outline: none;
   border-color: var(--accent);
+}
+
+.field-input option {
+  background: var(--surface);
+  color: var(--ink);
 }
 
 .btn-secondary, .btn-add {
@@ -478,6 +419,16 @@ async function handleAdd() {
 .btn-secondary:disabled, .btn-add:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.btn-cancel {
+  padding: 0.65rem 1.25rem;
+  background: var(--surface-2);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .members-table {
@@ -509,50 +460,6 @@ async function handleAdd() {
   color: var(--muted);
 }
 
-.error-message {
-  color: var(--danger);
-  margin-top: 1rem;
-  font-size: 0.9rem;
-}
-
-.empty-message {
-  color: var(--muted);
-  margin-top: 1rem;
-  font-style: italic;
-}
-
-.result-card {
-  margin-top: 1.5rem;
-  max-width: 28rem;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.result-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.result-info strong {
-  color: var(--ink);
-}
-
-.result-email {
-  color: var(--muted);
-  font-size: 0.85rem;
-}
-
-.role-select option {
-  background: var(--surface);
-  color: var(--ink);
-}
-
 .access-denied {
   text-align: center;
   padding: 5rem 0;
@@ -566,5 +473,73 @@ async function handleAdd() {
 
 .access-denied a {
   color: var(--accent);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.modal-content {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 28rem;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.modal-inner {
+  padding: 2rem;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.modal-title {
+  color: var(--ink);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.close-btn {
+  display: flex;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.close-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.close-btn:hover {
+  color: var(--ink);
+}
+
+.create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 </style>

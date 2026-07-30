@@ -27,6 +27,7 @@ function canManage(role: Role): boolean {
                 <tr>
                     <th>Nome</th>
                     <th>Slug</th>
+                    <th v-if="isGlobalActor">Organization</th>
                     <th>Permissões</th>
                     <th class="text-right">Ações</th>
                 </tr>
@@ -38,6 +39,7 @@ function canManage(role: Role): boolean {
                         {{ role.name }}
                     </td>
                     <td class="cell-muted">{{ role.slug }}</td>
+                    <td v-if="isGlobalActor" class="cell-muted">{{ role.organization_name || '—' }}</td>
                     <td class="cell-muted">{{ role.permissions_count }}</td>
                     <td class="text-right">
                         <div class="actions">
