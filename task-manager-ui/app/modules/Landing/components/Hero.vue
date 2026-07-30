@@ -4,8 +4,7 @@
       <h1 class="hero-title">Gerencie suas tarefas com <span class="gradient-text">precisão</span>.</h1>
       <p class="hero-subtitle">Aumente sua produtividade com a nossa plataforma inteligente de gestão de fluxo de trabalho.</p>
       <div class="cta-group">
-        <button class="btn btn-primary">Começar Agora</button>
-        <button class="btn btn-secondary">Ver Demo</button>
+        <button class="btn btn-primary" @click="navigateTo('/register')">Começar Agora</button>
       </div>
     </div>
 
@@ -86,16 +85,6 @@ import { BarChart3, Target, Zap } from 'lucide-vue-next'
 
 .btn-primary:hover {
   transform: translateY(-2px);
-}
-
-.btn-secondary {
-  background: var(--surface);
-  color: var(--ink);
-  border: 1px solid var(--border);
-}
-
-.btn-secondary:hover {
-  background: var(--surface-2);
 }
 
 .feature-cards {

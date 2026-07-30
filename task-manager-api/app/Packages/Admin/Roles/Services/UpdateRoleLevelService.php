@@ -21,6 +21,7 @@ class UpdateRoleLevelService
 
             $this->guardAgainstEditingSuperiorOrEqual($actor, $role);
             $this->guardAgainstElevatingAboveActor($actor, $level);
+            $this->guardAgainstCrossOrganizationAccess($actor, $role);
 
             $role->update(array_filter([
                 'level' => $level,
@@ -30,10 +31,21 @@ class UpdateRoleLevelService
             $this->recordAuditLogService->execute($actorId, 'role.level_update', 'Role', $role->id, [
                 'level' => $level,
                 'color' => $color,
-            ]);
+            ], $role->organization_id);
 
             return $role;
         });
+    }
+
+    private function guardAgainstCrossOrganizationAccess(User $actor, Role $role): void
+    {
+        if ($actor->global_role_id !== null || $actor->role->scope === 'global') {
+            return;
+        }
+
+        if ($role->organization_id === null || $role->organization_id !== $actor->active_organization_id) {
+            throw new \InvalidArgumentException('Você só pode editar roles da própria organization.');
+        }
     }
 
     private function guardAgainstEditingSuperiorOrEqual(User $actor, Role $role): void

@@ -9,6 +9,7 @@ const props = defineProps<{
     role?: Role | null;
     permissions: Permission[];
     currentRoleLevel?: number | null;
+    isGlobalActor?: boolean;
 }>();
 
 const emit = defineEmits(['close', 'saved']);
@@ -18,6 +19,10 @@ const isEditing = () => !!props.role;
 const minLevel = computed(() => (props.currentRoleLevel ?? 0) + 1);
 
 const DEFAULT_COLOR = '#64748b';
+
+// Permissões de escopo global — nunca atribuíveis por um ator de organization,
+// mesmo à role customizada da própria organization (ver SyncRolePermissionsService).
+const GLOBAL_ONLY_PERMISSIONS = ['admin.settings.manage', 'admin.organizations.list'];
 
 const form = reactive({
     name: '',
@@ -29,9 +34,14 @@ const selectedPermissionIds = ref<string[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
 
+const assignablePermissions = computed(() => {
+    if (props.isGlobalActor) return props.permissions;
+    return props.permissions.filter((permission) => !GLOBAL_ONLY_PERMISSIONS.includes(permission.name));
+});
+
 const permissionGroups = computed(() => {
     const groups: Record<string, Permission[]> = {};
-    props.permissions.forEach((permission) => {
+    assignablePermissions.value.forEach((permission) => {
         const prefix = permission.name.split('.')[0];
         if (!groups[prefix]) groups[prefix] = [];
         groups[prefix].push(permission);

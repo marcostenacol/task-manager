@@ -3,7 +3,7 @@ import { useAuth } from '~/modules/auth/hooks/useAuth'
 export default defineNuxtRouteMiddleware((to) => {
   const token = useCookie('auth_token')
 
-  if (!token.value && to.path !== '/login' && to.path !== '/register') {
+  if (!token.value && to.path !== '/login' && to.path !== '/register' && to.path !== '/') {
     return navigateTo('/login')
   }
 

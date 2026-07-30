@@ -15,6 +15,7 @@ class RoleDetailResource extends JsonResource
             'slug' => $this->slug,
             'level' => $this->level,
             'color' => $this->color,
+            'organization_id' => $this->organization_id,
             'permission_ids' => $this->permissions->pluck('id'),
         ];
     }

@@ -21,13 +21,27 @@ class DeleteRoleService
 
             $this->guardAgainstDeletingOwnRole($actor, $role);
             $this->guardAgainstDeletingSuperiorOrEqual($actor, $role);
+            $this->guardAgainstCrossOrganizationAccess($actor, $role);
+
+            $organizationId = $role->organization_id;
 
             $role->delete();
 
             $this->recordAuditLogService->execute($actorId, 'role.delete', 'Role', $roleId, [
                 'name' => $role->name,
-            ]);
+            ], $organizationId);
         });
+    }
+
+    private function guardAgainstCrossOrganizationAccess(User $actor, Role $role): void
+    {
+        if ($actor->global_role_id !== null || $actor->role->scope === 'global') {
+            return;
+        }
+
+        if ($role->organization_id === null || $role->organization_id !== $actor->active_organization_id) {
+            throw new \InvalidArgumentException('Você só pode excluir roles da própria organization.');
+        }
     }
 
     private function guardAgainstDeletingOwnRole(User $actor, Role $role): void

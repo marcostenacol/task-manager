@@ -21,18 +21,19 @@ class UpdateRoleNameService
             $role = Role::findOrFail($roleId);
 
             $this->guardAgainstEditingSuperiorOrEqual($actor, $role);
+            $this->guardAgainstCrossOrganizationAccess($actor, $role);
 
             $oldName = $role->name;
 
             $role->update([
                 'name' => $name,
-                'slug' => Str::slug($name),
+                'slug' => $role->organization_id ? Str::slug($name).'-'.Str::random(6) : Str::slug($name),
             ]);
 
             $this->recordAuditLogService->execute($actorId, 'role.update', 'Role', $role->id, [
                 'old_name' => $oldName,
                 'new_name' => $name,
-            ]);
+            ], $role->organization_id);
 
             return $role;
         });
@@ -46,6 +47,17 @@ class UpdateRoleNameService
 
         if ($role->level <= $actor->role->level) {
             throw new \InvalidArgumentException('Você não pode editar uma role igual ou superior à sua.');
+        }
+    }
+
+    private function guardAgainstCrossOrganizationAccess(User $actor, Role $role): void
+    {
+        if ($actor->global_role_id !== null || $actor->role->scope === 'global') {
+            return;
+        }
+
+        if ($role->organization_id === null || $role->organization_id !== $actor->active_organization_id) {
+            throw new \InvalidArgumentException('Você só pode editar roles da própria organization.');
         }
     }
 }

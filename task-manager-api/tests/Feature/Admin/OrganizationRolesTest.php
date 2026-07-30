@@ -1,0 +1,125 @@
+<?php
+
+namespace Tests\Feature\Admin;
+
+use App\Packages\Admin\Organizations\Models\Organization;
+use App\Packages\Admin\Organizations\Models\UserOrganization;
+use App\Packages\Admin\Permissions\Models\Permission;
+use App\Packages\Admin\Roles\Models\Role;
+use App\Packages\Admin\Users\Models\User;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Str;
+
+use function Pest\Laravel\artisan;
+use function Pest\Laravel\postJson;
+use function Pest\Laravel\withToken;
+
+uses(DatabaseTransactions::class);
+
+beforeEach(function () {
+    artisan('optimize:clear');
+
+    $this->orgAdminRole = Role::where('slug', 'org-admin')->first();
+
+    $this->orgA = Organization::create(['id' => (string) Str::uuid(), 'name' => 'Org A Roles', 'slug' => 'org-a-roles-'.Str::random(6)]);
+    $this->orgB = Organization::create(['id' => (string) Str::uuid(), 'name' => 'Org B Roles', 'slug' => 'org-b-roles-'.Str::random(6)]);
+
+    $this->orgAAdmin = User::factory()->create([
+        'role_id' => $this->orgAdminRole->id,
+        'active_organization_id' => $this->orgA->id,
+        'password' => 'password123',
+    ]);
+    UserOrganization::create(['user_id' => $this->orgAAdmin->id, 'organization_id' => $this->orgA->id, 'role_id' => $this->orgAdminRole->id]);
+
+    $this->orgBAdmin = User::factory()->create([
+        'role_id' => $this->orgAdminRole->id,
+        'active_organization_id' => $this->orgB->id,
+        'password' => 'password123',
+    ]);
+    UserOrganization::create(['user_id' => $this->orgBAdmin->id, 'organization_id' => $this->orgB->id, 'role_id' => $this->orgAdminRole->id]);
+
+    $this->orgAAdminToken = postJson(route('v1.auth.login'), [
+        'email' => $this->orgAAdmin->email,
+        'password' => 'password123',
+    ])->json('data.access_token.token');
+
+    $this->orgBAdminToken = postJson(route('v1.auth.login'), [
+        'email' => $this->orgBAdmin->email,
+        'password' => 'password123',
+    ])->json('data.access_token.token');
+});
+
+test('org admin cria uma role customizada escopada à própria organization', function () {
+    $response = withToken($this->orgAAdminToken)->postJson('/api/v1/admin/roles', [
+        'name' => 'Supervisor',
+    ]);
+
+    $response->assertStatus(201)->assertJsonPath('success', true);
+
+    $this->assertDatabaseHas('admin.roles', [
+        'name' => 'Supervisor',
+        'organization_id' => $this->orgA->id,
+        'scope' => 'organization',
+    ]);
+});
+
+test('org admin não vê roles customizadas de outra organization na listagem', function () {
+    withToken($this->orgAAdminToken)->postJson('/api/v1/admin/roles', ['name' => 'Role Org A']);
+    withToken($this->orgBAdminToken)->postJson('/api/v1/admin/roles', ['name' => 'Role Org B']);
+
+    $response = withToken($this->orgAAdminToken)->getJson('/api/v1/admin/roles');
+
+    $response->assertStatus(200);
+
+    $names = collect($response->json('data'))->pluck('name');
+    expect($names)->toContain('Role Org A');
+    expect($names)->not->toContain('Role Org B');
+});
+
+test('org admin não consegue editar role customizada de outra organization', function () {
+    $roleOrgB = withToken($this->orgBAdminToken)->postJson('/api/v1/admin/roles', ['name' => 'Role Só Da B']);
+    $roleId = $roleOrgB->json('data.id');
+
+    $response = withToken($this->orgAAdminToken)->patchJson("/api/v1/admin/roles/{$roleId}/name", ['name' => 'Hijacked']);
+
+    $response->assertStatus(400)->assertJsonPath('success', false);
+});
+
+test('org admin não consegue editar uma role global (ex: user)', function () {
+    $userRole = Role::where('slug', 'user')->first();
+
+    $response = withToken($this->orgAAdminToken)->patchJson("/api/v1/admin/roles/{$userRole->id}/name", ['name' => 'Hijacked']);
+
+    $response->assertStatus(400)->assertJsonPath('success', false);
+});
+
+test('org admin não consegue atribuir uma permissão de escopo global à sua role customizada', function () {
+    $roleResponse = withToken($this->orgAAdminToken)->postJson('/api/v1/admin/roles', ['name' => 'Role Com Permissão']);
+    $roleId = $roleResponse->json('data.id');
+
+    $globalPermission = Permission::where('name', 'admin.settings.manage')->first();
+
+    $response = withToken($this->orgAAdminToken)->putJson("/api/v1/admin/roles/{$roleId}/permissions", [
+        'permission_ids' => [$globalPermission->id],
+    ]);
+
+    $response->assertStatus(400)->assertJsonPath('success', false);
+});
+
+test('org admin consegue atribuir uma permissão normal à sua role customizada', function () {
+    $roleResponse = withToken($this->orgAAdminToken)->postJson('/api/v1/admin/roles', ['name' => 'Role Com Permissão Normal']);
+    $roleId = $roleResponse->json('data.id');
+
+    $taskPermission = Permission::where('name', 'task.tasks.list')->first();
+
+    $response = withToken($this->orgAAdminToken)->putJson("/api/v1/admin/roles/{$roleId}/permissions", [
+        'permission_ids' => [$taskPermission->id],
+    ]);
+
+    $response->assertStatus(200)->assertJsonPath('success', true);
+
+    $this->assertDatabaseHas('admin.role_has_permissions', [
+        'role_id' => $roleId,
+        'permission_id' => $taskPermission->id,
+    ]);
+});

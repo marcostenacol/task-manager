@@ -31,7 +31,7 @@ class RoleController extends Controller
     public function index(): JsonResponse
     {
         try {
-            $data = $this->listRolesService->execute();
+            $data = $this->listRolesService->execute(userObject()->id);
 
             return self::successResponse(RoleResource::collection($data), 'Roles recuperadas com sucesso.');
         } catch (\Exception $e) {
@@ -42,7 +42,7 @@ class RoleController extends Controller
     public function show(string $id, DetailRoleService $service): JsonResponse
     {
         try {
-            $data = $service->execute($id);
+            $data = $service->execute($id, userObject()->id);
 
             return self::successResponse(RoleDetailResource::make($data), 'Role recuperada com sucesso.');
         } catch (\Exception $e) {

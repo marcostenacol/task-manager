@@ -22,6 +22,7 @@
         :loading="loading"
         :current-role-id="currentRole?.id"
         :current-role-level="currentRole?.level"
+        :is-global-actor="isGlobalActor"
         @edit="openEditModal"
         @delete="handleDelete"
       />
@@ -30,6 +31,7 @@
         :role="selectedRole"
         :permissions="permissions"
         :current-role-level="currentRole?.level"
+        :is-global-actor="isGlobalActor"
         @close="showModal = false"
         @saved="fetchRoles"
       />
@@ -62,6 +64,7 @@ const accessDenied = computed(() => {
 })
 
 const currentRole = computed(() => roles.value.find((role) => role.slug === user.value?.role?.slug) ?? null)
+const isGlobalActor = computed(() => user.value?.permissions?.includes('admin.organizations.list') ?? false)
 
 watchEffect(() => {
   if (accessDenied.value) {

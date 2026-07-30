@@ -54,7 +54,7 @@ class PermissionSeeder extends Seeder
         $userRole = Role::withTrashed()->where('slug', 'user')->first();
 
         // Permissões que afetam a plataforma inteira (não escopáveis por organization)
-        $globalOnlyPermissions = ['admin.roles.manage', 'admin.settings.manage', 'admin.organizations.list'];
+        $globalOnlyPermissions = ['admin.settings.manage', 'admin.organizations.list'];
 
         foreach ($permissions as $perm) {
             $permission = Permission::firstOrCreate(

@@ -5,6 +5,7 @@ export interface Role {
     level: number;
     color: string;
     scope: 'global' | 'organization';
+    organization_id: string | null;
     permissions_count?: number;
 }
 
@@ -14,6 +15,7 @@ export interface RoleDetail {
     slug: string;
     level: number;
     color: string;
+    organization_id: string | null;
     permission_ids: string[];
 }
 

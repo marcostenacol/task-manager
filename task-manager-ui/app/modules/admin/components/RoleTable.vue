@@ -7,6 +7,7 @@ const props = defineProps<{
     loading: boolean;
     currentRoleId?: string | null;
     currentRoleLevel?: number | null;
+    isGlobalActor?: boolean;
 }>();
 
 const emit = defineEmits(['edit', 'delete']);
@@ -14,6 +15,7 @@ const emit = defineEmits(['edit', 'delete']);
 function canManage(role: Role): boolean {
     if (role.id === props.currentRoleId) return false;
     if (props.currentRoleLevel == null) return false;
+    if (!props.isGlobalActor && !role.organization_id) return false;
     return role.level > props.currentRoleLevel;
 }
 </script>
