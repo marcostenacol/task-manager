@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { X } from 'lucide-vue-next';
 import { TaskService } from '../services/TaskService';
 import { useTaskForm } from '../hooks/useTaskForm';
+import { useAuth } from '~/modules/auth/hooks/useAuth';
 
 const props = defineProps<{
     show: boolean;
@@ -11,10 +12,13 @@ const props = defineProps<{
 
 const emit = defineEmits(['close', 'saved']);
 
+const { user } = useAuth();
 const { form, loading, errors, submit, resetForm, fillForm } = useTaskForm();
 
 const statuses = ref<any[]>([]);
 const priorities = ref<any[]>([]);
+
+const belongsToOrganization = computed(() => !!user.value?.organization);
 
 onMounted(async () => {
     try {
@@ -130,6 +134,17 @@ const handleSave = async () => {
                             type="datetime-local"
                             class="field-input"
                         >
+                    </div>
+
+                    <div v-if="belongsToOrganization && !taskId">
+                        <label class="field-label">Escopo</label>
+                        <select
+                            v-model="form.visibility"
+                            class="field-input"
+                        >
+                            <option value="personal">Pessoal (só eu vejo)</option>
+                            <option value="organization">Organization (todos os membros veem)</option>
+                        </select>
                     </div>
 
                     <div class="modal-actions">

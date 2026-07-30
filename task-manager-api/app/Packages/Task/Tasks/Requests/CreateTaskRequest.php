@@ -3,6 +3,7 @@
 namespace App\Packages\Task\Tasks\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CreateTaskRequest extends FormRequest
 {
@@ -19,6 +20,7 @@ class CreateTaskRequest extends FormRequest
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'due_date' => 'nullable|date',
+            'visibility' => ['sometimes', 'nullable', 'string', Rule::in(['personal', 'organization'])],
         ];
     }
 }

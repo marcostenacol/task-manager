@@ -15,6 +15,7 @@ export interface Task {
     id: string;
     title: string;
     description: string | null;
+    visibility: 'personal' | 'organization';
     due_date: string | null;
     completed_at: string | null;
     status: TaskStatus;

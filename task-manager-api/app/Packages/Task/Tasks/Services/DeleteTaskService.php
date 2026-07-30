@@ -3,34 +3,40 @@
 namespace App\Packages\Task\Tasks\Services;
 
 use App\Base\Traits\CacheTrait;
-use App\Base\Traits\Response;
+use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
 use App\Packages\Task\Tasks\Models\Task;
 use Illuminate\Support\Facades\DB;
 
 class DeleteTaskService
 {
-    use CacheTrait, Response;
+    use CacheTrait;
 
-    public function execute(string $taskId): void
+    public function __construct(
+        private GuardTaskAccessService $guard_task_access_service,
+        private RecordAuditLogService $record_audit_log_service,
+    ) {}
+
+    public function execute(string $task_id): void
     {
-        $authenticatedUserId = userObject()->id;
+        $actor_id = userObject()->id;
 
-        DB::transaction(function () use ($taskId, $authenticatedUserId) {
-            $task = Task::findOrFail($taskId);
-            $userId = $task->user_id;
+        DB::transaction(function () use ($task_id, $actor_id) {
+            $task = Task::findOrFail($task_id);
+            $user_id = $task->user_id;
 
-            if ($task->user_id !== $authenticatedUserId) {
-                self::notAuthorizeExceptionResponse(
-                    message: 'Recurso não encontrado.',
-                    status_code: 404
-                );
+            $this->guard_task_access_service->guardCanAccess($task, $actor_id, require_owner: true);
+
+            if ($task->visibility === 'organization') {
+                $this->record_audit_log_service->execute($actor_id, 'task.delete', 'Task', $task->id, [
+                    'title' => $task->title,
+                ], $task->organization_id);
             }
-            
+
             $task->delete();
 
             // Invalida caches
-            $this->clearCache('task_', $taskId);
-            $this->clearCache('tasks_user_', $userId . '*');
+            $this->clearCache('task_', $task_id);
+            $this->clearCache('tasks_user_', $user_id.'*');
         });
     }
 }

@@ -11,7 +11,8 @@ export const useTaskForm = () => {
         description: '',
         status_id: '',
         priority_id: '',
-        due_date: ''
+        due_date: '',
+        visibility: 'personal'
     });
 
     const resetForm = () => {
@@ -20,6 +21,7 @@ export const useTaskForm = () => {
         form.status_id = '';
         form.priority_id = '';
         form.due_date = '';
+        form.visibility = 'personal';
         errors.value = null;
     };
 
@@ -37,6 +39,7 @@ export const useTaskForm = () => {
         form.status_id = task.status.id;
         form.priority_id = task.priority.id;
         form.due_date = toDatetimeLocal(task.due_date);
+        form.visibility = task.visibility;
     };
 
     const submit = async (id?: string) => {

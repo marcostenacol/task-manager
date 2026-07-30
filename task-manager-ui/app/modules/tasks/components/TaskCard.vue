@@ -41,6 +41,7 @@ const formatDate = (date: string) => {
             <div class="card-header">
                 <h3 class="card-title">
                     {{ task.title }}
+                    <span v-if="task.visibility === 'organization'" class="org-badge" title="Task da organization">Org</span>
                 </h3>
                 <div class="card-header-actions">
                     <span
@@ -128,6 +129,20 @@ const formatDate = (date: string) => {
     font-size: 1.125rem;
     line-height: 1.3;
     transition: color 0.2s;
+}
+
+.org-badge {
+    display: inline-block;
+    margin-left: 0.4rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    background: var(--accent-soft);
+    color: var(--accent);
+    vertical-align: middle;
 }
 
 .status-badge {
