@@ -1,6 +1,7 @@
 <?php
 
 use App\Packages\Admin\AuditLogs\Controllers\AuditLogController;
+use App\Packages\Admin\Organizations\Controllers\OrganizationController;
 use App\Packages\Admin\Permissions\Controllers\PermissionController;
 use App\Packages\Admin\Roles\Controllers\RoleController;
 use App\Packages\Admin\Settings\Controllers\SettingController;
@@ -40,6 +41,12 @@ Route::group(['prefix' => 'v1', 'as' => 'v1.', 'middleware' => 'throttle:api'], 
         Route::get('/health-auth', function () {
             return response()->json(['success' => true]);
         })->middleware('auth.api:admin.users.list')->name('health-auth');
+
+        Route::group(['prefix' => 'organizations', 'as' => 'organizations.'], function () {
+            Route::post('onboarding', [OrganizationController::class, 'onboard'])
+                ->middleware('throttle:organization-onboarding')
+                ->name('onboarding');
+        });
 
         Route::group(['prefix' => 'social', 'as' => 'social.'], function () {
             Route::get('profile', [PersonController::class, 'show'])->name('profile.show');

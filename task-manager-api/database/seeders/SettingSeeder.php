@@ -23,6 +23,16 @@ class SettingSeeder extends Seeder
                 'value' => '720', // 30 dias
                 'description' => 'Tempo de expiração do Refresh Token em horas.',
             ],
+            [
+                'name' => 'organization_onboarding_rate_limit_per_hour',
+                'value' => '3',
+                'description' => 'Quantas organizations um usuário pode fundar por hora.',
+            ],
+            [
+                'name' => 'organization_max_active_per_founder',
+                'value' => '5',
+                'description' => 'Máximo de organizations que um usuário pode administrar simultaneamente como fundador.',
+            ],
         ]);
     }
 }
