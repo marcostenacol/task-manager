@@ -103,6 +103,71 @@ test('não deve permitir adicionar membro com role igual ou superior', function 
     $response->assertStatus(400)->assertJsonPath('success', false);
 });
 
+test('org admin altera a role de um membro da própria organization', function () {
+    $member = User::factory()->create(['role_id' => $this->userRole->id]);
+    UserOrganization::create(['user_id' => $member->id, 'organization_id' => $this->org->id, 'role_id' => $this->userRole->id]);
+
+    $customRole = Role::create([
+        'id' => (string) Str::uuid(),
+        'name' => 'Supervisor Membros',
+        'slug' => 'supervisor-membros-'.Str::random(6),
+        'level' => $this->orgAdminRole->level + 1,
+        'scope' => 'organization',
+        'organization_id' => $this->org->id,
+    ]);
+
+    $response = withToken($this->orgAdminToken)->putJson("/api/v1/organizations/members/{$member->id}/role", [
+        'role_id' => $customRole->id,
+    ]);
+
+    $response->assertStatus(200)->assertJsonPath('success', true);
+
+    $this->assertDatabaseHas('admin.user_organizations', [
+        'user_id' => $member->id,
+        'organization_id' => $this->org->id,
+        'role_id' => $customRole->id,
+    ]);
+});
+
+test('não deve permitir alterar a própria role via esse endpoint', function () {
+    $response = withToken($this->orgAdminToken)->putJson("/api/v1/organizations/members/{$this->orgAdmin->id}/role", [
+        'role_id' => $this->userRole->id,
+    ]);
+
+    $response->assertStatus(400)->assertJsonPath('success', false);
+});
+
+test('não deve permitir promover um membro para org-admin por esse endpoint (evita múltiplos titulares)', function () {
+    $member = User::factory()->create(['role_id' => $this->userRole->id]);
+    UserOrganization::create(['user_id' => $member->id, 'organization_id' => $this->org->id, 'role_id' => $this->userRole->id]);
+
+    $response = withToken($this->orgAdminToken)->putJson("/api/v1/organizations/members/{$member->id}/role", [
+        'role_id' => $this->orgAdminRole->id,
+    ]);
+
+    $response->assertStatus(400)->assertJsonPath('success', false);
+});
+
+test('org admin remove um membro da própria organization', function () {
+    $member = User::factory()->create(['role_id' => $this->userRole->id, 'active_organization_id' => $this->org->id]);
+    UserOrganization::create(['user_id' => $member->id, 'organization_id' => $this->org->id, 'role_id' => $this->userRole->id]);
+
+    $response = withToken($this->orgAdminToken)->deleteJson("/api/v1/organizations/members/{$member->id}");
+
+    $response->assertStatus(200)->assertJsonPath('success', true);
+
+    $this->assertDatabaseMissing('admin.user_organizations', [
+        'user_id' => $member->id,
+        'organization_id' => $this->org->id,
+    ]);
+});
+
+test('não deve permitir remover a si mesmo', function () {
+    $response = withToken($this->orgAdminToken)->deleteJson("/api/v1/organizations/members/{$this->orgAdmin->id}");
+
+    $response->assertStatus(400)->assertJsonPath('success', false);
+});
+
 test('org admin cria um novo usuário direto na organization com senha inicial igual ao cpf', function () {
     $response = withToken($this->orgAdminToken)->postJson('/api/v1/organizations/members/create', [
         'name' => 'Novo Membro',

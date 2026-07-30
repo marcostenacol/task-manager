@@ -66,13 +66,38 @@
                 <th>Nome</th>
                 <th>E-mail</th>
                 <th>Role</th>
+                <th class="text-right">Ações</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="member in members" :key="member.user_id">
                 <td>{{ member.name }}</td>
                 <td class="cell-muted">{{ member.email }}</td>
-                <td>{{ member.role.name }}</td>
+                <td>
+                  <select
+                    v-if="member.user_id !== user?.id"
+                    class="field-input role-select-inline"
+                    :value="member.role.id"
+                    :disabled="changingRoleUserId === member.user_id"
+                    @change="handleChangeRole(member.user_id, ($event.target as HTMLSelectElement).value)"
+                  >
+                    <option v-for="role in organizationRoles" :key="role.id" :value="role.id">
+                      {{ role.name }}
+                    </option>
+                  </select>
+                  <span v-else>{{ member.role.name }}</span>
+                </td>
+                <td class="text-right">
+                  <button
+                    v-if="member.user_id !== user?.id"
+                    class="icon-btn icon-btn-danger"
+                    title="Remover membro"
+                    :disabled="removingUserId === member.user_id"
+                    @click="handleRemoveMember(member.user_id)"
+                  >
+                    <Trash2 :size="16" />
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -137,7 +162,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch, watchEffect } from 'vue'
-import { Pencil, X } from 'lucide-vue-next'
+import { Pencil, Trash2, X } from 'lucide-vue-next'
 import { useAuth } from '~/modules/auth/hooks/useAuth'
 import { useOrganizations } from '~/modules/organizations/hooks/useOrganizations'
 import { useRoles } from '~/modules/admin/hooks/useRoles'
@@ -156,9 +181,14 @@ const {
   fetchAllOrganizations,
   fetchMembers,
   updateOrganization,
-  createOrganization
+  createOrganization,
+  updateMemberRole,
+  removeMember
 } = useOrganizations()
 const { roles, fetchRoles } = useRoles()
+
+const changingRoleUserId = ref('')
+const removingUserId = ref('')
 
 const canListAll = computed(() => user.value?.permissions?.includes('admin.organizations.list') ?? false)
 const accessDenied = computed(() => !user.value?.permissions?.includes('admin.organizations.manage-members'))
@@ -264,6 +294,35 @@ async function handleTransferred() {
     await fetchMembers(selectedOrganizationId.value)
   }
 }
+
+async function handleChangeRole(userId: string, roleId: string) {
+  changingRoleUserId.value = userId
+  try {
+    const result = await updateMemberRole(userId, roleId, canListAll.value ? selectedOrganizationId.value : undefined)
+    if (!result.success) {
+      window.alert(result.message)
+    }
+    await fetchMembers(selectedOrganizationId.value)
+  } finally {
+    changingRoleUserId.value = ''
+  }
+}
+
+async function handleRemoveMember(userId: string) {
+  if (!window.confirm('Remover este membro da organization?')) return
+
+  removingUserId.value = userId
+  try {
+    const result = await removeMember(userId, canListAll.value ? selectedOrganizationId.value : undefined)
+    if (!result.success) {
+      window.alert(result.message)
+      return
+    }
+    await fetchMembers(selectedOrganizationId.value)
+  } finally {
+    removingUserId.value = ''
+  }
+}
 </script>
 
 <style scoped>
@@ -357,6 +416,25 @@ async function handleTransferred() {
 .icon-btn:hover {
   color: var(--accent);
   border-color: var(--accent);
+}
+
+.icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.icon-btn-danger:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.role-select-inline {
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+}
+
+.text-right {
+  text-align: right;
 }
 
 .actions-row {

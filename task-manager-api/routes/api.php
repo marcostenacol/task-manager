@@ -59,6 +59,8 @@ Route::group(['prefix' => 'v1', 'as' => 'v1.', 'middleware' => 'throttle:api'], 
                 Route::post('transfer-ownership', [OrganizationController::class, 'transferOwnership'])->name('transfer-ownership');
                 Route::put('{id}', [OrganizationController::class, 'update'])->name('update');
                 Route::get('{id}/members', [OrganizationController::class, 'members'])->name('members.show');
+                Route::put('members/{user_id}/role', [OrganizationController::class, 'updateMemberRole'])->name('members.update-role');
+                Route::delete('members/{user_id}', [OrganizationController::class, 'removeMember'])->name('members.remove');
             });
         });
 

@@ -114,6 +114,26 @@ export const useOrganizations = () => {
         }
     };
 
+    const updateMemberRole = async (userId: string, roleId: string, organizationId?: string) => {
+        try {
+            await OrganizationService.updateMemberRole(userId, roleId, organizationId);
+            return { success: true };
+        } catch (error: any) {
+            console.error('Erro ao alterar a role do membro:', error);
+            return { success: false, message: error?.data?.message || 'Não foi possível alterar a role do membro.' };
+        }
+    };
+
+    const removeMember = async (userId: string, organizationId?: string) => {
+        try {
+            await OrganizationService.removeMember(userId, organizationId);
+            return { success: true };
+        } catch (error: any) {
+            console.error('Erro ao remover membro:', error);
+            return { success: false, message: error?.data?.message || 'Não foi possível remover o membro.' };
+        }
+    };
+
     const createOrganization = async (name: string, parentId?: string, ownerCpf?: string) => {
         try {
             await OrganizationService.create(name, parentId, ownerCpf);
@@ -139,6 +159,8 @@ export const useOrganizations = () => {
         createMember,
         updateOrganization,
         createOrganization,
-        transferOwnership
+        transferOwnership,
+        updateMemberRole,
+        removeMember
     };
 };

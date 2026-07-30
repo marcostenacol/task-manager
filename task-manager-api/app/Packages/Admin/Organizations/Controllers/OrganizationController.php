@@ -9,8 +9,10 @@ use App\Packages\Admin\Organizations\Requests\CreateOrganizationMemberRequest;
 use App\Packages\Admin\Organizations\Requests\CreateOrganizationRequest;
 use App\Packages\Admin\Organizations\Requests\LookupOrganizationMemberRequest;
 use App\Packages\Admin\Organizations\Requests\OnboardOrganizationRequest;
+use App\Packages\Admin\Organizations\Requests\RemoveOrganizationMemberRequest;
 use App\Packages\Admin\Organizations\Requests\SwitchActiveOrganizationRequest;
 use App\Packages\Admin\Organizations\Requests\TransferOrganizationOwnershipRequest;
+use App\Packages\Admin\Organizations\Requests\UpdateOrganizationMemberRoleRequest;
 use App\Packages\Admin\Organizations\Requests\UpdateOrganizationRequest;
 use App\Packages\Admin\Organizations\Resources\MyOrganizationMembershipResource;
 use App\Packages\Admin\Organizations\Resources\OrganizationMemberLookupResource;
@@ -24,8 +26,10 @@ use App\Packages\Admin\Organizations\Services\ListOrganizationMembersService;
 use App\Packages\Admin\Organizations\Services\ListOrganizationsService;
 use App\Packages\Admin\Organizations\Services\LookupOrganizationMemberService;
 use App\Packages\Admin\Organizations\Services\OnboardOrganizationService;
+use App\Packages\Admin\Organizations\Services\RemoveOrganizationMemberService;
 use App\Packages\Admin\Organizations\Services\SwitchActiveOrganizationService;
 use App\Packages\Admin\Organizations\Services\TransferOrganizationOwnershipService;
+use App\Packages\Admin\Organizations\Services\UpdateOrganizationMemberRoleService;
 use App\Packages\Admin\Organizations\Services\UpdateOrganizationService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
@@ -95,6 +99,35 @@ class OrganizationController extends Controller
             $service->execute($request->validated(), $admin->id);
 
             return self::successResponse(null, 'Usuário criado e adicionado à organization com sucesso.', HttpResponse::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return self::returnError($e);
+        }
+    }
+
+    public function updateMemberRole(string $user_id, UpdateOrganizationMemberRoleRequest $request, UpdateOrganizationMemberRoleService $service): JsonResponse
+    {
+        try {
+            $admin = userObject();
+            $service->execute(
+                $user_id,
+                $request->validated('role_id'),
+                $admin->id,
+                $request->validated('organization_id')
+            );
+
+            return self::successResponse(null, 'Role do membro atualizada com sucesso.');
+        } catch (\Exception $e) {
+            return self::returnError($e);
+        }
+    }
+
+    public function removeMember(string $user_id, RemoveOrganizationMemberRequest $request, RemoveOrganizationMemberService $service): JsonResponse
+    {
+        try {
+            $admin = userObject();
+            $service->execute($user_id, $admin->id, $request->validated('organization_id'));
+
+            return self::successResponse(null, 'Membro removido com sucesso.');
         } catch (\Exception $e) {
             return self::returnError($e);
         }

@@ -50,5 +50,19 @@ export const OrganizationService = {
             method: 'POST',
             body: { new_owner_user_id: newOwnerUserId, organization_id: organizationId }
         });
+    },
+
+    async updateMemberRole(userId: string, roleId: string, organizationId?: string) {
+        return useApi(`/v1/organizations/members/${userId}/role`, {
+            method: 'PUT',
+            body: { role_id: roleId, organization_id: organizationId }
+        });
+    },
+
+    async removeMember(userId: string, organizationId?: string) {
+        return useApi(`/v1/organizations/members/${userId}`, {
+            method: 'DELETE',
+            query: { organization_id: organizationId }
+        });
     }
 };
