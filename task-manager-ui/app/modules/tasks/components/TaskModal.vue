@@ -147,6 +147,13 @@ const handleSave = async () => {
                         </select>
                     </div>
 
+                    <div v-if="taskId">
+                        <label class="field-label">Escopo</label>
+                        <p class="field-static">
+                            {{ form.visibility === 'organization' ? 'Organization (todos os membros veem)' : 'Pessoal (só eu vejo)' }}
+                        </p>
+                    </div>
+
                     <div class="modal-actions">
                         <button
                             type="button"
@@ -272,6 +279,15 @@ const handleSave = async () => {
     font-size: 0.75rem;
     color: var(--danger);
     margin-top: 0.25rem;
+}
+
+.field-static {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    color: var(--ink);
+    margin: 0;
 }
 
 .field-grid {
