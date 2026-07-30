@@ -36,6 +36,23 @@ beforeEach(function () {
     ])->json('data.access_token.token');
 });
 
+test('org admin consegue ver os membros da própria organization', function () {
+    $response = withToken($this->orgAdminToken)->getJson("/api/v1/organizations/{$this->org->id}/members");
+
+    $response->assertStatus(200)->assertJsonPath('success', true);
+
+    $emails = collect($response->json('data'))->pluck('email');
+    expect($emails)->toContain($this->orgAdmin->email);
+});
+
+test('org admin não consegue ver os membros de outra organization', function () {
+    $otherOrg = Organization::create(['id' => (string) Str::uuid(), 'name' => 'Other Org Members', 'slug' => 'other-org-members-'.Str::random(6)]);
+
+    $response = withToken($this->orgAdminToken)->getJson("/api/v1/organizations/{$otherOrg->id}/members");
+
+    $response->assertStatus(400)->assertJsonPath('success', false);
+});
+
 test('deve permitir salvar o cpf no perfil e rejeitar cpf inválido', function () {
     $response = withToken($this->orgAdminToken)->putJson('/api/v1/social/profile', ['cpf' => '11144477735']);
     $response->assertStatus(200)->assertJsonPath('data.cpf', '11144477735');

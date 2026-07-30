@@ -135,7 +135,8 @@ class OrganizationController extends Controller
     public function members(string $id, ListOrganizationMembersService $service): JsonResponse
     {
         try {
-            $data = $service->execute($id);
+            $admin = userObject();
+            $data = $service->execute($id, $admin->id);
 
             return self::successResponse(OrganizationMemberResource::collection($data), 'Membros recuperados com sucesso.');
         } catch (\Exception $e) {

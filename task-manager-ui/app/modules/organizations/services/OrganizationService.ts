@@ -42,7 +42,7 @@ export const OrganizationService = {
     },
 
     async listMembers(organizationId: string) {
-        return useApi(`/v1/admin/organizations/${organizationId}/members`);
+        return useApi(`/v1/organizations/${organizationId}/members`);
     },
 
     async transferOwnership(newOwnerUserId: string, organizationId?: string) {
