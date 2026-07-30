@@ -22,9 +22,10 @@ class RegisterRequest extends FormRequest
                 'string',
                 'email',
                 'max:255',
-                Rule::unique(User::class, 'email')
+                Rule::unique(User::class, 'email'),
             ],
-            'password' => ['required', 'string', 'min:8'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'cpf' => ['sometimes', 'nullable', 'string', 'size:11', Rule::unique(User::class, 'cpf')],
         ];
     }
 }

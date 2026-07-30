@@ -7,7 +7,6 @@ use App\Packages\Admin\Users\Models\User;
 use App\Packages\Admin\Users\Repositories\UserRepository;
 use App\Packages\Admin\UserStatuses\Models\UserStatus;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 
 class RegisterService
 {
@@ -21,6 +20,7 @@ class RegisterService
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => $data['password'],
+                'cpf' => $data['cpf'] ?? null,
                 'role_id' => $roleUser->id,
                 'last_status_id' => $statusActive->id,
             ]);

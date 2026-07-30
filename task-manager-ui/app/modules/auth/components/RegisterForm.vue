@@ -24,12 +24,27 @@
         <label for="email">E-mail</label>
         <div class="input-wrapper">
           <Mail class="icon" :size="18" />
-          <input 
-            id="email" 
-            v-model="form.email" 
-            type="email" 
-            placeholder="seu@email.com" 
-            required 
+          <input
+            id="email"
+            v-model="form.email"
+            type="email"
+            placeholder="seu@email.com"
+            required
+          >
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label for="cpf">CPF</label>
+        <div class="input-wrapper">
+          <IdCard class="icon" :size="18" />
+          <input
+            id="cpf"
+            v-model="form.cpf"
+            type="text"
+            placeholder="Somente números"
+            maxlength="11"
+            required
           >
         </div>
       </div>
@@ -38,12 +53,26 @@
         <label for="password">Senha</label>
         <div class="input-wrapper">
           <Lock class="icon" :size="18" />
-          <input 
-            id="password" 
-            v-model="form.password" 
-            type="password" 
-            placeholder="Mínimo 8 caracteres" 
-            required 
+          <input
+            id="password"
+            v-model="form.password"
+            type="password"
+            placeholder="Mínimo 8 caracteres"
+            required
+          >
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label for="password_confirmation">Confirme a senha</label>
+        <div class="input-wrapper">
+          <Lock class="icon" :size="18" />
+          <input
+            id="password_confirmation"
+            v-model="form.password_confirmation"
+            type="password"
+            placeholder="Repita a senha"
+            required
           >
         </div>
       </div>
@@ -65,7 +94,7 @@
 </template>
 
 <script setup lang="ts">
-import { Lock, Mail, User } from 'lucide-vue-next'
+import { IdCard, Lock, Mail, User } from 'lucide-vue-next'
 import { AuthService } from '../services/AuthService'
 
 const loading = ref(false)
@@ -73,7 +102,9 @@ const error = ref('')
 const form = reactive({
   name: '',
   email: '',
-  password: ''
+  cpf: '',
+  password: '',
+  password_confirmation: ''
 })
 
 async function handleSubmit() {
@@ -90,7 +121,8 @@ async function handleSubmit() {
     }
   } catch (err: any) {
     console.error('Register error detail:', err)
-    error.value = err?.data?.message || err?.data?.data?.errors?.email?.[0] || 'Falha na conexão com o servidor.'
+    const firstFieldError = Object.values(err?.data?.data?.errors || {})[0] as string[] | undefined
+    error.value = err?.data?.message || firstFieldError?.[0] || 'Falha na conexão com o servidor.'
   } finally {
     loading.value = false
   }
