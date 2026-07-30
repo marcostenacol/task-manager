@@ -86,7 +86,7 @@ async function handleSubmit() {
     }
   } catch (err: any) {
     console.error('Login error detail:', err)
-    error.value = 'Falha na conexão com o servidor.'
+    error.value = err?.data?.message || 'Falha na conexão com o servidor.'
   }
 }
 </script>

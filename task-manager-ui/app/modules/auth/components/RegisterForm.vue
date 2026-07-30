@@ -88,8 +88,9 @@ async function handleSubmit() {
     } else {
       error.value = response.message || 'Erro ao realizar cadastro.'
     }
-  } catch {
-    error.value = 'Falha na conexão ou e-mail já em uso.'
+  } catch (err: any) {
+    console.error('Register error detail:', err)
+    error.value = err?.data?.message || err?.data?.data?.errors?.email?.[0] || 'Falha na conexão com o servidor.'
   } finally {
     loading.value = false
   }

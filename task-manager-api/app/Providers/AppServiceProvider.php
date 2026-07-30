@@ -23,20 +23,25 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // $request->user() nunca resolve neste projeto — a auth é 100% via
+        // token Bearer + PL/pgSQL (AuthenticateMiddleware), sem guard nativo
+        // do Laravel. Usar userObject() (o helper real deste projeto) em vez
+        // de $request->user() em qualquer RateLimiter novo, senão o limite
+        // degrada silenciosamente pra "por IP" pra todo mundo.
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+            return Limit::perMinute(60)->by(userObject()?->id ?: $request->ip());
         });
 
         RateLimiter::for('organization-onboarding', function (Request $request) {
             $perHour = (int) SettingsEnum::getValue(SettingsEnum::ORGANIZATION_ONBOARDING_RATE_LIMIT_PER_HOUR);
 
-            return Limit::perHour($perHour)->by($request->user()?->id ?: $request->ip());
+            return Limit::perHour($perHour)->by(userObject()?->id ?: $request->ip());
         });
 
         RateLimiter::for('organization-member-lookup', function (Request $request) {
             $perHour = (int) SettingsEnum::getValue(SettingsEnum::ORGANIZATION_MEMBER_LOOKUP_RATE_LIMIT_PER_HOUR);
 
-            return Limit::perHour($perHour)->by($request->user()?->id ?: $request->ip());
+            return Limit::perHour($perHour)->by(userObject()?->id ?: $request->ip());
         });
     }
 }
