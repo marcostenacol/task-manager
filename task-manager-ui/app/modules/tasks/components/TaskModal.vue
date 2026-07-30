@@ -19,8 +19,9 @@ const statuses = ref<any[]>([]);
 const priorities = ref<any[]>([]);
 
 const belongsToOrganization = computed(() => !!user.value?.organization);
+const isGlobalActor = computed(() => user.value?.permissions?.includes('admin.organizations.list') ?? false);
 const isOwner = computed(() => !props.taskId || taskOwnerId.value === user.value?.id);
-const canEditVisibility = computed(() => belongsToOrganization.value && isOwner.value);
+const canEditVisibility = computed(() => (belongsToOrganization.value || isGlobalActor.value) && (isOwner.value || isGlobalActor.value));
 
 onMounted(async () => {
     try {

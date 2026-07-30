@@ -147,3 +147,43 @@ test('listagem de usuários inclui a organization de cada um', function () {
 
     expect($organizationEntry['organization']['id'])->toBe($this->orgA->id);
 });
+
+test('listagem de usuários mostra a role efetiva da membership, não a role legada da coluna users.role_id', function () {
+    $adminGlobalRole = Role::where('slug', 'admin')->first();
+    $adminGlobal = User::factory()->create([
+        'role_id' => $adminGlobalRole->id,
+        'global_role_id' => $adminGlobalRole->id,
+        'password' => 'password123',
+    ]);
+    $adminGlobalToken = postJson(route('v1.auth.login'), [
+        'email' => $adminGlobal->email,
+        'password' => 'password123',
+    ])->json('data.access_token.token');
+
+    $member = User::factory()->create([
+        'role_id' => $this->userRole->id,
+        'active_organization_id' => $this->orgA->id,
+    ]);
+    UserOrganization::create(['user_id' => $member->id, 'organization_id' => $this->orgA->id, 'role_id' => $this->userRole->id]);
+
+    $promotedRole = Role::create([
+        'id' => (string) Str::uuid(),
+        'name' => 'Supervisor Efetivo',
+        'slug' => 'supervisor-efetivo-'.Str::random(6),
+        'level' => $this->orgAdminRole->level + 1,
+        'scope' => 'organization',
+        'organization_id' => $this->orgA->id,
+    ]);
+
+    // Promove o membro via membership (não altera admin.users.role_id, só admin.user_organizations.role_id)
+    withToken($this->orgAAdminToken)->putJson("/api/v1/organizations/members/{$member->id}/role", [
+        'role_id' => $promotedRole->id,
+    ])->assertStatus(200);
+
+    $response = withToken($adminGlobalToken)->getJson('/api/v1/admin/users?limit=200');
+
+    $entry = collect($response->json('data.data'))->firstWhere('id', $member->id);
+
+    expect($entry['role']['id'])->toBe($promotedRole->id);
+    $this->assertDatabaseHas('admin.users', ['id' => $member->id, 'role_id' => $this->userRole->id]);
+});

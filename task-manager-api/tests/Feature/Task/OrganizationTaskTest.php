@@ -283,3 +283,24 @@ test('outro membro não consegue mudar o escopo de uma task de organization alhe
 
     $this->assertDatabaseHas('tasks', ['id' => $task->id, 'visibility' => 'organization']);
 });
+
+test('admin global consegue transformar uma task de organization alheia em pessoal', function () {
+    $task = Task::create([
+        'user_id' => $this->member_a->id,
+        'organization_id' => $this->org->id,
+        'visibility' => 'organization',
+        'status_id' => $this->status_pending->id,
+        'priority_id' => $this->priority_high->id,
+        'title' => 'Task rebaixada pelo global',
+    ]);
+
+    $response = withToken($this->token_global)->putJson("/api/v1/tasks/{$task->id}", ['visibility' => 'personal']);
+
+    $response->assertStatus(200)->assertJsonPath('data.visibility', 'personal');
+
+    $this->assertDatabaseHas('tasks', [
+        'id' => $task->id,
+        'visibility' => 'personal',
+        'organization_id' => null,
+    ]);
+});

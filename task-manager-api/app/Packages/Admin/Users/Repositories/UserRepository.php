@@ -27,7 +27,19 @@ class UserRepository extends BaseRepository
         $offset = ($page - 1) * $limit;
 
         $sql = '
-            WITH user_list AS (
+            WITH user_effective_role AS (
+                SELECT
+                    U.id as user_id,
+                    COALESCE(
+                        U.global_role_id,
+                        (SELECT UO.role_id FROM admin.user_organizations UO
+                         WHERE UO.user_id = U.id AND UO.organization_id = U.active_organization_id
+                         LIMIT 1),
+                        U.role_id
+                    ) as effective_role_id
+                FROM admin.users U
+            ),
+            user_list AS (
                 SELECT
                     U.id,
                     U.name,
@@ -46,7 +58,8 @@ class UserRepository extends BaseRepository
                     S.name as status_name,
                     S.slug as status_slug
                 FROM admin.users U
-                JOIN admin.roles R ON U.role_id = R.id
+                JOIN user_effective_role UER ON UER.user_id = U.id
+                JOIN admin.roles R ON R.id = UER.effective_role_id
                 LEFT JOIN admin.organizations O ON O.id = U.active_organization_id
                 LEFT JOIN admin.user_statuses S ON U.last_status_id = S.id
                 WHERE U.deleted_at IS NULL
@@ -75,7 +88,7 @@ class UserRepository extends BaseRepository
         }
 
         if (! empty($filters['role_id'])) {
-            $sql .= ' AND U.role_id = :role_id';
+            $sql .= ' AND R.id = :role_id';
             $params['role_id'] = $filters['role_id'];
         }
 

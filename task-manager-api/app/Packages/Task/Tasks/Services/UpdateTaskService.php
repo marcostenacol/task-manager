@@ -53,11 +53,18 @@ class UpdateTaskService
             return $data;
         }
 
-        throw_unless($task->user_id === $actor_id, new \InvalidArgumentException('Só o dono da task pode mudar o escopo dela.'));
+        throw_unless($task->user_id === $actor_id || $this->actorIsGlobal($actor_id), new \InvalidArgumentException('Só o dono da task ou um ator global pode mudar o escopo dela.'));
 
         $data['organization_id'] = $this->resolveOrganizationId($task, $data['visibility']);
 
         return $data;
+    }
+
+    private function actorIsGlobal(string $actor_id): bool
+    {
+        $actor = User::with('role')->findOrFail($actor_id);
+
+        return $actor->global_role_id !== null || $actor->role->scope === 'global';
     }
 
     private function resolveOrganizationId(Task $task, string $visibility): ?string
