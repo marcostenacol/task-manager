@@ -85,3 +85,69 @@ test('não deve permitir adicionar membro com role igual ou superior', function 
 
     $response->assertStatus(400)->assertJsonPath('success', false);
 });
+
+test('org admin cria um novo usuário direto na organization com senha inicial igual ao cpf', function () {
+    $response = withToken($this->orgAdminToken)->postJson('/api/v1/organizations/members/create', [
+        'name' => 'Novo Membro',
+        'email' => 'novo.membro@example.com',
+        'cpf' => '11144477735',
+        'role_id' => $this->userRole->id,
+    ]);
+
+    $response->assertStatus(201)->assertJsonPath('success', true);
+
+    $this->assertDatabaseHas('admin.users', [
+        'email' => 'novo.membro@example.com',
+        'cpf' => '11144477735',
+    ]);
+
+    $newUser = User::where('email', 'novo.membro@example.com')->first();
+
+    $this->assertDatabaseHas('admin.user_organizations', [
+        'user_id' => $newUser->id,
+        'organization_id' => $this->org->id,
+        'role_id' => $this->userRole->id,
+    ]);
+
+    postJson(route('v1.auth.login'), [
+        'email' => 'novo.membro@example.com',
+        'password' => '11144477735',
+    ])->assertStatus(200)->assertJsonPath('success', true);
+});
+
+test('não deve permitir criar novo membro com role igual ou superior', function () {
+    $response = withToken($this->orgAdminToken)->postJson('/api/v1/organizations/members/create', [
+        'name' => 'Membro Bloqueado',
+        'email' => 'membro.bloqueado@example.com',
+        'cpf' => '11144477735',
+        'role_id' => $this->orgAdminRole->id,
+    ]);
+
+    $response->assertStatus(400)->assertJsonPath('success', false);
+});
+
+test('não deve permitir criar novo membro com role global', function () {
+    $globalAdminRole = Role::where('slug', 'admin')->first();
+
+    $response = withToken($this->orgAdminToken)->postJson('/api/v1/organizations/members/create', [
+        'name' => 'Membro Global Bloqueado',
+        'email' => 'membro.global@example.com',
+        'cpf' => '11144477735',
+        'role_id' => $globalAdminRole->id,
+    ]);
+
+    $response->assertStatus(400)->assertJsonPath('success', false);
+});
+
+test('não deve criar novo membro com cpf ou email já em uso', function () {
+    User::factory()->create(['role_id' => $this->userRole->id, 'cpf' => '11144477735']);
+
+    $response = withToken($this->orgAdminToken)->postJson('/api/v1/organizations/members/create', [
+        'name' => 'Membro Duplicado',
+        'email' => 'membro.duplicado@example.com',
+        'cpf' => '11144477735',
+        'role_id' => $this->userRole->id,
+    ]);
+
+    $response->assertStatus(422);
+});

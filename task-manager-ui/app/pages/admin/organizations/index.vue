@@ -91,7 +91,28 @@
           </form>
 
           <p v-if="lookupError" class="error-message">{{ lookupError }}</p>
-          <p v-if="searched && !lookupResult && !lookupError" class="empty-message">Nenhum usuário encontrado com esse CPF.</p>
+
+          <div v-if="searched && !lookupResult && !lookupError" class="result-card">
+            <p class="empty-message">Nenhum usuário encontrado com esse CPF. Você pode criar um novo usuário já com esse CPF.</p>
+
+            <form class="create-form" @submit.prevent="handleCreateMember">
+              <input v-model="newMemberName" type="text" class="field-input" placeholder="Nome completo" required>
+              <input v-model="newMemberEmail" type="email" class="field-input" placeholder="E-mail" required>
+
+              <select v-model="newMemberRoleId" class="field-input role-select">
+                <option value="" disabled>Selecione a role...</option>
+                <option v-for="role in organizationRoles" :key="role.id" :value="role.id">
+                  {{ role.name }}
+                </option>
+              </select>
+
+              <p class="section-hint">A senha inicial do usuário será o próprio CPF.</p>
+
+              <button type="submit" class="btn-add" :disabled="!newMemberRoleId || creatingMember">
+                {{ creatingMember ? 'Criando...' : 'Criar e adicionar à organization' }}
+              </button>
+            </form>
+          </div>
 
           <div v-if="lookupResult" class="result-card">
             <div class="result-info">
@@ -137,6 +158,7 @@ const {
   addMember,
   updateOrganization,
   createOrganization,
+  createMember,
   onboard
 } = useOrganizations()
 const { roles, fetchRoles } = useRoles()
@@ -157,6 +179,11 @@ const searched = ref(false)
 const loadingLookup = ref(false)
 const selectedRoleId = ref('')
 const addingMember = ref(false)
+
+const newMemberName = ref('')
+const newMemberEmail = ref('')
+const newMemberRoleId = ref('')
+const creatingMember = ref(false)
 
 const showCreateForm = ref(false)
 const newOrgName = ref('')
@@ -269,6 +296,34 @@ async function handleLookup() {
     lookupResult.value = result.result ?? null
   } finally {
     loadingLookup.value = false
+  }
+}
+
+async function handleCreateMember() {
+  if (!newMemberRoleId.value) return
+
+  creatingMember.value = true
+  try {
+    const result = await createMember(
+      newMemberName.value,
+      newMemberEmail.value,
+      cpf.value,
+      newMemberRoleId.value,
+      canListAll.value ? selectedOrganizationId.value : undefined
+    )
+    if (!result.success) {
+      window.alert(result.message)
+      return
+    }
+    window.alert('Usuário criado e adicionado com sucesso.')
+    newMemberName.value = ''
+    newMemberEmail.value = ''
+    newMemberRoleId.value = ''
+    cpf.value = ''
+    searched.value = false
+    await fetchMembers(selectedOrganizationId.value)
+  } finally {
+    creatingMember.value = false
   }
 }
 

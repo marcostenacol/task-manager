@@ -5,6 +5,7 @@ namespace App\Packages\Admin\Organizations\Controllers;
 use App\Base\Traits\Response;
 use App\Http\Controllers\Controller;
 use App\Packages\Admin\Organizations\Requests\AddOrganizationMemberRequest;
+use App\Packages\Admin\Organizations\Requests\CreateOrganizationMemberRequest;
 use App\Packages\Admin\Organizations\Requests\CreateOrganizationRequest;
 use App\Packages\Admin\Organizations\Requests\LookupOrganizationMemberRequest;
 use App\Packages\Admin\Organizations\Requests\OnboardOrganizationRequest;
@@ -15,6 +16,7 @@ use App\Packages\Admin\Organizations\Resources\OrganizationMemberLookupResource;
 use App\Packages\Admin\Organizations\Resources\OrganizationMemberResource;
 use App\Packages\Admin\Organizations\Resources\OrganizationResource;
 use App\Packages\Admin\Organizations\Services\AddOrganizationMemberService;
+use App\Packages\Admin\Organizations\Services\CreateOrganizationMemberService;
 use App\Packages\Admin\Organizations\Services\CreateOrganizationService;
 use App\Packages\Admin\Organizations\Services\ListMyOrganizationsService;
 use App\Packages\Admin\Organizations\Services\ListOrganizationMembersService;
@@ -79,6 +81,18 @@ class OrganizationController extends Controller
             );
 
             return self::successResponse(null, 'Membro adicionado com sucesso.', HttpResponse::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return self::returnError($e);
+        }
+    }
+
+    public function createMember(CreateOrganizationMemberRequest $request, CreateOrganizationMemberService $service): JsonResponse
+    {
+        try {
+            $admin = userObject();
+            $service->execute($request->validated(), $admin->id);
+
+            return self::successResponse(null, 'Usuário criado e adicionado à organization com sucesso.', HttpResponse::HTTP_CREATED);
         } catch (\Exception $e) {
             return self::returnError($e);
         }

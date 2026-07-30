@@ -32,6 +32,7 @@ class CreateUserService
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'password' => $data['password'],
+                'cpf' => $data['cpf'] ?? null,
                 'role_id' => $data['role_id'],
                 'global_role_id' => $role->scope === 'global' ? $role->id : null,
                 'active_organization_id' => $organizationId,

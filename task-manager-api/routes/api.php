@@ -55,6 +55,7 @@ Route::group(['prefix' => 'v1', 'as' => 'v1.', 'middleware' => 'throttle:api'], 
                     ->middleware('throttle:organization-member-lookup')
                     ->name('members.lookup');
                 Route::post('members', [OrganizationController::class, 'addMember'])->name('members.add');
+                Route::post('members/create', [OrganizationController::class, 'createMember'])->name('members.create');
                 Route::put('{id}', [OrganizationController::class, 'update'])->name('update');
             });
         });

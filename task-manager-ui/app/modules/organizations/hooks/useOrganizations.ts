@@ -94,6 +94,16 @@ export const useOrganizations = () => {
         }
     };
 
+    const createMember = async (name: string, email: string, cpf: string, roleId: string, organizationId?: string) => {
+        try {
+            await OrganizationService.createMember(name, email, cpf, roleId, organizationId);
+            return { success: true };
+        } catch (error: any) {
+            console.error('Erro ao criar novo membro:', error);
+            return { success: false, message: error?.data?.message || 'Não foi possível criar o usuário.' };
+        }
+    };
+
     const createOrganization = async (name: string, parentId?: string, ownerCpf?: string) => {
         try {
             await OrganizationService.create(name, parentId, ownerCpf);
@@ -116,6 +126,7 @@ export const useOrganizations = () => {
         switchActive,
         lookupMember,
         addMember,
+        createMember,
         updateOrganization,
         createOrganization
     };

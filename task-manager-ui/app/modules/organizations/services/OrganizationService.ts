@@ -22,6 +22,13 @@ export const OrganizationService = {
         });
     },
 
+    async createMember(name: string, email: string, cpf: string, roleId: string, organizationId?: string) {
+        return useApi('/v1/organizations/members/create', {
+            method: 'POST',
+            body: { name, email, cpf, role_id: roleId, organization_id: organizationId }
+        });
+    },
+
     async update(organizationId: string, name: string) {
         return useApi(`/v1/organizations/${organizationId}`, { method: 'PUT', body: { name } });
     },

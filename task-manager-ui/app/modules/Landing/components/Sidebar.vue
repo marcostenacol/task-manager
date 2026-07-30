@@ -75,7 +75,7 @@ async function handleSwitch() {
   window.location.reload()
 }
 
-const isAdmin = computed(() => user.value?.permissions?.includes('admin.users.list') ?? false)
+const isGlobalAdmin = computed(() => user.value?.permissions?.includes('admin.organizations.list') ?? false)
 const canViewAuditLogs = computed(() => user.value?.permissions?.includes('admin.audit-logs.list') ?? false)
 const canManageRoles = computed(() => user.value?.permissions?.includes('admin.roles.manage') ?? false)
 const canManageSettings = computed(() => user.value?.permissions?.includes('admin.settings.manage') ?? false)
@@ -86,7 +86,7 @@ const navItems = computed(() => {
     { label: 'Minhas tarefas', to: '/tasks' },
     { label: 'Meu perfil', to: '/profile' },
   ]
-  if (isAdmin.value) {
+  if (isGlobalAdmin.value) {
     items.push({ label: 'Usuários', to: '/admin/users' })
   }
   if (canManageMembers.value) {
