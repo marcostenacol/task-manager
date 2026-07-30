@@ -2,6 +2,7 @@
 
 namespace App\Packages\Admin\Organizations\Services;
 
+use App\Base\Traits\CacheTrait;
 use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
 use App\Packages\Admin\Organizations\Models\UserOrganization;
 use App\Packages\Admin\Roles\Models\Role;
@@ -10,22 +11,24 @@ use Illuminate\Support\Facades\DB;
 
 class AddOrganizationMemberService
 {
+    use CacheTrait;
+
     public function __construct(
-        private RecordAuditLogService $recordAuditLogService,
-        private GuardRoleAssignmentService $guardRoleAssignmentService,
-        private ResolveTargetOrganizationService $resolveTargetOrganizationService,
+        private RecordAuditLogService $record_audit_log_service,
+        private GuardRoleAssignmentService $guard_role_assignment_service,
+        private ResolveTargetOrganizationService $resolve_target_organization_service,
     ) {}
 
-    public function execute(string $targetUserId, string $roleId, string $actorId, ?string $organizationId = null): UserOrganization
+    public function execute(string $target_user_id, string $role_id, string $actor_id, ?string $organization_id = null): UserOrganization
     {
-        return DB::transaction(function () use ($targetUserId, $roleId, $actorId, $organizationId) {
-            $actor = User::findOrFail($actorId);
-            $target = User::findOrFail($targetUserId);
-            $role = Role::findOrFail($roleId);
+        return DB::transaction(function () use ($target_user_id, $role_id, $actor_id, $organization_id) {
+            $actor = User::findOrFail($actor_id);
+            $target = User::findOrFail($target_user_id);
+            $role = Role::findOrFail($role_id);
 
-            $targetOrganizationId = $this->resolveTargetOrganizationService->execute($actor, $organizationId);
+            $target_organization_id = $this->resolve_target_organization_service->execute($actor, $organization_id);
 
-            $this->guardRoleAssignmentService->guardAgainstAssigningSuperiorOrEqualRole($actor, $role);
+            $this->guard_role_assignment_service->guardAgainstAssigningSuperiorOrEqualRole($actor, $role);
 
             if ($role->scope !== 'organization') {
                 throw new \InvalidArgumentException('Só é possível adicionar membros com uma role de organization.');
@@ -33,18 +36,20 @@ class AddOrganizationMemberService
 
             $membership = UserOrganization::create([
                 'user_id' => $target->id,
-                'organization_id' => $targetOrganizationId,
+                'organization_id' => $target_organization_id,
                 'role_id' => $role->id,
             ]);
 
             if ($target->active_organization_id === null) {
-                $target->update(['active_organization_id' => $targetOrganizationId]);
+                $target->update(['active_organization_id' => $target_organization_id]);
             }
 
-            $this->recordAuditLogService->execute($actorId, 'organization.member_add', 'User', $target->id, [
-                'organization_id' => $targetOrganizationId,
+            $this->record_audit_log_service->execute($actor_id, 'organization.member_add', 'User', $target->id, [
+                'organization_id' => $target_organization_id,
                 'role_id' => $role->id,
-            ], $targetOrganizationId);
+            ], $target_organization_id);
+
+            $this->clearUserCache($target_user_id);
 
             return $membership;
         });

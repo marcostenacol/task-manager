@@ -2,6 +2,7 @@
 
 namespace App\Packages\Admin\Organizations\Services;
 
+use App\Base\Traits\CacheTrait;
 use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
 use App\Packages\Admin\Organizations\Models\UserOrganization;
 use App\Packages\Admin\Users\Models\User;
@@ -9,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 
 class RemoveOrganizationMemberService
 {
+    use CacheTrait;
+
     public function __construct(
         private RecordAuditLogService $record_audit_log_service,
         private GuardRoleAssignmentService $guard_role_assignment_service,
@@ -42,6 +45,8 @@ class RemoveOrganizationMemberService
             $this->record_audit_log_service->execute($actor_id, 'organization.member_remove', 'User', $target_user_id, [
                 'role_id' => $target_role->id,
             ], $target_organization_id);
+
+            $this->clearUserCache($target_user_id);
         });
     }
 

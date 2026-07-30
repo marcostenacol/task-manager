@@ -13,6 +13,7 @@ export interface TaskPriority {
 
 export interface Task {
     id: string;
+    user_id: string;
     title: string;
     description: string | null;
     visibility: 'personal' | 'organization';

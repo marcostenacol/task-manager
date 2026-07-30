@@ -3,6 +3,7 @@
 namespace App\Packages\Task\Tasks\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateTaskRequest extends FormRequest
 {
@@ -19,6 +20,7 @@ class UpdateTaskRequest extends FormRequest
             'title' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'due_date' => 'nullable|date_format:Y-m-d\TH:i:s.u\Z,Y-m-d\TH:i:s\Z,Y-m-d H:i:s',
+            'visibility' => ['sometimes', 'nullable', 'string', Rule::in(['personal', 'organization'])],
         ];
     }
 }

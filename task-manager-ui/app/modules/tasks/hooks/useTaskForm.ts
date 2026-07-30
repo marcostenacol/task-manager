@@ -5,6 +5,7 @@ import { TaskService } from '../services/TaskService';
 export const useTaskForm = () => {
     const loading = ref(false);
     const errors = ref<any>(null);
+    const taskOwnerId = ref('');
 
     const form = reactive<Partial<Task>>({
         title: '',
@@ -22,6 +23,7 @@ export const useTaskForm = () => {
         form.priority_id = '';
         form.due_date = '';
         form.visibility = 'personal';
+        taskOwnerId.value = '';
         errors.value = null;
     };
 
@@ -40,6 +42,7 @@ export const useTaskForm = () => {
         form.priority_id = task.priority.id;
         form.due_date = toDatetimeLocal(task.due_date);
         form.visibility = task.visibility;
+        taskOwnerId.value = task.user_id;
     };
 
     const submit = async (id?: string) => {
@@ -64,6 +67,7 @@ export const useTaskForm = () => {
         form,
         loading,
         errors,
+        taskOwnerId,
         resetForm,
         fillForm,
         submit

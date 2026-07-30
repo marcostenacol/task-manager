@@ -2,6 +2,7 @@
 
 namespace App\Packages\Admin\Organizations\Services;
 
+use App\Base\Traits\CacheTrait;
 use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
 use App\Packages\Admin\Organizations\Models\UserOrganization;
 use App\Packages\Admin\Roles\Models\Role;
@@ -10,63 +11,68 @@ use Illuminate\Support\Facades\DB;
 
 class TransferOrganizationOwnershipService
 {
+    use CacheTrait;
+
     public function __construct(
-        private RecordAuditLogService $recordAuditLogService,
-        private ResolveTargetOrganizationService $resolveTargetOrganizationService,
+        private RecordAuditLogService $record_audit_log_service,
+        private ResolveTargetOrganizationService $resolve_target_organization_service,
     ) {}
 
-    public function execute(string $newOwnerUserId, string $actorId, ?string $organizationId = null): void
+    public function execute(string $new_owner_user_id, string $actor_id, ?string $organization_id = null): void
     {
-        DB::transaction(function () use ($newOwnerUserId, $actorId, $organizationId) {
-            $actor = User::with('role')->findOrFail($actorId);
-            $targetOrganizationId = $this->resolveTargetOrganizationService->execute($actor, $organizationId);
+        DB::transaction(function () use ($new_owner_user_id, $actor_id, $organization_id) {
+            $actor = User::with('role')->findOrFail($actor_id);
+            $target_organization_id = $this->resolve_target_organization_service->execute($actor, $organization_id);
 
-            $this->guardAgainstTransferringToSelf($actor, $newOwnerUserId);
+            $this->guardAgainstTransferringToSelf($actor, $new_owner_user_id);
 
-            $orgAdminRole = Role::where('slug', 'org-admin')->firstOrFail();
-            $userRole = Role::where('slug', 'user')->firstOrFail();
+            $org_admin_role = Role::where('slug', 'org-admin')->firstOrFail();
+            $user_role = Role::where('slug', 'user')->firstOrFail();
 
-            $this->guardActorIsCurrentOwner($actor, $targetOrganizationId, $orgAdminRole->id);
+            $this->guardActorIsCurrentOwner($actor, $target_organization_id, $org_admin_role->id);
 
-            $newOwnerMembership = UserOrganization::where('organization_id', $targetOrganizationId)
-                ->where('user_id', $newOwnerUserId)
+            $new_owner_membership = UserOrganization::where('organization_id', $target_organization_id)
+                ->where('user_id', $new_owner_user_id)
                 ->firstOrFail();
 
-            $newOwnerMembership->update(['role_id' => $orgAdminRole->id]);
+            $new_owner_membership->update(['role_id' => $org_admin_role->id]);
 
-            $this->demoteCurrentOwner($actor, $targetOrganizationId, $userRole->id);
+            $this->demoteCurrentOwner($actor, $target_organization_id, $user_role->id);
 
-            $this->recordAuditLogService->execute($actorId, 'organization.ownership_transfer', 'Organization', $targetOrganizationId, [
-                'new_owner_user_id' => $newOwnerUserId,
-            ], $targetOrganizationId);
+            $this->record_audit_log_service->execute($actor_id, 'organization.ownership_transfer', 'Organization', $target_organization_id, [
+                'new_owner_user_id' => $new_owner_user_id,
+            ], $target_organization_id);
+
+            $this->clearUserCache($new_owner_user_id);
+            $this->clearUserCache($actor_id);
         });
     }
 
-    private function guardAgainstTransferringToSelf(User $actor, string $newOwnerUserId): void
+    private function guardAgainstTransferringToSelf(User $actor, string $new_owner_user_id): void
     {
-        if ($actor->id === $newOwnerUserId) {
+        if ($actor->id === $new_owner_user_id) {
             throw new \InvalidArgumentException('Você já é o titular desta organization.');
         }
     }
 
-    private function guardActorIsCurrentOwner(User $actor, string $organizationId, string $orgAdminRoleId): void
+    private function guardActorIsCurrentOwner(User $actor, string $organization_id, string $org_admin_role_id): void
     {
         if ($actor->global_role_id !== null || $actor->role->scope === 'global') {
             return;
         }
 
-        $isCurrentOwner = UserOrganization::where('organization_id', $organizationId)
+        $is_current_owner = UserOrganization::where('organization_id', $organization_id)
             ->where('user_id', $actor->id)
-            ->where('role_id', $orgAdminRoleId)
+            ->where('role_id', $org_admin_role_id)
             ->exists();
 
-        throw_unless($isCurrentOwner, new \InvalidArgumentException('Apenas o titular atual da organization pode transferi-la.'));
+        throw_unless($is_current_owner, new \InvalidArgumentException('Apenas o titular atual da organization pode transferi-la.'));
     }
 
-    private function demoteCurrentOwner(User $actor, string $organizationId, string $userRoleId): void
+    private function demoteCurrentOwner(User $actor, string $organization_id, string $user_role_id): void
     {
-        UserOrganization::where('organization_id', $organizationId)
+        UserOrganization::where('organization_id', $organization_id)
             ->where('user_id', $actor->id)
-            ->update(['role_id' => $userRoleId]);
+            ->update(['role_id' => $user_role_id]);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Packages\Admin\Organizations\Services;
 
+use App\Base\Traits\CacheTrait;
 use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
 use App\Packages\Admin\Organizations\Models\UserOrganization;
 use App\Packages\Admin\Roles\Models\Role;
@@ -10,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 
 class UpdateOrganizationMemberRoleService
 {
+    use CacheTrait;
+
     public function __construct(
         private RecordAuditLogService $record_audit_log_service,
         private GuardRoleAssignmentService $guard_role_assignment_service,
@@ -41,6 +44,8 @@ class UpdateOrganizationMemberRoleService
                 'old_role_id' => $old_role_id,
                 'new_role_id' => $role->id,
             ], $target_organization_id);
+
+            $this->clearUserCache($target_user_id);
 
             return $membership;
         });

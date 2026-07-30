@@ -224,3 +224,62 @@ test('membro de outra organization não consegue ver o detalhe de uma task de or
 
     $response->assertStatus(404);
 });
+
+test('dono consegue mudar uma task pessoal para organization', function () {
+    $task = Task::create([
+        'user_id' => $this->member_a->id,
+        'organization_id' => null,
+        'visibility' => 'personal',
+        'status_id' => $this->status_pending->id,
+        'priority_id' => $this->priority_high->id,
+        'title' => 'Task que vira compartilhada',
+    ]);
+
+    $response = withToken($this->token_a)->putJson("/api/v1/tasks/{$task->id}", ['visibility' => 'organization']);
+
+    $response->assertStatus(200)->assertJsonPath('data.visibility', 'organization');
+
+    $this->assertDatabaseHas('tasks', [
+        'id' => $task->id,
+        'visibility' => 'organization',
+        'organization_id' => $this->org->id,
+    ]);
+});
+
+test('dono consegue mudar uma task de organization de volta para pessoal', function () {
+    $task = Task::create([
+        'user_id' => $this->member_a->id,
+        'organization_id' => $this->org->id,
+        'visibility' => 'organization',
+        'status_id' => $this->status_pending->id,
+        'priority_id' => $this->priority_high->id,
+        'title' => 'Task que vira pessoal de novo',
+    ]);
+
+    $response = withToken($this->token_a)->putJson("/api/v1/tasks/{$task->id}", ['visibility' => 'personal']);
+
+    $response->assertStatus(200)->assertJsonPath('data.visibility', 'personal');
+
+    $this->assertDatabaseHas('tasks', [
+        'id' => $task->id,
+        'visibility' => 'personal',
+        'organization_id' => null,
+    ]);
+});
+
+test('outro membro não consegue mudar o escopo de uma task de organization alheia, mesmo podendo editar o resto', function () {
+    $task = Task::create([
+        'user_id' => $this->member_a->id,
+        'organization_id' => $this->org->id,
+        'visibility' => 'organization',
+        'status_id' => $this->status_pending->id,
+        'priority_id' => $this->priority_high->id,
+        'title' => 'Task com escopo protegido',
+    ]);
+
+    $response = withToken($this->token_b)->putJson("/api/v1/tasks/{$task->id}", ['visibility' => 'personal']);
+
+    $response->assertStatus(400)->assertJsonPath('success', false);
+
+    $this->assertDatabaseHas('tasks', ['id' => $task->id, 'visibility' => 'organization']);
+});

@@ -4,6 +4,7 @@ namespace Tests\Feature\Admin;
 
 use App\Packages\Admin\Organizations\Models\Organization;
 use App\Packages\Admin\Organizations\Models\UserOrganization;
+use App\Packages\Admin\Permissions\Models\Permission;
 use App\Packages\Admin\Roles\Models\Role;
 use App\Packages\Admin\Users\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -127,6 +128,38 @@ test('org admin altera a role de um membro da própria organization', function (
         'organization_id' => $this->org->id,
         'role_id' => $customRole->id,
     ]);
+});
+
+test('alterar a role de um membro reflete imediatamente nas permissões, sem esperar o cache expirar', function () {
+    $member = User::factory()->create(['role_id' => $this->userRole->id, 'active_organization_id' => $this->org->id, 'password' => 'password123']);
+    UserOrganization::create(['user_id' => $member->id, 'organization_id' => $this->org->id, 'role_id' => $this->userRole->id]);
+
+    $manageMembersPermission = Permission::where('name', 'admin.organizations.manage-members')->first();
+    $promotedRole = Role::create([
+        'id' => (string) Str::uuid(),
+        'name' => 'Supervisor Com Permissão',
+        'slug' => 'supervisor-com-permissao-'.Str::random(6),
+        'level' => $this->orgAdminRole->level + 1,
+        'scope' => 'organization',
+        'organization_id' => $this->org->id,
+    ]);
+    $promotedRole->permissions()->sync([$manageMembersPermission->id]);
+
+    $memberToken = postJson(route('v1.auth.login'), [
+        'email' => $member->email,
+        'password' => 'password123',
+    ])->json('data.access_token.token');
+
+    // Popula o cache do membro com as permissões da role 'user' (sem admin.organizations.manage-members)
+    withToken($memberToken)->getJson('/api/v1/tasks')->assertStatus(200);
+
+    withToken($this->orgAdminToken)->putJson("/api/v1/organizations/members/{$member->id}/role", [
+        'role_id' => $promotedRole->id,
+    ])->assertStatus(200);
+
+    $response = withToken($memberToken)->getJson("/api/v1/organizations/{$this->org->id}/members");
+
+    $response->assertStatus(200);
 });
 
 test('não deve permitir alterar a própria role via esse endpoint', function () {

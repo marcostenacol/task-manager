@@ -2,6 +2,7 @@
 
 namespace App\Packages\Admin\Organizations\Services;
 
+use App\Base\Traits\CacheTrait;
 use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
 use App\Packages\Admin\Organizations\Models\Organization;
 use App\Packages\Admin\Organizations\Models\UserOrganization;
@@ -13,6 +14,8 @@ use Illuminate\Support\Str;
 
 class OnboardOrganizationService
 {
+    use CacheTrait;
+
     public function __construct(
         private RecordAuditLogService $recordAuditLogService,
     ) {}
@@ -43,6 +46,8 @@ class OnboardOrganizationService
             $this->recordAuditLogService->execute($actorId, 'organization.create', 'Organization', $organization->id, [
                 'name' => $organization->name,
             ], $organization->id);
+
+            $this->clearUserCache($actorId);
 
             return $organization;
         });

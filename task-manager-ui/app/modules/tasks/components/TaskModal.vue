@@ -13,12 +13,14 @@ const props = defineProps<{
 const emit = defineEmits(['close', 'saved']);
 
 const { user } = useAuth();
-const { form, loading, errors, submit, resetForm, fillForm } = useTaskForm();
+const { form, loading, errors, taskOwnerId, submit, resetForm, fillForm } = useTaskForm();
 
 const statuses = ref<any[]>([]);
 const priorities = ref<any[]>([]);
 
 const belongsToOrganization = computed(() => !!user.value?.organization);
+const isOwner = computed(() => !props.taskId || taskOwnerId.value === user.value?.id);
+const canEditVisibility = computed(() => belongsToOrganization.value && isOwner.value);
 
 onMounted(async () => {
     try {
@@ -136,7 +138,7 @@ const handleSave = async () => {
                         >
                     </div>
 
-                    <div v-if="belongsToOrganization && !taskId">
+                    <div v-if="canEditVisibility">
                         <label class="field-label">Escopo</label>
                         <select
                             v-model="form.visibility"
@@ -147,7 +149,7 @@ const handleSave = async () => {
                         </select>
                     </div>
 
-                    <div v-if="taskId">
+                    <div v-else-if="taskId">
                         <label class="field-label">Escopo</label>
                         <p class="field-static">
                             {{ form.visibility === 'organization' ? 'Organization (todos os membros veem)' : 'Pessoal (só eu vejo)' }}
