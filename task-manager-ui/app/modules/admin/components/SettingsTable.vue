@@ -53,9 +53,9 @@ async function confirmEdit(setting: Setting) {
             </thead>
             <tbody>
                 <tr v-for="setting in settings" :key="setting.id" class="settings-row">
-                    <td class="cell-name">{{ setting.name }}</td>
-                    <td class="cell-muted">{{ setting.description || '—' }}</td>
-                    <td class="cell-value">
+                    <td class="cell-name" data-label="Nome">{{ setting.name }}</td>
+                    <td class="cell-muted" data-label="Descrição">{{ setting.description || '—' }}</td>
+                    <td class="cell-value" data-label="Valor">
                         <input
                             v-if="editingId === setting.id"
                             v-model="editValue.value"
@@ -65,7 +65,7 @@ async function confirmEdit(setting: Setting) {
                         <span v-else>{{ setting.value }}</span>
                         <span v-if="errorById[setting.id]" class="field-error">{{ errorById[setting.id] }}</span>
                     </td>
-                    <td class="text-right">
+                    <td class="text-right" data-label="Ações">
                         <div class="actions">
                             <template v-if="editingId === setting.id">
                                 <button
@@ -225,5 +225,44 @@ async function confirmEdit(setting: Setting) {
     color: var(--muted);
     font-weight: 500;
     font-style: italic;
+}
+
+@media (max-width: 640px) {
+    .settings-table thead {
+        display: none;
+    }
+
+    .settings-table, .settings-table tbody, .settings-table tr, .settings-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .settings-row {
+        padding: 0.5rem 0;
+    }
+
+    .settings-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem 1rem;
+        text-align: right;
+    }
+
+    .settings-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        text-align: left;
+        flex-shrink: 0;
+    }
+
+    .value-input {
+        max-width: none;
+    }
 }
 </style>

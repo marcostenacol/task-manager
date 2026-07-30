@@ -1,49 +1,58 @@
 <template>
-  <aside class="sidebar">
-    <div class="brand">
-      <img src="/favicon.svg" alt="TaskMaster" class="brand-icon">
-      <span class="brand-text">TaskMaster</span>
-    </div>
-
-    <div v-if="memberships.length > 0" class="org-switcher">
-      <label class="org-label" for="org-select">Organization</label>
-      <select id="org-select" v-model="selectedOrganizationId" class="org-select" @change="handleSwitch">
-        <option v-for="membership in memberships" :key="membership.organization.id" :value="membership.organization.id">
-          {{ membership.organization.name }}
-        </option>
-      </select>
-    </div>
-
-    <nav class="nav">
-      <NuxtLink
-        v-for="item in navItems"
-        :key="item.to"
-        :to="item.to"
-        class="nav-item"
-        :class="{ active: isActive(item.to) }"
-      >
-        {{ item.label }}
-      </NuxtLink>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="user-info">
-        <div class="avatar">
-          <img v-if="profile?.avatar_path" :src="profile.avatar_path" alt="Avatar" class="avatar-image">
-          <template v-else>{{ user?.name?.charAt(0) || 'U' }}</template>
-        </div>
-        <span class="user-name">{{ user?.name }}</span>
+  <aside class="sidebar" :class="{ open: mobileOpen }">
+    <div class="brand-row">
+      <div class="brand">
+        <img src="/favicon.svg" alt="TaskMaster" class="brand-icon">
+        <span class="brand-text">TaskMaster</span>
       </div>
-      <button class="logout-btn" @click="handleLogout">
-        <LogOut :size="16" /> {{ t('nav.logout') }}
+      <button class="mobile-toggle" :aria-expanded="mobileOpen" aria-label="Abrir menu" @click="mobileOpen = !mobileOpen">
+        <Menu v-if="!mobileOpen" :size="22" />
+        <X v-else :size="22" />
       </button>
+    </div>
+
+    <div class="sidebar-collapsible">
+      <div v-if="memberships.length > 0" class="org-switcher">
+        <label class="org-label" for="org-select">Organization</label>
+        <select id="org-select" v-model="selectedOrganizationId" class="org-select" @change="handleSwitch">
+          <option v-for="membership in memberships" :key="membership.organization.id" :value="membership.organization.id">
+            {{ membership.organization.name }}
+          </option>
+        </select>
+      </div>
+
+      <nav class="nav">
+        <NuxtLink
+          v-for="item in navItems"
+          :key="item.to"
+          :to="item.to"
+          class="nav-item"
+          :class="{ active: isActive(item.to) }"
+          @click="mobileOpen = false"
+        >
+          {{ item.label }}
+        </NuxtLink>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="avatar">
+            <img v-if="profile?.avatar_path" :src="profile.avatar_path" alt="Avatar" class="avatar-image">
+            <template v-else>{{ user?.name?.charAt(0) || 'U' }}</template>
+          </div>
+          <span class="user-name">{{ user?.name }}</span>
+        </div>
+        <button class="logout-btn" @click="handleLogout">
+          <LogOut :size="16" /> {{ t('nav.logout') }}
+        </button>
+      </div>
     </div>
   </aside>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { LogOut } from 'lucide-vue-next'
+import { LogOut, Menu, X } from 'lucide-vue-next'
 import { useAuth } from '~/modules/auth/hooks/useAuth'
 import { useProfile } from '~/modules/social/hooks/useProfile'
 import { useOrganizations } from '~/modules/organizations/hooks/useOrganizations'
@@ -53,6 +62,8 @@ const { t } = useI18n()
 const { user, logout } = useAuth()
 const { profile, fetchProfile } = useProfile()
 const { memberships, fetchMine, switchActive } = useOrganizations()
+
+const mobileOpen = ref(false)
 
 if (!profile.value) {
   fetchProfile()
@@ -132,6 +143,12 @@ function handleLogout() {
   gap: 24px;
 }
 
+.brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -139,6 +156,17 @@ function handleLogout() {
   color: var(--ink);
   font-weight: 600;
   font-size: 1rem;
+}
+
+.mobile-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--ink);
+  cursor: pointer;
+  padding: 4px;
 }
 
 .brand-icon {
@@ -273,11 +301,27 @@ function handleLogout() {
     width: 100%;
     height: auto;
     position: static;
+    gap: 0;
+    padding: 14px 16px;
+  }
+
+  .mobile-toggle {
+    display: flex;
+  }
+
+  .sidebar-collapsible {
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+    margin-top: 16px;
+  }
+
+  .sidebar.open .sidebar-collapsible {
+    display: flex;
   }
 
   .nav {
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-direction: column;
   }
 
   .sidebar-footer {

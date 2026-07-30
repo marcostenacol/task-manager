@@ -32,17 +32,17 @@ const formatMetadata = (metadata: Record<string, unknown> | []) => {
             </thead>
             <tbody>
                 <tr v-for="log in logs" :key="log.id" class="log-row">
-                    <td class="cell-actor">
+                    <td class="cell-actor" data-label="Quem">
                         <div>{{ log.actor.name || '—' }}</div>
                         <div v-if="log.actor.id" class="cell-id">{{ log.actor.id }}</div>
                     </td>
-                    <td class="cell-target">{{ log.organization.name || '—' }}</td>
-                    <td class="col-action">
+                    <td class="cell-target" data-label="Organization">{{ log.organization.name || '—' }}</td>
+                    <td class="col-action" data-label="Ação">
                         <span class="action-badge">{{ actionLabel(log.action) }}</span>
                     </td>
-                    <td class="cell-target">{{ log.target.name || log.target.id }}</td>
-                    <td class="cell-metadata">{{ formatMetadata(log.metadata) }}</td>
-                    <td class="cell-muted">{{ formatDate(log.created_at) }}</td>
+                    <td class="cell-target" data-label="Alvo">{{ log.target.name || log.target.id }}</td>
+                    <td class="cell-metadata" data-label="Detalhes">{{ formatMetadata(log.metadata) }}</td>
+                    <td class="cell-muted" data-label="Quando">{{ formatDate(log.created_at) }}</td>
                 </tr>
             </tbody>
         </table>
@@ -150,5 +150,42 @@ const formatMetadata = (metadata: Record<string, unknown> | []) => {
     color: var(--muted);
     font-weight: 500;
     font-style: italic;
+}
+
+@media (max-width: 640px) {
+    .log-table thead {
+        display: none;
+    }
+
+    .log-table, .log-table tbody, .log-table tr, .log-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .log-row {
+        padding: 0.5rem 0;
+    }
+
+    .log-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem 1rem;
+        text-align: right;
+        max-width: none;
+        white-space: normal;
+    }
+
+    .log-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        text-align: left;
+        flex-shrink: 0;
+    }
 }
 </style>

@@ -34,14 +34,14 @@ function canManage(role: Role): boolean {
             </thead>
             <tbody>
                 <tr v-for="role in roles" :key="role.id" class="role-row">
-                    <td class="cell-name">
+                    <td class="cell-name" data-label="Nome">
                         <span class="color-dot" :style="{ background: role.color }"/>
                         {{ role.name }}
                     </td>
-                    <td class="cell-muted">{{ role.slug }}</td>
-                    <td v-if="isGlobalActor" class="cell-muted">{{ role.organization_name || '—' }}</td>
-                    <td class="cell-muted">{{ role.permissions_count }}</td>
-                    <td class="text-right">
+                    <td class="cell-muted" data-label="Slug">{{ role.slug }}</td>
+                    <td v-if="isGlobalActor" class="cell-muted" data-label="Organization">{{ role.organization_name || '—' }}</td>
+                    <td class="cell-muted" data-label="Permissões">{{ role.permissions_count }}</td>
+                    <td class="text-right" data-label="Ações">
                         <div class="actions">
                             <button
                                 v-if="canManage(role)"
@@ -168,5 +168,43 @@ function canManage(role: Role): boolean {
     color: var(--muted);
     font-weight: 500;
     font-style: italic;
+}
+
+@media (max-width: 640px) {
+    .role-table thead {
+        display: none;
+    }
+
+    .role-table, .role-table tbody, .role-table tr, .role-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .role-row {
+        padding: 0.5rem 0;
+    }
+
+    .role-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem 1rem;
+        text-align: right;
+    }
+
+    .role-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        text-align: left;
+    }
+
+    .actions {
+        justify-content: flex-end;
+    }
 }
 </style>

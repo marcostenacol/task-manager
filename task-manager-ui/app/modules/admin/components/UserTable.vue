@@ -48,7 +48,7 @@ const statusColors: Record<string, string> = {
             </thead>
             <tbody>
                 <tr v-for="user in users" :key="user.id" class="user-row">
-                    <td>
+                    <td data-label="Usuário">
                         <div class="user-cell">
                             <div class="user-avatar">
                                 <img v-if="user.avatar_path" :src="user.avatar_path" alt="" class="avatar-image">
@@ -62,7 +62,7 @@ const statusColors: Record<string, string> = {
                             </div>
                         </div>
                     </td>
-                    <td>
+                    <td data-label="Role">
                         <span
                             class="badge"
                             :style="roleBadgeStyle(user.role.color)"
@@ -70,10 +70,10 @@ const statusColors: Record<string, string> = {
                             {{ user.role.name }}
                         </span>
                     </td>
-                    <td class="cell-muted">
+                    <td class="cell-muted" data-label="Organization">
                         {{ user.organization?.name || '—' }}
                     </td>
-                    <td>
+                    <td data-label="Status">
                         <span
                             class="badge"
                             :class="[statusColors[user.status.slug]]"
@@ -81,10 +81,10 @@ const statusColors: Record<string, string> = {
                             {{ user.status.name }}
                         </span>
                     </td>
-                    <td class="cell-muted">
+                    <td class="cell-muted" data-label="Desde">
                         {{ new Date(user.created_at).toLocaleDateString('pt-BR') }}
                     </td>
-                    <td class="text-right">
+                    <td class="text-right" data-label="Ações">
                         <div class="actions">
                             <button
                                 v-if="user.status.slug !== 'banned' && user.id !== currentUserId"
@@ -287,5 +287,47 @@ const statusColors: Record<string, string> = {
     color: var(--muted);
     font-weight: 500;
     font-style: italic;
+}
+
+@media (max-width: 640px) {
+    .user-table thead {
+        display: none;
+    }
+
+    .user-table, .user-table tbody, .user-table tr, .user-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .user-row {
+        padding: 0.5rem 0;
+    }
+
+    .user-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem 1rem;
+        text-align: right;
+    }
+
+    .user-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        text-align: left;
+    }
+
+    .user-table td.text-right {
+        text-align: right;
+    }
+
+    .actions {
+        justify-content: flex-end;
+    }
 }
 </style>
