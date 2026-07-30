@@ -21,5 +21,14 @@
   flex: 1;
   max-width: 1200px;
   margin: 0 auto;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .app-shell {
+    flex-direction: column;
+    padding: 8px;
+    gap: 8px;
+  }
 }
 </style>

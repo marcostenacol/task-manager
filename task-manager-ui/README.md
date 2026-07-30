@@ -11,7 +11,7 @@ Este frontend existe para provar, na prática, que a API modular do `task-manage
 - **Framework**: [Nuxt 4](https://nuxt.com/) (Vue 3)
 - **Estilização**: CSS Puro (Vanilla CSS) com variáveis globais e design system modular.
 - **Tipografia**: Inter (Google Fonts).
-- **Icons**: Emoji-based (para performance e estética limpa).
+- **Icons**: [lucide-vue-next](https://lucide.dev/) em toda a aplicação (nav, forms, ações de tabela).
 
 ## 📁 Estrutura de Pastas (Modular)
 

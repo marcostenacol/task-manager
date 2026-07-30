@@ -188,7 +188,8 @@ const handleSave = async () => {
     border-radius: 24px;
     width: 100%;
     max-width: 32rem;
-    overflow: hidden;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
     box-shadow: var(--shadow);
 }
 

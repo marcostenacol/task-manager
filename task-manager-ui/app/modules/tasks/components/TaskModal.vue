@@ -231,12 +231,19 @@ const handleSave = async () => {
     border-radius: 24px;
     width: 100%;
     max-width: 32rem;
-    overflow: hidden;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
     box-shadow: var(--shadow);
 }
 
 .modal-inner {
     padding: 2rem;
+}
+
+@media (max-width: 640px) {
+    .modal-inner {
+        padding: 1.25rem;
+    }
 }
 
 .modal-header {
@@ -325,6 +332,12 @@ const handleSave = async () => {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
+}
+
+@media (max-width: 480px) {
+    .field-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .modal-actions {

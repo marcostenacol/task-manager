@@ -165,6 +165,12 @@ const handleAdd = () => {
   margin-bottom: 1rem;
 }
 
+@media (max-width: 480px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .form-group label {
   display: block;
   font-size: 0.75rem;

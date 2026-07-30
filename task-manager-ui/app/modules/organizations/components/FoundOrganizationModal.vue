@@ -93,7 +93,8 @@ async function handleFound() {
   border-radius: 24px;
   width: 100%;
   max-width: 28rem;
-  overflow: hidden;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
   box-shadow: var(--shadow);
 }
 

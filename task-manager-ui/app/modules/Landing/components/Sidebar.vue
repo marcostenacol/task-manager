@@ -267,4 +267,27 @@ function handleLogout() {
   color: var(--danger);
   border-color: var(--danger);
 }
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: static;
+  }
+
+  .nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .sidebar-footer {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .user-info {
+    min-width: 0;
+  }
+}
 </style>

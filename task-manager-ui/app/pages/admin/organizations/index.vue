@@ -390,6 +390,18 @@ async function handleRemoveMember(userId: string) {
   min-width: 0;
 }
 
+@media (max-width: 768px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .org-list {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}
+
 .org-header {
   display: flex;
   align-items: center;
