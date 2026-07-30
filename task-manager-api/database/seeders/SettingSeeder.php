@@ -33,6 +33,11 @@ class SettingSeeder extends Seeder
                 'value' => '5',
                 'description' => 'Máximo de organizations que um usuário pode administrar simultaneamente como fundador.',
             ],
+            [
+                'name' => 'organization_member_lookup_rate_limit_per_hour',
+                'value' => '20',
+                'description' => 'Quantas buscas por CPF um usuário pode fazer por hora ao adicionar membros.',
+            ],
         ]);
     }
 }

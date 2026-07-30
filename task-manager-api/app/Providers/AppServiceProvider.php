@@ -32,5 +32,11 @@ class AppServiceProvider extends ServiceProvider
 
             return Limit::perHour($perHour)->by($request->user()?->id ?: $request->ip());
         });
+
+        RateLimiter::for('organization-member-lookup', function (Request $request) {
+            $perHour = (int) SettingsEnum::getValue(SettingsEnum::ORGANIZATION_MEMBER_LOOKUP_RATE_LIMIT_PER_HOUR);
+
+            return Limit::perHour($perHour)->by($request->user()?->id ?: $request->ip());
+        });
     }
 }

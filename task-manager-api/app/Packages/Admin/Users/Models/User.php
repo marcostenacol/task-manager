@@ -39,6 +39,7 @@ class User extends Authenticatable
         'last_status_id',
         'avatar_path',
         'bio',
+        'cpf',
     ];
 
     protected $hidden = [

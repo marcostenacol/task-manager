@@ -46,6 +46,13 @@ Route::group(['prefix' => 'v1', 'as' => 'v1.', 'middleware' => 'throttle:api'], 
             Route::post('onboarding', [OrganizationController::class, 'onboard'])
                 ->middleware('throttle:organization-onboarding')
                 ->name('onboarding');
+
+            Route::group(['middleware' => 'auth.api:admin.organizations.manage-members'], function () {
+                Route::get('members/lookup', [OrganizationController::class, 'lookupMember'])
+                    ->middleware('throttle:organization-member-lookup')
+                    ->name('members.lookup');
+                Route::post('members', [OrganizationController::class, 'addMember'])->name('members.add');
+            });
         });
 
         Route::group(['prefix' => 'social', 'as' => 'social.'], function () {

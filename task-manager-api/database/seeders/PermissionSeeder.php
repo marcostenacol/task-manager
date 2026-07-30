@@ -30,6 +30,7 @@ class PermissionSeeder extends Seeder
             ['name' => 'admin.audit-logs.list', 'description' => 'Ver logs de auditoria'],
             ['name' => 'admin.roles.manage', 'description' => 'Gerenciar roles e permissões'],
             ['name' => 'admin.settings.manage', 'description' => 'Gerenciar configurações do sistema'],
+            ['name' => 'admin.organizations.manage-members', 'description' => 'Adicionar/remover membros de uma organization'],
 
             // Task Permissions
             ['name' => 'task.tasks.create', 'description' => 'Criar tarefas'],

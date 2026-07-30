@@ -22,6 +22,7 @@ class PersonResource extends JsonResource
             'email' => $this->email,
             'avatar_path' => $this->avatar_path ? Storage::disk('public')->url($this->avatar_path) : null,
             'bio' => $this->bio,
+            'cpf' => $this->cpf,
             'status' => $this->whenLoaded('lastStatus', fn () => [
                 'name' => $this->lastStatus->name,
                 'slug' => $this->lastStatus->slug,

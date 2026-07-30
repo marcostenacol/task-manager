@@ -4,8 +4,13 @@ namespace App\Packages\Admin\Organizations\Controllers;
 
 use App\Base\Traits\Response;
 use App\Http\Controllers\Controller;
+use App\Packages\Admin\Organizations\Requests\AddOrganizationMemberRequest;
+use App\Packages\Admin\Organizations\Requests\LookupOrganizationMemberRequest;
 use App\Packages\Admin\Organizations\Requests\OnboardOrganizationRequest;
+use App\Packages\Admin\Organizations\Resources\OrganizationMemberLookupResource;
 use App\Packages\Admin\Organizations\Resources\OrganizationResource;
+use App\Packages\Admin\Organizations\Services\AddOrganizationMemberService;
+use App\Packages\Admin\Organizations\Services\LookupOrganizationMemberService;
 use App\Packages\Admin\Organizations\Services\OnboardOrganizationService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
@@ -25,6 +30,35 @@ class OrganizationController extends Controller
                 'Organization criada com sucesso.',
                 HttpResponse::HTTP_CREATED
             );
+        } catch (\Exception $e) {
+            return self::returnError($e);
+        }
+    }
+
+    public function lookupMember(LookupOrganizationMemberRequest $request, LookupOrganizationMemberService $service): JsonResponse
+    {
+        try {
+            $admin = userObject();
+            $data = $service->execute($request->validated('cpf'), $admin->id);
+
+            return self::successResponse(
+                $data ? OrganizationMemberLookupResource::make($data) : null,
+                $data ? 'Usuário encontrado.' : 'Nenhum usuário encontrado com esse CPF.',
+                HttpResponse::HTTP_OK,
+                true
+            );
+        } catch (\Exception $e) {
+            return self::returnError($e);
+        }
+    }
+
+    public function addMember(AddOrganizationMemberRequest $request, AddOrganizationMemberService $service): JsonResponse
+    {
+        try {
+            $admin = userObject();
+            $service->execute($request->validated('user_id'), $request->validated('role_id'), $admin->id);
+
+            return self::successResponse(null, 'Membro adicionado com sucesso.', HttpResponse::HTTP_CREATED);
         } catch (\Exception $e) {
             return self::returnError($e);
         }

@@ -4,6 +4,7 @@ namespace App\Packages\Admin\Users\Services;
 
 use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
 use App\Packages\Admin\Organizations\Models\UserOrganization;
+use App\Packages\Admin\Organizations\Services\GuardRoleAssignmentService;
 use App\Packages\Admin\Roles\Models\Role;
 use App\Packages\Admin\Users\Models\User;
 use App\Packages\Admin\UserStatuses\Models\UserStatus;
@@ -13,6 +14,7 @@ class CreateUserService
 {
     public function __construct(
         private RecordAuditLogService $recordAuditLogService,
+        private GuardRoleAssignmentService $guardRoleAssignmentService,
     ) {}
 
     public function execute(array $data, string $actorId): User
@@ -22,7 +24,7 @@ class CreateUserService
             $role = Role::findOrFail($data['role_id']);
             $activeStatus = UserStatus::where('slug', 'active')->firstOrFail();
 
-            $this->guardAgainstAssigningSuperiorOrEqualRole($actor, $role);
+            $this->guardRoleAssignmentService->guardAgainstAssigningSuperiorOrEqualRole($actor, $role);
 
             $organizationId = $this->resolveOrganizationId($actor, $role, $data);
 
@@ -51,50 +53,6 @@ class CreateUserService
 
             return $user;
         });
-    }
-
-    /**
-     * `level` só é comparável dentro do mesmo scope (global vs organization
-     * são hierarquias separadas — ver docs/organizations-hierarchy-design.md).
-     * Um ator global sempre pode atribuir uma role de organization (é
-     * inerentemente subordinada); um ator de organization nunca pode
-     * atribuir uma role global (evita escalada de privilégio); entre roles
-     * do mesmo scope, vale a comparação normal de level.
-     */
-    private function guardAgainstAssigningSuperiorOrEqualRole(User $actor, Role $role): void
-    {
-        $actorIsGlobal = $actor->global_role_id !== null;
-
-        if ($actorIsGlobal && $role->scope === 'organization') {
-            return;
-        }
-
-        if (! $actorIsGlobal && $role->scope === 'global') {
-            throw new \InvalidArgumentException('Você não pode atribuir uma role global.');
-        }
-
-        if ($role->level <= $this->resolveActorLevel($actor)) {
-            throw new \InvalidArgumentException('Você não pode atribuir uma role igual ou superior à sua.');
-        }
-    }
-
-    private function resolveActorLevel(User $actor): int
-    {
-        if ($actor->global_role_id !== null) {
-            return Role::findOrFail($actor->global_role_id)->level;
-        }
-
-        if ($actor->active_organization_id !== null) {
-            $membership = UserOrganization::where('user_id', $actor->id)
-                ->where('organization_id', $actor->active_organization_id)
-                ->first();
-
-            if ($membership) {
-                return Role::findOrFail($membership->role_id)->level;
-            }
-        }
-
-        return Role::findOrFail($actor->role_id)->level;
     }
 
     private function resolveOrganizationId(User $actor, Role $role, array $data): ?string
