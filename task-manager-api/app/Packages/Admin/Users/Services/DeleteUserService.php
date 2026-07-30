@@ -30,7 +30,7 @@ class DeleteUserService
             $this->recordAuditLogService->execute($actorId, 'user.delete', 'User', $userId, [
                 'name' => $target->name,
                 'email' => $target->email,
-            ]);
+            ], $target->active_organization_id);
         });
 
         Cache::forget("admin_user_detail_{$userId}");

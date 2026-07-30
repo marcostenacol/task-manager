@@ -1,7 +1,7 @@
 <template>
   <aside class="sidebar">
     <div class="brand">
-      <Rocket class="brand-icon" :size="20" />
+      <img src="/favicon.svg" alt="TaskMaster" class="brand-icon">
       <span class="brand-text">TaskMaster</span>
     </div>
 
@@ -43,7 +43,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { LogOut, Rocket } from 'lucide-vue-next'
+import { LogOut } from 'lucide-vue-next'
 import { useAuth } from '~/modules/auth/hooks/useAuth'
 import { useProfile } from '~/modules/social/hooks/useProfile'
 import { useOrganizations } from '~/modules/organizations/hooks/useOrganizations'
@@ -140,7 +140,8 @@ function handleLogout() {
 }
 
 .brand-icon {
-  color: var(--accent);
+  width: 20px;
+  height: 20px;
 }
 
 .org-switcher {

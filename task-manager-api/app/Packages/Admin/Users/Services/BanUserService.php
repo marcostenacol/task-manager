@@ -45,7 +45,7 @@ class BanUserService
 
             $this->recordAuditLogService->execute($bannedBy, 'user.ban', 'User', $userId, [
                 'reason' => $reason,
-            ]);
+            ], $user->active_organization_id);
 
             // Clear cache
             Cache::forget("admin_user_detail_{$userId}");

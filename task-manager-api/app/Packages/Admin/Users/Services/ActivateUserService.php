@@ -37,7 +37,7 @@ class ActivateUserService
                 'created_at' => now(),
             ]);
 
-            $this->recordAuditLogService->execute($activatedBy, 'user.activate', 'User', $userId);
+            $this->recordAuditLogService->execute($activatedBy, 'user.activate', 'User', $userId, [], $user->active_organization_id);
 
             Cache::forget("admin_user_detail_{$userId}");
             $this->clearUserCache($userId);

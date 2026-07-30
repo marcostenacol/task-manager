@@ -28,7 +28,7 @@ class UpdateOrganizationService
             $this->recordAuditLogService->execute($actorId, 'organization.update', 'Organization', $organization->id, [
                 'old_name' => $oldName,
                 'new_name' => $name,
-            ]);
+            ], $organization->id);
 
             return $organization;
         });

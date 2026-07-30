@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <div class="logo" @click="navigateTo('/')">
-      <Rocket class="logo-icon" :size="24" />
+      <img src="/favicon.svg" alt="TaskMaster" class="logo-icon">
       <span class="logo-text">TaskMaster</span>
     </div>
     
@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watchEffect } from 'vue'
-import { LogOut, Rocket, User } from 'lucide-vue-next'
+import { LogOut, User } from 'lucide-vue-next'
 import { useAuth } from '~/modules/auth/hooks/useAuth'
 import { useProfile } from '~/modules/social/hooks/useProfile'
 
@@ -90,7 +90,8 @@ const handleLogout = () => {
 }
 
 .logo-icon {
-  color: var(--accent);
+  width: 24px;
+  height: 24px;
 }
 
 .icon {

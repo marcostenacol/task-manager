@@ -26,7 +26,7 @@ class ResetUserPasswordService
 
             $user->update(['password' => $password]);
 
-            $this->recordAuditLogService->execute($actorId, 'user.password_reset', 'User', $user->id);
+            $this->recordAuditLogService->execute($actorId, 'user.password_reset', 'User', $user->id, [], $user->active_organization_id);
         });
 
         Cache::forget("admin_user_detail_{$userId}");

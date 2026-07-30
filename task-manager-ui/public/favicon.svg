@@ -1,0 +1,20 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="check" x1="175" y1="150" x2="415" y2="340" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+  </defs>
+  
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  
+  <!-- Base T -->
+  <path d="M 130 140 H 382 C 395 140 405 150 405 163 V 185 C 405 198 395 208 382 208 H 290 V 380 C 290 395 278 407 263 407 H 235 C 220 407 208 395 208 380 V 208 H 130 C 117 208 107 198 107 185 V 163 C 107 150 117 140 130 140 Z" fill="#F8FAFC"/>
+  
+  <!-- Checkmark Overlay -->
+  <path d="M 175 275 L 235 345 L 415 155" stroke="url(#check)" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

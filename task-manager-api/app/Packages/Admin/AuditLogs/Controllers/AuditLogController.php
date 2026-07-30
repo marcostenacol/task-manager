@@ -19,7 +19,7 @@ class AuditLogController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            $data = $this->listAuditLogsService->execute($request->all());
+            $data = $this->listAuditLogsService->execute($request->all(), userObject()->id);
 
             return self::successResponse($data, 'Logs de auditoria recuperados com sucesso.');
         } catch (\Exception $e) {

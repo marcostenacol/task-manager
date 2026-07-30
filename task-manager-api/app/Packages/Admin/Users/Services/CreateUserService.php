@@ -50,7 +50,7 @@ class CreateUserService
             $this->recordAuditLogService->execute($actorId, 'user.create', 'User', $user->id, [
                 'name' => $user->name,
                 'email' => $user->email,
-            ]);
+            ], $organizationId);
 
             return $user;
         });

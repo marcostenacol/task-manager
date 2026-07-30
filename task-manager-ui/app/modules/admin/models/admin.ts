@@ -88,6 +88,10 @@ export interface AuditLog {
         id: string | null;
         name: string | null;
     };
+    organization: {
+        id: string | null;
+        name: string | null;
+    };
     target: {
         type: string;
         id: string;

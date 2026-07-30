@@ -34,7 +34,7 @@ class ChangeUserRoleService
             $this->recordAuditLogService->execute($actorId, 'user.role_change', 'User', $userId, [
                 'role_id' => $role->id,
                 'role_slug' => $role->slug,
-            ]);
+            ], $user->active_organization_id);
         });
 
         Cache::forget("admin_user_detail_{$userId}");

@@ -19,6 +19,10 @@ class AuditLogResource extends JsonResource
                 'id' => $this->actor?->id,
                 'name' => $this->actor?->name,
             ],
+            'organization' => [
+                'id' => $this->organization?->id,
+                'name' => $this->organization?->name,
+            ],
             'target' => [
                 'type' => $this->target_type,
                 'id' => $this->target_id,

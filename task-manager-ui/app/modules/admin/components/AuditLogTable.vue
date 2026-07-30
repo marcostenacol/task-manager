@@ -23,6 +23,7 @@ const formatMetadata = (metadata: Record<string, unknown> | []) => {
             <thead>
                 <tr>
                     <th>Quem</th>
+                    <th>Organization</th>
                     <th class="col-action">Ação</th>
                     <th>Alvo</th>
                     <th>Detalhes</th>
@@ -31,7 +32,11 @@ const formatMetadata = (metadata: Record<string, unknown> | []) => {
             </thead>
             <tbody>
                 <tr v-for="log in logs" :key="log.id" class="log-row">
-                    <td class="cell-actor">{{ log.actor.name || '—' }}</td>
+                    <td class="cell-actor">
+                        <div>{{ log.actor.name || '—' }}</div>
+                        <div v-if="log.actor.id" class="cell-id">{{ log.actor.id }}</div>
+                    </td>
+                    <td class="cell-target">{{ log.organization.name || '—' }}</td>
                     <td class="col-action">
                         <span class="action-badge">{{ actionLabel(log.action) }}</span>
                     </td>
@@ -100,6 +105,13 @@ const formatMetadata = (metadata: Record<string, unknown> | []) => {
 .cell-actor {
     color: var(--ink);
     font-weight: 600;
+}
+
+.cell-id {
+    color: var(--muted);
+    font-size: 0.75rem;
+    font-weight: 400;
+    font-family: monospace;
 }
 
 .cell-target {

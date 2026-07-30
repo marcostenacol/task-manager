@@ -31,7 +31,7 @@ class CreateOrganizationService
                 'name' => $organization->name,
                 'parent_id' => $parentId,
                 'owner_cpf' => $ownerCpf,
-            ]);
+            ], $organization->id);
 
             return $organization;
         });

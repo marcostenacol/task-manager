@@ -44,7 +44,7 @@ class AddOrganizationMemberService
             $this->recordAuditLogService->execute($actorId, 'organization.member_add', 'User', $target->id, [
                 'organization_id' => $targetOrganizationId,
                 'role_id' => $role->id,
-            ]);
+            ], $targetOrganizationId);
 
             return $membership;
         });

@@ -24,7 +24,7 @@ class UpdateUserService
 
             $user->update($data);
 
-            $this->recordAuditLogService->execute($actorId, 'user.update', 'User', $user->id, $data);
+            $this->recordAuditLogService->execute($actorId, 'user.update', 'User', $user->id, $data, $user->active_organization_id);
 
             return $user;
         });

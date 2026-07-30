@@ -2,6 +2,7 @@
 
 namespace App\Packages\Admin\AuditLogs\Models;
 
+use App\Packages\Admin\Organizations\Models\Organization;
 use App\Packages\Admin\Users\Models\User;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
@@ -22,6 +23,7 @@ class AuditLog extends Model
     protected $fillable = [
         'id',
         'actor_id',
+        'organization_id',
         'action',
         'target_type',
         'target_id',
@@ -39,5 +41,10 @@ class AuditLog extends Model
     public function actor(): BelongsTo
     {
         return $this->belongsTo(User::class, 'actor_id');
+    }
+
+    public function organization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class, 'organization_id');
     }
 }

@@ -42,7 +42,7 @@ class OnboardOrganizationService
 
             $this->recordAuditLogService->execute($actorId, 'organization.create', 'Organization', $organization->id, [
                 'name' => $organization->name,
-            ]);
+            ], $organization->id);
 
             return $organization;
         });
