@@ -187,5 +187,9 @@ const formatMetadata = (metadata: Record<string, unknown> | []) => {
         text-align: left;
         flex-shrink: 0;
     }
+
+    .col-action {
+        min-width: 0;
+    }
 }
 </style>

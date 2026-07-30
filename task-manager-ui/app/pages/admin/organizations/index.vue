@@ -60,47 +60,49 @@
           </div>
 
           <h3 class="section-title">Membros</h3>
-          <table class="members-table">
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>E-mail</th>
-                <th>Role</th>
-                <th class="text-right">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="member in members" :key="member.user_id">
-                <td>{{ member.name }}</td>
-                <td class="cell-muted">{{ member.email }}</td>
-                <td>
-                  <select
-                    v-if="member.user_id !== user?.id"
-                    class="field-input role-select-inline"
-                    :value="member.role.id"
-                    :disabled="changingRoleUserId === member.user_id"
-                    @change="handleChangeRole(member.user_id, ($event.target as HTMLSelectElement).value)"
-                  >
-                    <option v-for="role in organizationRoles" :key="role.id" :value="role.id">
-                      {{ role.name }}
-                    </option>
-                  </select>
-                  <span v-else>{{ member.role.name }}</span>
-                </td>
-                <td class="text-right">
-                  <button
-                    v-if="member.user_id !== user?.id"
-                    class="icon-btn icon-btn-danger"
-                    title="Remover membro"
-                    :disabled="removingUserId === member.user_id"
-                    @click="handleRemoveMember(member.user_id)"
-                  >
-                    <Trash2 :size="16" />
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-wrapper">
+            <table class="members-table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>E-mail</th>
+                  <th>Role</th>
+                  <th class="text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="member in members" :key="member.user_id">
+                  <td data-label="Nome">{{ member.name }}</td>
+                  <td class="cell-muted" data-label="E-mail">{{ member.email }}</td>
+                  <td data-label="Role">
+                    <select
+                      v-if="member.user_id !== user?.id"
+                      class="field-input role-select-inline"
+                      :value="member.role.id"
+                      :disabled="changingRoleUserId === member.user_id"
+                      @change="handleChangeRole(member.user_id, ($event.target as HTMLSelectElement).value)"
+                    >
+                      <option v-for="role in organizationRoles" :key="role.id" :value="role.id">
+                        {{ role.name }}
+                      </option>
+                    </select>
+                    <span v-else>{{ member.role.name }}</span>
+                  </td>
+                  <td class="text-right" data-label="Ações">
+                    <button
+                      v-if="member.user_id !== user?.id"
+                      class="icon-btn icon-btn-danger"
+                      title="Remover membro"
+                      :disabled="removingUserId === member.user_id"
+                      @click="handleRemoveMember(member.user_id)"
+                    >
+                      <Trash2 :size="16" />
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -521,6 +523,11 @@ async function handleRemoveMember(userId: string) {
   cursor: pointer;
 }
 
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+}
+
 .members-table {
   width: 100%;
   border-collapse: collapse;
@@ -554,6 +561,46 @@ async function handleRemoveMember(userId: string) {
   text-align: center;
   padding: 5rem 0;
   color: var(--muted);
+}
+
+@media (max-width: 640px) {
+  .members-table thead {
+    display: none;
+  }
+
+  .members-table, .members-table tbody, .members-table tr, .members-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .members-table tr {
+    padding: 0.5rem 0;
+  }
+
+  .members-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    text-align: right;
+    border-bottom: none;
+  }
+
+  .members-table td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    text-align: left;
+    flex-shrink: 0;
+  }
+
+  .members-table tr:not(:last-child) {
+    border-bottom: 1px solid var(--border);
+  }
 }
 
 .access-denied h2 {
