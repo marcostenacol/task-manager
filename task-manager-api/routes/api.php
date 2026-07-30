@@ -47,6 +47,9 @@ Route::group(['prefix' => 'v1', 'as' => 'v1.', 'middleware' => 'throttle:api'], 
                 ->middleware('throttle:organization-onboarding')
                 ->name('onboarding');
 
+            Route::get('mine', [OrganizationController::class, 'mine'])->name('mine');
+            Route::patch('active', [OrganizationController::class, 'switchActive'])->name('switch-active');
+
             Route::group(['middleware' => 'auth.api:admin.organizations.manage-members'], function () {
                 Route::get('members/lookup', [OrganizationController::class, 'lookupMember'])
                     ->middleware('throttle:organization-member-lookup')
