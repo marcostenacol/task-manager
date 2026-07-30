@@ -19,10 +19,17 @@ export interface UserProfile {
     email: string;
     avatar_path: string | null;
     bio: string | null;
+    cpf: string | null;
     role: {
         name: string;
         slug: string;
     };
     contacts: Contact[];
     created_at: string;
+}
+
+export interface UpdateProfileData {
+    name: string;
+    bio: string;
+    cpf?: string;
 }

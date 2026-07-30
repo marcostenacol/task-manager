@@ -15,6 +15,18 @@
     </div>
     
     <div class="form-group">
+      <label for="cpf">CPF</label>
+      <input
+        id="cpf"
+        v-model="formData.cpf"
+        type="text"
+        placeholder="Somente números"
+        maxlength="11"
+        class="form-input"
+      >
+    </div>
+
+    <div class="form-group">
       <label for="bio">Biografia</label>
       <textarea 
         id="bio"
@@ -49,13 +61,15 @@ const emit = defineEmits<{
 
 const formData = ref<UpdateProfileData>({
   name: '',
-  bio: ''
+  bio: '',
+  cpf: ''
 })
 
 onMounted(() => {
   if (props.profile) {
     formData.value.name = props.profile.name
     formData.value.bio = props.profile.bio || ''
+    formData.value.cpf = props.profile.cpf || ''
   }
 })
 
