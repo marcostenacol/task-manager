@@ -5,6 +5,7 @@ namespace App\Packages\Admin\Organizations\Controllers;
 use App\Base\Traits\Response;
 use App\Http\Controllers\Controller;
 use App\Packages\Admin\Organizations\Requests\AddOrganizationMemberRequest;
+use App\Packages\Admin\Organizations\Requests\CreateOrganizationRequest;
 use App\Packages\Admin\Organizations\Requests\LookupOrganizationMemberRequest;
 use App\Packages\Admin\Organizations\Requests\OnboardOrganizationRequest;
 use App\Packages\Admin\Organizations\Requests\SwitchActiveOrganizationRequest;
@@ -14,6 +15,7 @@ use App\Packages\Admin\Organizations\Resources\OrganizationMemberLookupResource;
 use App\Packages\Admin\Organizations\Resources\OrganizationMemberResource;
 use App\Packages\Admin\Organizations\Resources\OrganizationResource;
 use App\Packages\Admin\Organizations\Services\AddOrganizationMemberService;
+use App\Packages\Admin\Organizations\Services\CreateOrganizationService;
 use App\Packages\Admin\Organizations\Services\ListMyOrganizationsService;
 use App\Packages\Admin\Organizations\Services\ListOrganizationMembersService;
 use App\Packages\Admin\Organizations\Services\ListOrganizationsService;
@@ -88,6 +90,22 @@ class OrganizationController extends Controller
             $data = $service->execute();
 
             return self::successResponse(OrganizationResource::collection($data), 'Organizations recuperadas com sucesso.');
+        } catch (\Exception $e) {
+            return self::returnError($e);
+        }
+    }
+
+    public function store(CreateOrganizationRequest $request, CreateOrganizationService $service): JsonResponse
+    {
+        try {
+            $admin = userObject();
+            $data = $service->execute($request->validated('name'), $request->validated('parent_id'), $admin->id);
+
+            return self::successResponse(
+                OrganizationResource::make($data),
+                'Organization criada com sucesso.',
+                HttpResponse::HTTP_CREATED
+            );
         } catch (\Exception $e) {
             return self::returnError($e);
         }

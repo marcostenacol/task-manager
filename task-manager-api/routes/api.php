@@ -104,6 +104,7 @@ Route::group(['prefix' => 'v1', 'as' => 'v1.', 'middleware' => 'throttle:api'], 
 
             Route::group(['prefix' => 'organizations', 'as' => 'organizations.', 'middleware' => 'auth.api:admin.organizations.list'], function () {
                 Route::get('/', [OrganizationController::class, 'index'])->name('index');
+                Route::post('/', [OrganizationController::class, 'store'])->name('store');
                 Route::get('{id}/members', [OrganizationController::class, 'members'])->name('members');
             });
 

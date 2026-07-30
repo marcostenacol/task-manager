@@ -94,6 +94,16 @@ export const useOrganizations = () => {
         }
     };
 
+    const createOrganization = async (name: string, parentId?: string) => {
+        try {
+            await OrganizationService.create(name, parentId);
+            return { success: true };
+        } catch (error: any) {
+            console.error('Erro ao criar organization:', error);
+            return { success: false, message: error?.data?.message || 'Não foi possível criar a organization.' };
+        }
+    };
+
     return {
         memberships,
         allOrganizations,
@@ -106,6 +116,7 @@ export const useOrganizations = () => {
         switchActive,
         lookupMember,
         addMember,
-        updateOrganization
+        updateOrganization,
+        createOrganization
     };
 };

@@ -108,3 +108,55 @@ test('não deve permitir que org admin edite organization de outra pessoa', func
 
     $response->assertStatus(400)->assertJsonPath('success', false);
 });
+
+test('admin global cria uma nova organization sem parent_id', function () {
+    $response = withToken($this->adminToken)->postJson('/api/v1/admin/organizations', [
+        'name' => 'Nova Organization Criada',
+    ]);
+
+    $response->assertStatus(201)
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('data.name', 'Nova Organization Criada');
+
+    $this->assertDatabaseHas('admin.organizations', ['name' => 'Nova Organization Criada']);
+});
+
+test('admin global cria uma nova organization com parent_id', function () {
+    $response = withToken($this->adminToken)->postJson('/api/v1/admin/organizations', [
+        'name' => 'Organization Filha',
+        'parent_id' => $this->org->id,
+    ]);
+
+    $response->assertStatus(201)->assertJsonPath('success', true);
+
+    $this->assertDatabaseHas('admin.organizations', [
+        'name' => 'Organization Filha',
+        'parent_id' => $this->org->id,
+    ]);
+});
+
+test('não deve criar organization sem name', function () {
+    $response = withToken($this->adminToken)->postJson('/api/v1/admin/organizations', []);
+
+    $response->assertStatus(422);
+});
+
+test('não deve criar organization com parent_id inexistente', function () {
+    $response = withToken($this->adminToken)->postJson('/api/v1/admin/organizations', [
+        'name' => 'Org Órfã',
+        'parent_id' => (string) Str::uuid(),
+    ]);
+
+    $response->assertStatus(422);
+});
+
+test('org admin não consegue criar organization', function () {
+    $orgAdminToken = postJson(route('v1.auth.login'), [
+        'email' => $this->orgAdmin->email,
+        'password' => 'password123',
+    ])->json('data.access_token.token');
+
+    $response = withToken($orgAdminToken)->postJson('/api/v1/admin/organizations', ['name' => 'Tentativa Bloqueada']);
+
+    $response->assertStatus(403);
+});

@@ -24,6 +24,23 @@
             <span>{{ org.name }}</span>
             <span class="org-item-count">{{ org.members_count }} membro(s)</span>
           </button>
+
+          <button class="btn-secondary btn-new-org" @click="showCreateForm = !showCreateForm">
+            {{ showCreateForm ? 'Cancelar' : '+ Nova Organization' }}
+          </button>
+
+          <form v-if="showCreateForm" class="create-form" @submit.prevent="handleCreate">
+            <input v-model="newOrgName" type="text" class="field-input" placeholder="Nome da organization" required>
+            <select v-model="newOrgParentId" class="field-input">
+              <option value="">Sem organization-pai</option>
+              <option v-for="org in allOrganizations" :key="org.id" :value="org.id">
+                {{ org.name }}
+              </option>
+            </select>
+            <button type="submit" class="btn-add" :disabled="creating">
+              {{ creating ? 'Criando...' : 'Criar' }}
+            </button>
+          </form>
         </div>
 
         <div v-if="selectedOrganizationId" class="org-detail">
@@ -105,7 +122,8 @@ const {
   fetchMembers,
   lookupMember,
   addMember,
-  updateOrganization
+  updateOrganization,
+  createOrganization
 } = useOrganizations()
 const { roles, fetchRoles } = useRoles()
 
@@ -125,6 +143,11 @@ const searched = ref(false)
 const loadingLookup = ref(false)
 const selectedRoleId = ref('')
 const addingMember = ref(false)
+
+const showCreateForm = ref(false)
+const newOrgName = ref('')
+const newOrgParentId = ref('')
+const creating = ref(false)
 
 watchEffect(() => {
   if (accessDenied.value) {
@@ -173,6 +196,23 @@ async function handleRename() {
     }
   } finally {
     renaming.value = false
+  }
+}
+
+async function handleCreate() {
+  creating.value = true
+  try {
+    const result = await createOrganization(newOrgName.value, newOrgParentId.value || undefined)
+    if (!result.success) {
+      window.alert(result.message)
+      return
+    }
+    newOrgName.value = ''
+    newOrgParentId.value = ''
+    showCreateForm.value = false
+    await fetchAllOrganizations()
+  } finally {
+    creating.value = false
   }
 }
 
@@ -274,6 +314,16 @@ async function handleAdd() {
 .org-item-count {
   font-size: 0.75rem;
   color: var(--muted);
+}
+
+.btn-new-org {
+  margin-top: 0.5rem;
+}
+
+.create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .org-detail {
