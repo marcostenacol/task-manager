@@ -107,3 +107,55 @@ test('org admin só vê logs de auditoria da própria organization', function ()
     $orgIds = collect($response->json('data.data'))->pluck('organization.id')->unique()->filter();
     expect($orgIds->all())->toBe([$orgA->id]);
 });
+
+test('admin global consegue filtrar logs de auditoria por organization_id', function () {
+    $orgAdminRole = Role::where('slug', 'org-admin')->first();
+
+    $orgA = Organization::create(['id' => (string) Str::uuid(), 'name' => 'Org A Filter', 'slug' => 'org-a-filter-'.Str::random(6)]);
+    $orgB = Organization::create(['id' => (string) Str::uuid(), 'name' => 'Org B Filter', 'slug' => 'org-b-filter-'.Str::random(6)]);
+
+    $orgAAdmin = User::factory()->create([
+        'role_id' => $orgAdminRole->id,
+        'active_organization_id' => $orgA->id,
+        'password' => 'password123',
+    ]);
+    UserOrganization::create(['user_id' => $orgAAdmin->id, 'organization_id' => $orgA->id, 'role_id' => $orgAdminRole->id]);
+
+    $orgBAdmin = User::factory()->create([
+        'role_id' => $orgAdminRole->id,
+        'active_organization_id' => $orgB->id,
+        'password' => 'password123',
+    ]);
+    UserOrganization::create(['user_id' => $orgBAdmin->id, 'organization_id' => $orgB->id, 'role_id' => $orgAdminRole->id]);
+
+    $orgAAdminToken = postJson(route('v1.auth.login'), [
+        'email' => $orgAAdmin->email,
+        'password' => 'password123',
+    ])->json('data.access_token.token');
+
+    $orgBAdminToken = postJson(route('v1.auth.login'), [
+        'email' => $orgBAdmin->email,
+        'password' => 'password123',
+    ])->json('data.access_token.token');
+
+    withToken($orgAAdminToken)->postJson('/api/v1/organizations/members/create', [
+        'name' => 'Membro Filter A',
+        'email' => 'membro.filter.a@example.com',
+        'cpf' => '52998224725',
+        'role_id' => Role::where('slug', 'user')->first()->id,
+    ]);
+
+    withToken($orgBAdminToken)->postJson('/api/v1/organizations/members/create', [
+        'name' => 'Membro Filter B',
+        'email' => 'membro.filter.b@example.com',
+        'cpf' => '11144477735',
+        'role_id' => Role::where('slug', 'user')->first()->id,
+    ]);
+
+    $response = withToken($this->adminToken)->getJson("/api/v1/admin/audit-logs?organization_id={$orgA->id}");
+
+    $response->assertStatus(200);
+
+    $orgIds = collect($response->json('data.data'))->pluck('organization.id')->unique()->filter();
+    expect($orgIds->all())->toBe([$orgA->id]);
+});

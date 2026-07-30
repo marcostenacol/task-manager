@@ -5,6 +5,7 @@ import { AdminService } from '../services/AdminService';
 export interface AuditLogFilters {
     action: string;
     actor_name: string;
+    organization_id: string;
     date_from: string;
     date_to: string;
 }
@@ -19,6 +20,7 @@ export const useAuditLogs = () => {
     const filters = reactive<AuditLogFilters>({
         action: '',
         actor_name: '',
+        organization_id: '',
         date_from: '',
         date_to: ''
     });

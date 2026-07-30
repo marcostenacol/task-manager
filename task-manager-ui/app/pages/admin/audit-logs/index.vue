@@ -16,6 +16,12 @@
             {{ label }}
           </option>
         </select>
+        <select v-if="isGlobalActor" v-model="filters.organization_id" class="filter-input">
+          <option value="">Todas as organizations</option>
+          <option v-for="org in allOrganizations" :key="org.id" :value="org.id">
+            {{ org.name }}
+          </option>
+        </select>
         <input v-model="filters.actor_name" type="text" class="filter-input" placeholder="Nome de quem executou">
         <input v-model="filters.date_from" type="date" class="filter-input">
         <input v-model="filters.date_to" type="date" class="filter-input">
@@ -39,6 +45,7 @@ import AuditLogTable from '~/modules/admin/components/AuditLogTable.vue'
 import { ACTION_LABELS } from '~/modules/admin/constants/auditLogActions'
 import { useAuth } from '~/modules/auth/hooks/useAuth'
 import { useAuditLogs } from '~/modules/admin/hooks/useAuditLogs'
+import { useOrganizations } from '~/modules/organizations/hooks/useOrganizations'
 
 definePageMeta({
   middleware: 'auth'
@@ -46,11 +53,14 @@ definePageMeta({
 
 const { user } = useAuth()
 const { logs, loading, currentPage, lastPage, total, filters, fetchLogs, applyFilters, nextPage, previousPage } = useAuditLogs()
+const { allOrganizations, fetchAllOrganizations } = useOrganizations()
 
 const accessDenied = computed(() => {
   if (!user.value) return true
   return !user.value.permissions?.includes('admin.audit-logs.list')
 })
+
+const isGlobalActor = computed(() => user.value?.permissions?.includes('admin.organizations.list') ?? false)
 
 watchEffect(() => {
   if (accessDenied.value) {
@@ -61,6 +71,9 @@ watchEffect(() => {
 onMounted(() => {
   if (!accessDenied.value) {
     fetchLogs()
+    if (isGlobalActor.value) {
+      fetchAllOrganizations()
+    }
   }
 })
 </script>

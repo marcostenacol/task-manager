@@ -30,9 +30,9 @@ class ListAuditLogsService
 
     private function scopeToActorOrganization(Builder $query, string $actorId): void
     {
-        $actor = User::findOrFail($actorId);
+        $actor = User::with('role')->findOrFail($actorId);
 
-        if ($actor->global_role_id !== null) {
+        if ($actor->global_role_id !== null || $actor->role->scope === 'global') {
             return;
         }
 
@@ -41,6 +41,10 @@ class ListAuditLogsService
 
     private function applyFilters(Builder $query, array $filters): void
     {
+        if (! empty($filters['organization_id'])) {
+            $query->where('organization_id', $filters['organization_id']);
+        }
+
         if (! empty($filters['action'])) {
             $query->where('action', $filters['action']);
         }
