@@ -76,6 +76,28 @@ test('org admin não vê roles customizadas de outra organization na listagem', 
     expect($names)->not->toContain('Role Org B');
 });
 
+test('org admin não vê as roles globais Admin e Owner na listagem', function () {
+    $response = withToken($this->orgAAdminToken)->getJson('/api/v1/admin/roles');
+
+    $response->assertStatus(200);
+
+    $slugs = collect($response->json('data'))->pluck('slug');
+    expect($slugs)->not->toContain('admin');
+    expect($slugs)->not->toContain('owner');
+    expect($slugs)->toContain('user');
+    expect($slugs)->toContain('org-admin');
+});
+
+test('role customizada nasce com as permissões padrão da role user', function () {
+    $response = withToken($this->orgAAdminToken)->postJson('/api/v1/admin/roles', ['name' => 'Role Com Default']);
+
+    $roleId = $response->json('data.id');
+    $userRole = Role::where('slug', 'user')->first();
+
+    expect($response->json('data.permissions_count'))->toBe($userRole->permissions()->count());
+    expect($response->json('data.permissions_count'))->toBeGreaterThan(0);
+});
+
 test('org admin não consegue editar role customizada de outra organization', function () {
     $roleOrgB = withToken($this->orgBAdminToken)->postJson('/api/v1/admin/roles', ['name' => 'Role Só Da B']);
     $roleId = $roleOrgB->json('data.id');

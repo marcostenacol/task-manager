@@ -15,10 +15,11 @@ class ListRolesService
         $query = Role::withCount('permissions')->orderBy('name');
 
         if ($actor->global_role_id === null && $actor->role->scope !== 'global') {
-            $query->where(function ($subQuery) use ($actor) {
-                $subQuery->whereNull('organization_id')
-                    ->orWhere('organization_id', $actor->active_organization_id);
-            });
+            $query->where('scope', '!=', 'global')
+                ->where(function ($subQuery) use ($actor) {
+                    $subQuery->whereNull('organization_id')
+                        ->orWhere('organization_id', $actor->active_organization_id);
+                });
         }
 
         return $query->get();

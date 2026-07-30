@@ -30,6 +30,8 @@ class CreateRoleService
                 'organization_id' => $organizationId,
             ]);
 
+            $this->assignDefaultPermissions($role, $organizationId);
+
             $this->recordAuditLogService->execute($actorId, 'role.create', 'Role', $role->id, [
                 'name' => $role->name,
             ], $organizationId);
@@ -56,5 +58,26 @@ class CreateRoleService
         }
 
         return Str::slug($name).'-'.Str::random(6);
+    }
+
+    /**
+     * Uma role de organization recém-criada nasce sem nenhuma permissão — o ator
+     * precisaria marcar cada checkbox manualmente antes de conseguir usá-la pra
+     * algo. Pré-atribui o mesmo conjunto de base da role 'user' (task e social)
+     * como ponto de partida; o ator ainda pode ajustar depois pela tela de sync.
+     */
+    private function assignDefaultPermissions(Role $role, ?string $organizationId): void
+    {
+        if (! $organizationId) {
+            return;
+        }
+
+        $baseRole = Role::where('slug', 'user')->first();
+
+        if (! $baseRole) {
+            return;
+        }
+
+        $role->permissions()->sync($baseRole->permissions->pluck('id'));
     }
 }
