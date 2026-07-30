@@ -304,3 +304,40 @@ test('admin global consegue transformar uma task de organization alheia em pesso
         'organization_id' => null,
     ]);
 });
+
+test('org admin (por permissão admin.organizations.manage-members) consegue transformar task de organization de outro membro da própria organization', function () {
+    $task = Task::create([
+        'user_id' => $this->member_b->id,
+        'organization_id' => $this->org->id,
+        'visibility' => 'organization',
+        'status_id' => $this->status_pending->id,
+        'priority_id' => $this->priority_high->id,
+        'title' => 'Task rebaixada pelo org admin',
+    ]);
+
+    $response = withToken($this->token_a)->putJson("/api/v1/tasks/{$task->id}", ['visibility' => 'personal']);
+
+    $response->assertStatus(200)->assertJsonPath('data.visibility', 'personal');
+});
+
+test('org admin não consegue mudar o escopo de uma task de organization de outra organization', function () {
+    $other_org = Organization::create(['id' => (string) Str::uuid(), 'name' => 'Other Task Org', 'slug' => 'other-task-org-'.Str::random(6)]);
+    $other_org_member = User::factory()->create([
+        'role_id' => $this->user_role->id,
+        'active_organization_id' => $other_org->id,
+    ]);
+    UserOrganization::create(['user_id' => $other_org_member->id, 'organization_id' => $other_org->id, 'role_id' => $this->user_role->id]);
+
+    $task = Task::create([
+        'user_id' => $other_org_member->id,
+        'organization_id' => $other_org->id,
+        'visibility' => 'organization',
+        'status_id' => $this->status_pending->id,
+        'priority_id' => $this->priority_high->id,
+        'title' => 'Task protegida de outra organization',
+    ]);
+
+    $response = withToken($this->token_a)->putJson("/api/v1/tasks/{$task->id}", ['visibility' => 'personal']);
+
+    $response->assertStatus(404);
+});

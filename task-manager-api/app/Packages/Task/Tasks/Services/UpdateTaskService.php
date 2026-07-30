@@ -53,18 +53,36 @@ class UpdateTaskService
             return $data;
         }
 
-        throw_unless($task->user_id === $actor_id || $this->actorIsGlobal($actor_id), new \InvalidArgumentException('Só o dono da task ou um ator global pode mudar o escopo dela.'));
+        throw_unless($this->actorCanChangeVisibility($task, $actor_id), new \InvalidArgumentException('Você não tem permissão para mudar o escopo dessa task.'));
 
         $data['organization_id'] = $this->resolveOrganizationId($task, $data['visibility']);
 
         return $data;
     }
 
-    private function actorIsGlobal(string $actor_id): bool
+    /**
+     * Dono sempre pode. Fora isso, é sempre mediante permissão: um ator global
+     * (admin.organizations.list) administra tasks de organization de qualquer
+     * organization; um Org Admin (admin.organizations.manage-members) só
+     * administra tasks da própria organization ativa — nunca de outra.
+     */
+    private function actorCanChangeVisibility(Task $task, string $actor_id): bool
     {
-        $actor = User::with('role')->findOrFail($actor_id);
+        if ($task->user_id === $actor_id) {
+            return true;
+        }
 
-        return $actor->global_role_id !== null || $actor->role->scope === 'global';
+        if (hasPermission('admin.organizations.list')) {
+            return true;
+        }
+
+        if (! hasPermission('admin.organizations.manage-members')) {
+            return false;
+        }
+
+        $actor = User::findOrFail($actor_id);
+
+        return $task->organization_id !== null && $actor->active_organization_id === $task->organization_id;
     }
 
     private function resolveOrganizationId(Task $task, string $visibility): ?string
