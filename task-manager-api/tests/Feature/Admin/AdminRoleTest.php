@@ -138,5 +138,21 @@ test('deve permitir renomear uma role de level inferior (mais fraca)', function 
 
     $response->assertStatus(200)->assertJsonPath('success', true);
 
-    $this->assertDatabaseHas('admin.roles', ['id' => $disposableRole->id, 'name' => 'Renamed Role', 'slug' => 'renamed-role']);
+    $this->assertDatabaseHas('admin.roles', ['id' => $disposableRole->id, 'name' => 'Renamed Role', 'slug' => $disposableRole->slug]);
+});
+
+test('renomear uma role não deve alterar o slug (identificador estável usado em lookups)', function () {
+    $disposableRole = Role::create([
+        'id' => (string) Str::uuid(),
+        'name' => 'Disposable Slug Check',
+        'slug' => 'disposable-slug-check-'.Str::random(6),
+        'level' => 999,
+    ]);
+
+    $originalSlug = $disposableRole->slug;
+
+    withToken($this->ownerToken)
+        ->patchJson("/api/v1/admin/roles/{$disposableRole->id}/name", ['name' => 'Nome Completamente Diferente']);
+
+    $this->assertDatabaseHas('admin.roles', ['id' => $disposableRole->id, 'slug' => $originalSlug]);
 });

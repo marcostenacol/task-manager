@@ -6,7 +6,6 @@ use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
 use App\Packages\Admin\Roles\Models\Role;
 use App\Packages\Admin\Users\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class UpdateRoleNameService
 {
@@ -25,10 +24,10 @@ class UpdateRoleNameService
 
             $oldName = $role->name;
 
-            $role->update([
-                'name' => $name,
-                'slug' => $role->organization_id ? Str::slug($name).'-'.Str::random(6) : Str::slug($name),
-            ]);
+            // slug é o identificador estável usado em lookups hardcoded (ex.:
+            // Role::where('slug', 'org-admin') em OnboardOrganizationService) —
+            // nunca deve mudar após a criação, mesmo quando o nome de exibição muda.
+            $role->update(['name' => $name]);
 
             $this->recordAuditLogService->execute($actorId, 'role.update', 'Role', $role->id, [
                 'old_name' => $oldName,
