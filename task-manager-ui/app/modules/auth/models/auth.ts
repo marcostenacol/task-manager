@@ -12,6 +12,11 @@ export interface User {
     name: string;
     slug: string;
   };
+  organization: {
+    id: string;
+    name: string;
+    slug: string;
+  } | null;
   permissions: string[];
 }
 

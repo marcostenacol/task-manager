@@ -4,6 +4,7 @@ export interface Role {
     slug: string;
     level: number;
     color: string;
+    scope: 'global' | 'organization';
     permissions_count?: number;
 }
 
