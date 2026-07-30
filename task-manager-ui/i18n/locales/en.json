@@ -1,0 +1,51 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "loading": "Loading...",
+    "confirm": "Confirm",
+    "back": "Back"
+  },
+  "nav": {
+    "tasks": "My tasks",
+    "profile": "My profile",
+    "users": "Users",
+    "members": "Members",
+    "roles": "Roles",
+    "auditLogs": "Audit log",
+    "settings": "Settings",
+    "platformSettings": "Platform Settings",
+    "logout": "Log out"
+  },
+  "auth": {
+    "loginTitle": "Welcome back",
+    "loginSubtitle": "Enter your credentials to continue",
+    "registerTitle": "Create Account",
+    "registerSubtitle": "Join us and start organizing your life",
+    "email": "Email",
+    "password": "Password",
+    "passwordConfirmation": "Confirm password",
+    "name": "Full Name",
+    "cpf": "National ID (CPF)",
+    "loginButton": "Sign in",
+    "registerButton": "Create Account",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "signUp": "Sign up",
+    "signIn": "Sign in",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot your password?",
+    "forgotPasswordInfo": "Password recovery by email isn't available yet. Ask an administrator to reset your password."
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Your account preferences",
+    "language": "Language",
+    "theme": "Theme",
+    "themeDark": "Dark",
+    "themeLight": "Light"
+  }
+}

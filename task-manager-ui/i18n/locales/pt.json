@@ -1,0 +1,51 @@
+{
+  "common": {
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "create": "Criar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "loading": "Carregando...",
+    "confirm": "Confirmar",
+    "back": "Voltar"
+  },
+  "nav": {
+    "tasks": "Minhas tarefas",
+    "profile": "Meu perfil",
+    "users": "Usuários",
+    "members": "Membros",
+    "roles": "Roles",
+    "auditLogs": "Auditoria",
+    "settings": "Configurações",
+    "platformSettings": "Config. da Plataforma",
+    "logout": "Sair"
+  },
+  "auth": {
+    "loginTitle": "Bem-vindo de volta",
+    "loginSubtitle": "Entre com suas credenciais para continuar",
+    "registerTitle": "Criar Conta",
+    "registerSubtitle": "Junte-se a nós e comece a organizar sua vida",
+    "email": "E-mail",
+    "password": "Senha",
+    "passwordConfirmation": "Confirme a senha",
+    "name": "Nome Completo",
+    "cpf": "CPF",
+    "loginButton": "Entrar",
+    "registerButton": "Criar Conta",
+    "noAccount": "Não tem uma conta?",
+    "hasAccount": "Já tem uma conta?",
+    "signUp": "Cadastre-se",
+    "signIn": "Entre aqui",
+    "rememberMe": "Lembrar de mim",
+    "forgotPassword": "Esqueceu a senha?",
+    "forgotPasswordInfo": "A recuperação de senha por e-mail ainda não está disponível. Peça a um administrador para redefinir sua senha."
+  },
+  "settings": {
+    "title": "Configurações",
+    "subtitle": "Preferências da sua conta",
+    "language": "Idioma",
+    "theme": "Tema",
+    "themeDark": "Escuro",
+    "themeLight": "Claro"
+  }
+}

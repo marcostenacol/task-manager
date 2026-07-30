@@ -1,27 +1,27 @@
 <template>
   <div class="auth-card glass">
     <div class="auth-header">
-      <h2 class="font-outfit">Criar Conta</h2>
-      <p>Junte-se a nós e comece a organizar sua vida</p>
+      <h2 class="font-outfit">{{ t('auth.registerTitle') }}</h2>
+      <p>{{ t('auth.registerSubtitle') }}</p>
     </div>
 
     <form class="auth-form" @submit.prevent="handleSubmit">
       <div class="input-group">
-        <label for="name">Nome Completo</label>
+        <label for="name">{{ t('auth.name') }}</label>
         <div class="input-wrapper">
           <User class="icon" :size="18" />
-          <input 
-            id="name" 
-            v-model="form.name" 
-            type="text" 
-            placeholder="Seu nome" 
-            required 
+          <input
+            id="name"
+            v-model="form.name"
+            type="text"
+            placeholder="Seu nome"
+            required
           >
         </div>
       </div>
 
       <div class="input-group">
-        <label for="email">E-mail</label>
+        <label for="email">{{ t('auth.email') }}</label>
         <div class="input-wrapper">
           <Mail class="icon" :size="18" />
           <input
@@ -35,7 +35,7 @@
       </div>
 
       <div class="input-group">
-        <label for="cpf">CPF</label>
+        <label for="cpf">{{ t('auth.cpf') }}</label>
         <div class="input-wrapper">
           <IdCard class="icon" :size="18" />
           <input
@@ -50,7 +50,7 @@
       </div>
 
       <div class="input-group">
-        <label for="password">Senha</label>
+        <label for="password">{{ t('auth.password') }}</label>
         <div class="input-wrapper">
           <Lock class="icon" :size="18" />
           <input
@@ -64,7 +64,7 @@
       </div>
 
       <div class="input-group">
-        <label for="password_confirmation">Confirme a senha</label>
+        <label for="password_confirmation">{{ t('auth.passwordConfirmation') }}</label>
         <div class="input-wrapper">
           <Lock class="icon" :size="18" />
           <input
@@ -78,7 +78,7 @@
       </div>
 
       <button type="submit" class="btn-auth" :disabled="loading">
-        <span v-if="!loading">Criar Conta</span>
+        <span v-if="!loading">{{ t('auth.registerButton') }}</span>
         <span v-else class="loader"/>
       </button>
 
@@ -88,7 +88,7 @@
     </form>
 
     <div class="auth-footer">
-      <p>Já tem uma conta? <NuxtLink to="/login">Entre aqui</NuxtLink></p>
+      <p>{{ t('auth.hasAccount') }} <NuxtLink to="/login">{{ t('auth.signIn') }}</NuxtLink></p>
     </div>
   </div>
 </template>
@@ -97,6 +97,7 @@
 import { IdCard, Lock, Mail, User } from 'lucide-vue-next'
 import { AuthService } from '../services/AuthService'
 
+const { t } = useI18n()
 const loading = ref(false)
 const error = ref('')
 const form = reactive({

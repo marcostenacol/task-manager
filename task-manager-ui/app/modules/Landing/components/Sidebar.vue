@@ -35,7 +35,7 @@
         <span class="user-name">{{ user?.name }}</span>
       </div>
       <button class="logout-btn" @click="handleLogout">
-        <LogOut :size="16" /> Sair
+        <LogOut :size="16" /> {{ t('nav.logout') }}
       </button>
     </div>
   </aside>
@@ -49,6 +49,7 @@ import { useProfile } from '~/modules/social/hooks/useProfile'
 import { useOrganizations } from '~/modules/organizations/hooks/useOrganizations'
 
 const route = useRoute()
+const { t } = useI18n()
 const { user, logout } = useAuth()
 const { profile, fetchProfile } = useProfile()
 const { memberships, fetchMine, switchActive } = useOrganizations()
@@ -83,24 +84,25 @@ const canManageMembers = computed(() => user.value?.permissions?.includes('admin
 
 const navItems = computed(() => {
   const items = [
-    { label: 'Minhas tarefas', to: '/tasks' },
-    { label: 'Meu perfil', to: '/profile' },
+    { label: t('nav.tasks'), to: '/tasks' },
+    { label: t('nav.profile'), to: '/profile' },
   ]
   if (isGlobalAdmin.value) {
-    items.push({ label: 'Usuários', to: '/admin/users' })
+    items.push({ label: t('nav.users'), to: '/admin/users' })
   }
   if (canManageMembers.value) {
-    items.push({ label: 'Membros', to: '/admin/organizations' })
+    items.push({ label: t('nav.members'), to: '/admin/organizations' })
   }
   if (canManageRoles.value) {
-    items.push({ label: 'Roles', to: '/admin/roles' })
+    items.push({ label: t('nav.roles'), to: '/admin/roles' })
   }
   if (canViewAuditLogs.value) {
-    items.push({ label: 'Auditoria', to: '/admin/audit-logs' })
+    items.push({ label: t('nav.auditLogs'), to: '/admin/audit-logs' })
   }
   if (canManageSettings.value) {
-    items.push({ label: 'Configurações', to: '/admin/settings' })
+    items.push({ label: t('nav.platformSettings'), to: '/admin/settings' })
   }
+  items.push({ label: t('nav.settings'), to: '/settings' })
   return items
 })
 

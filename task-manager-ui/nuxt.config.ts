@@ -1,7 +1,18 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ['@nuxt/eslint'],
+  modules: ['@nuxt/eslint', '@nuxtjs/i18n'],
   srcDir: 'app/',
+  i18n: {
+    locales: [
+      { code: 'pt', iso: 'pt-BR', name: 'Português', file: 'pt.json' },
+      { code: 'en', iso: 'en-US', name: 'English', file: 'en.json' },
+      { code: 'es', iso: 'es-ES', name: 'Español', file: 'es.json' },
+    ],
+    defaultLocale: 'pt',
+    strategy: 'no_prefix',
+    langDir: 'locales',
+    detectBrowserLanguage: false,
+  },
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],

@@ -1,35 +1,35 @@
 <template>
   <div class="auth-card glass">
     <div class="auth-header">
-      <h2 class="font-outfit">Bem-vindo de volta</h2>
-      <p>Entre com suas credenciais para continuar</p>
+      <h2 class="font-outfit">{{ t('auth.loginTitle') }}</h2>
+      <p>{{ t('auth.loginSubtitle') }}</p>
     </div>
 
     <form class="auth-form" @submit.prevent="handleSubmit">
       <div class="input-group">
-        <label for="email">E-mail</label>
+        <label for="email">{{ t('auth.email') }}</label>
         <div class="input-wrapper">
           <Mail class="icon" :size="18" />
-          <input 
-            id="email" 
-            v-model="form.email" 
-            type="email" 
-            placeholder="seu@email.com" 
-            required 
+          <input
+            id="email"
+            v-model="form.email"
+            type="email"
+            placeholder="seu@email.com"
+            required
           >
         </div>
       </div>
 
       <div class="input-group">
-        <label for="password">Senha</label>
+        <label for="password">{{ t('auth.password') }}</label>
         <div class="input-wrapper">
           <Lock class="icon" :size="18" />
-          <input 
-            id="password" 
-            v-model="form.password" 
-            type="password" 
-            placeholder="••••••••" 
-            required 
+          <input
+            id="password"
+            v-model="form.password"
+            type="password"
+            placeholder="••••••••"
+            required
           >
         </div>
       </div>
@@ -37,15 +37,15 @@
       <div class="auth-actions">
         <label class="remember-me">
           <input v-model="form.remember" type="checkbox" >
-          <span>Lembrar de mim</span>
+          <span>{{ t('auth.rememberMe') }}</span>
         </label>
         <button type="button" class="forgot-password" @click="showForgotPasswordInfo = true">
-          Esqueceu a senha?
+          {{ t('auth.forgotPassword') }}
         </button>
       </div>
 
       <button type="submit" class="btn-auth" :disabled="loading">
-        <span v-if="!loading">Entrar</span>
+        <span v-if="!loading">{{ t('auth.loginButton') }}</span>
         <span v-else class="loader"/>
       </button>
 
@@ -54,12 +54,12 @@
       </div>
 
       <div v-if="showForgotPasswordInfo" class="info-message">
-        A recuperação de senha por e-mail ainda não está disponível. Peça a um administrador para redefinir sua senha.
+        {{ t('auth.forgotPasswordInfo') }}
       </div>
     </form>
 
     <div class="auth-footer">
-      <p>Não tem uma conta? <NuxtLink to="/register">Cadastre-se</NuxtLink></p>
+      <p>{{ t('auth.noAccount') }} <NuxtLink to="/register">{{ t('auth.signUp') }}</NuxtLink></p>
     </div>
   </div>
 </template>
@@ -68,6 +68,7 @@
 import { Lock, Mail } from 'lucide-vue-next'
 import { useAuth } from '../hooks/useAuth'
 
+const { t } = useI18n()
 const { login, loading } = useAuth()
 const form = reactive({
   email: '',

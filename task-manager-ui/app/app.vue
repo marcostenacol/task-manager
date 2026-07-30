@@ -7,6 +7,9 @@
 </template>
 
 <script setup lang="ts">
+const { initTheme } = useTheme()
+onMounted(() => initTheme())
+
 useHead({
   title: 'TaskMaster - Gestão Inteligente de Tarefas',
   meta: [
