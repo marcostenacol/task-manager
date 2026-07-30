@@ -159,3 +159,18 @@ test('admin global consegue filtrar logs de auditoria por organization_id', func
     $orgIds = collect($response->json('data.data'))->pluck('organization.id')->unique()->filter();
     expect($orgIds->all())->toBe([$orgA->id]);
 });
+
+test('metadata da auditoria resolve ids para nomes legíveis', function () {
+    $targetUser = User::factory()->create();
+    $userRole = Role::where('slug', 'user')->first();
+
+    withToken($this->adminToken)->patchJson("/api/v1/admin/users/{$targetUser->id}/role", [
+        'role_id' => $userRole->id,
+    ]);
+
+    $response = withToken($this->adminToken)->getJson('/api/v1/admin/audit-logs?action=user.role_change');
+
+    $entry = collect($response->json('data.data'))->firstWhere('action', 'user.role_change');
+
+    expect($entry['metadata']['role_id'])->toBe($userRole->name);
+});
