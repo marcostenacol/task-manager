@@ -40,6 +40,7 @@ const statusColors: Record<string, string> = {
                 <tr>
                     <th>Usuário</th>
                     <th>Role</th>
+                    <th>Organization</th>
                     <th>Status</th>
                     <th>Desde</th>
                     <th class="text-right">Ações</th>
@@ -68,6 +69,9 @@ const statusColors: Record<string, string> = {
                         >
                             {{ user.role.name }}
                         </span>
+                    </td>
+                    <td class="cell-muted">
+                        {{ user.organization?.name || '—' }}
                     </td>
                     <td>
                         <span

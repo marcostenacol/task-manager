@@ -6,42 +6,88 @@
       <NuxtLink to="/tasks">Voltar para tarefas</NuxtLink>
     </div>
     <div v-else>
-      <h1 class="page-title">Membros da Organization</h1>
-      <p class="page-subtitle">Adicione um usuário já existente à sua organization buscando pelo CPF.</p>
+      <h1 class="page-title">Organizations</h1>
+      <p class="page-subtitle">
+        {{ canListAll ? 'Gerencie todas as organizations da plataforma.' : 'Gerencie a sua organization.' }}
+      </p>
 
-      <form class="lookup-form" @submit.prevent="handleLookup">
-        <input v-model="cpf" type="text" class="field-input" placeholder="CPF (somente números)" maxlength="11">
-        <button type="submit" class="btn-lookup" :disabled="loadingLookup">
-          {{ loadingLookup ? 'Buscando...' : 'Buscar' }}
-        </button>
-      </form>
-
-      <p v-if="lookupError" class="error-message">{{ lookupError }}</p>
-      <p v-if="searched && !lookupResult && !lookupError" class="empty-message">Nenhum usuário encontrado com esse CPF.</p>
-
-      <div v-if="lookupResult" class="result-card">
-        <div class="result-info">
-          <strong>{{ lookupResult.name }}</strong>
-          <span class="result-email">{{ lookupResult.email }}</span>
+      <div class="layout">
+        <div v-if="canListAll" class="org-list">
+          <h3 class="section-title">Todas as organizations</h3>
+          <button
+            v-for="org in allOrganizations"
+            :key="org.id"
+            class="org-item"
+            :class="{ active: org.id === selectedOrganizationId }"
+            @click="selectOrganization(org.id)"
+          >
+            <span>{{ org.name }}</span>
+            <span class="org-item-count">{{ org.members_count }} membro(s)</span>
+          </button>
         </div>
 
-        <select v-model="selectedRoleId" class="field-input role-select">
-          <option value="" disabled>Selecione a role...</option>
-          <option v-for="role in organizationRoles" :key="role.id" :value="role.id">
-            {{ role.name }}
-          </option>
-        </select>
+        <div v-if="selectedOrganizationId" class="org-detail">
+          <form class="rename-form" @submit.prevent="handleRename">
+            <input v-model="orgName" type="text" class="field-input" placeholder="Nome da organization">
+            <button type="submit" class="btn-secondary" :disabled="renaming">
+              {{ renaming ? 'Salvando...' : 'Renomear' }}
+            </button>
+          </form>
 
-        <button class="btn-add" :disabled="!selectedRoleId || addingMember" @click="handleAdd">
-          {{ addingMember ? 'Adicionando...' : 'Adicionar à organization' }}
-        </button>
+          <h3 class="section-title">Membros</h3>
+          <table class="members-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Role</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="member in members" :key="member.user_id">
+                <td>{{ member.name }}</td>
+                <td class="cell-muted">{{ member.email }}</td>
+                <td>{{ member.role.name }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3 class="section-title">Adicionar membro por CPF</h3>
+          <form class="lookup-form" @submit.prevent="handleLookup">
+            <input v-model="cpf" type="text" class="field-input" placeholder="CPF (somente números)" maxlength="11">
+            <button type="submit" class="btn-secondary" :disabled="loadingLookup">
+              {{ loadingLookup ? 'Buscando...' : 'Buscar' }}
+            </button>
+          </form>
+
+          <p v-if="lookupError" class="error-message">{{ lookupError }}</p>
+          <p v-if="searched && !lookupResult && !lookupError" class="empty-message">Nenhum usuário encontrado com esse CPF.</p>
+
+          <div v-if="lookupResult" class="result-card">
+            <div class="result-info">
+              <strong>{{ lookupResult.name }}</strong>
+              <span class="result-email">{{ lookupResult.email }}</span>
+            </div>
+
+            <select v-model="selectedRoleId" class="field-input role-select">
+              <option value="" disabled>Selecione a role...</option>
+              <option v-for="role in organizationRoles" :key="role.id" :value="role.id">
+                {{ role.name }}
+              </option>
+            </select>
+
+            <button class="btn-add" :disabled="!selectedRoleId || addingMember" @click="handleAdd">
+              {{ addingMember ? 'Adicionando...' : 'Adicionar à organization' }}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watchEffect } from 'vue'
+import { computed, onMounted, ref, watch, watchEffect } from 'vue'
 import { useAuth } from '~/modules/auth/hooks/useAuth'
 import { useOrganizations } from '~/modules/organizations/hooks/useOrganizations'
 import { useRoles } from '~/modules/admin/hooks/useRoles'
@@ -52,12 +98,25 @@ definePageMeta({
 })
 
 const { user } = useAuth()
-const { lookupMember, addMember } = useOrganizations()
+const {
+  allOrganizations,
+  members,
+  fetchAllOrganizations,
+  fetchMembers,
+  lookupMember,
+  addMember,
+  updateOrganization
+} = useOrganizations()
 const { roles, fetchRoles } = useRoles()
 
+const canListAll = computed(() => user.value?.permissions?.includes('admin.organizations.list') ?? false)
 const accessDenied = computed(() => !user.value?.permissions?.includes('admin.organizations.manage-members'))
 
 const organizationRoles = computed(() => roles.value.filter((role) => role.scope === 'organization'))
+
+const selectedOrganizationId = ref('')
+const orgName = ref('')
+const renaming = ref(false)
 
 const cpf = ref('')
 const lookupResult = ref<MemberLookupResult | null>(null)
@@ -73,11 +132,49 @@ watchEffect(() => {
   }
 })
 
-onMounted(() => {
-  if (!accessDenied.value) {
-    fetchRoles()
+onMounted(async () => {
+  if (accessDenied.value) return
+
+  fetchRoles()
+
+  if (canListAll.value) {
+    await fetchAllOrganizations()
+    return
+  }
+
+  if (user.value?.organization) {
+    selectOrganization(user.value.organization.id)
   }
 })
+
+async function selectOrganization(organizationId: string) {
+  selectedOrganizationId.value = organizationId
+  const org = allOrganizations.value.find((item) => item.id === organizationId)
+  orgName.value = org?.name || user.value?.organization?.name || ''
+  await fetchMembers(organizationId)
+}
+
+watch(() => user.value?.organization, (organization) => {
+  if (!canListAll.value && organization) {
+    selectOrganization(organization.id)
+  }
+})
+
+async function handleRename() {
+  renaming.value = true
+  try {
+    const result = await updateOrganization(selectedOrganizationId.value, orgName.value)
+    if (!result.success) {
+      window.alert(result.message)
+      return
+    }
+    if (canListAll.value) {
+      await fetchAllOrganizations()
+    }
+  } finally {
+    renaming.value = false
+  }
+}
 
 async function handleLookup() {
   loadingLookup.value = true
@@ -85,7 +182,7 @@ async function handleLookup() {
   lookupResult.value = null
   searched.value = false
   try {
-    const result = await lookupMember(cpf.value)
+    const result = await lookupMember(cpf.value, canListAll.value ? selectedOrganizationId.value : undefined)
     searched.value = true
     if (!result.success) {
       lookupError.value = result.message || 'Erro ao buscar usuário.'
@@ -102,7 +199,11 @@ async function handleAdd() {
 
   addingMember.value = true
   try {
-    const result = await addMember(lookupResult.value.user_id, selectedRoleId.value)
+    const result = await addMember(
+      lookupResult.value.user_id,
+      selectedRoleId.value,
+      canListAll.value ? selectedOrganizationId.value : undefined
+    )
     if (!result.success) {
       window.alert(result.message)
       return
@@ -112,6 +213,7 @@ async function handleAdd() {
     cpf.value = ''
     selectedRoleId.value = ''
     searched.value = false
+    await fetchMembers(selectedOrganizationId.value)
   } finally {
     addingMember.value = false
   }
@@ -130,10 +232,67 @@ async function handleAdd() {
   margin-top: 0.25rem;
 }
 
-.lookup-form {
+.layout {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  align-items: flex-start;
+}
+
+.org-list {
+  width: 16rem;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.org-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  align-items: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.org-item:hover {
+  background: var(--surface-2);
+}
+
+.org-item.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.org-item-count {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.org-detail {
+  flex: 1;
+  min-width: 0;
+}
+
+.section-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 1.5rem 0 0.75rem;
+}
+
+.rename-form, .lookup-form {
   display: flex;
   gap: 0.75rem;
-  margin-top: 1.5rem;
   max-width: 28rem;
 }
 
@@ -151,7 +310,7 @@ async function handleAdd() {
   border-color: var(--accent);
 }
 
-.btn-lookup, .btn-add {
+.btn-secondary, .btn-add {
   padding: 0.65rem 1.25rem;
   background: var(--accent);
   color: var(--accent-ink);
@@ -160,15 +319,45 @@ async function handleAdd() {
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s;
+  white-space: nowrap;
 }
 
-.btn-lookup:hover:not(:disabled), .btn-add:hover:not(:disabled) {
+.btn-secondary:hover:not(:disabled), .btn-add:hover:not(:disabled) {
   opacity: 0.9;
 }
 
-.btn-lookup:disabled, .btn-add:disabled {
+.btn-secondary:disabled, .btn-add:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.members-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.members-table th {
+  text-align: left;
+  padding: 0.65rem 1rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.members-table td {
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink);
+}
+
+.cell-muted {
+  color: var(--muted);
 }
 
 .error-message {

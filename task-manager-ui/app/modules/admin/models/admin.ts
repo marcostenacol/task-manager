@@ -52,6 +52,11 @@ export interface AdminUser {
         name: string;
         slug: string;
     };
+    organization: {
+        id: string;
+        name: string;
+        slug: string;
+    } | null;
     created_at: string;
 }
 

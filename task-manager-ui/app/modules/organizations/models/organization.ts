@@ -3,6 +3,18 @@ export interface Organization {
     name: string;
     slug: string;
     parent_id: string | null;
+    members_count: number;
+}
+
+export interface OrganizationMember {
+    user_id: string;
+    name: string;
+    email: string;
+    role: {
+        id: string;
+        name: string;
+        slug: string;
+    };
 }
 
 export interface OrganizationMembership {
