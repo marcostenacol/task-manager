@@ -45,3 +45,6 @@ task-manager-api/.docker/nginx/logs/
 /docs/
 task-manager-api/docs/
 task-manager-ui/docs/
+
+# Claude Code harness config — local only, never committed
+/.claude/
