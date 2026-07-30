@@ -139,3 +139,11 @@ test('não deve permitir que org admin crie outro org admin (mesmo nível)', fun
 
     $response->assertStatus(400)->assertJsonPath('success', false);
 });
+
+test('listagem de usuários inclui a organization de cada um', function () {
+    $response = withToken($this->orgAAdminToken)->getJson('/api/v1/admin/users?limit=100');
+
+    $organizationEntry = collect($response->json('data.data'))->firstWhere('id', $this->orgAAdmin->id);
+
+    expect($organizationEntry['organization']['id'])->toBe($this->orgA->id);
+});

@@ -2,6 +2,7 @@
 
 namespace App\Packages\Admin\Users\Models;
 
+use App\Packages\Admin\Organizations\Models\Organization;
 use App\Packages\Admin\Organizations\Models\UserOrganization;
 use App\Packages\Admin\Roles\Models\Role;
 use App\Packages\Admin\UserStatuses\Models\UserStatus;
@@ -80,6 +81,11 @@ class User extends Authenticatable
     public function organizationMemberships(): HasMany
     {
         return $this->hasMany(UserOrganization::class, 'user_id');
+    }
+
+    public function activeOrganization(): BelongsTo
+    {
+        return $this->belongsTo(Organization::class, 'active_organization_id');
     }
 
     public function lastStatus(): BelongsTo

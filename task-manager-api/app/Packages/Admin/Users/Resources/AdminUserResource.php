@@ -26,6 +26,13 @@ class AdminUserResource extends JsonResource
                 'name' => $this->status_name ?? ($this->lastStatus->name ?? null),
                 'slug' => $this->status_slug ?? ($this->lastStatus->slug ?? null),
             ],
+            'organization' => ($this->organization_id ?? $this->active_organization_id)
+                ? [
+                    'id' => $this->organization_id ?? $this->activeOrganization?->id,
+                    'name' => $this->organization_name ?? $this->activeOrganization?->name,
+                    'slug' => $this->organization_slug ?? $this->activeOrganization?->slug,
+                ]
+                : null,
             'created_at' => $this->created_at,
         ];
     }

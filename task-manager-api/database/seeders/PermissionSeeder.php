@@ -31,6 +31,7 @@ class PermissionSeeder extends Seeder
             ['name' => 'admin.roles.manage', 'description' => 'Gerenciar roles e permissões'],
             ['name' => 'admin.settings.manage', 'description' => 'Gerenciar configurações do sistema'],
             ['name' => 'admin.organizations.manage-members', 'description' => 'Adicionar/remover membros de uma organization'],
+            ['name' => 'admin.organizations.list', 'description' => 'Ver todas as organizations e seus membros'],
 
             // Task Permissions
             ['name' => 'task.tasks.create', 'description' => 'Criar tarefas'],
@@ -53,7 +54,7 @@ class PermissionSeeder extends Seeder
         $userRole = Role::withTrashed()->where('slug', 'user')->first();
 
         // Permissões que afetam a plataforma inteira (não escopáveis por organization)
-        $globalOnlyPermissions = ['admin.roles.manage', 'admin.settings.manage'];
+        $globalOnlyPermissions = ['admin.roles.manage', 'admin.settings.manage', 'admin.organizations.list'];
 
         foreach ($permissions as $perm) {
             $permission = Permission::firstOrCreate(

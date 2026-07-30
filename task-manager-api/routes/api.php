@@ -55,6 +55,7 @@ Route::group(['prefix' => 'v1', 'as' => 'v1.', 'middleware' => 'throttle:api'], 
                     ->middleware('throttle:organization-member-lookup')
                     ->name('members.lookup');
                 Route::post('members', [OrganizationController::class, 'addMember'])->name('members.add');
+                Route::put('{id}', [OrganizationController::class, 'update'])->name('update');
             });
         });
 
@@ -99,6 +100,11 @@ Route::group(['prefix' => 'v1', 'as' => 'v1.', 'middleware' => 'throttle:api'], 
             Route::group(['prefix' => 'settings', 'as' => 'settings.', 'middleware' => 'auth.api:admin.settings.manage'], function () {
                 Route::get('/', [SettingController::class, 'index'])->name('index');
                 Route::put('{id}', [SettingController::class, 'update'])->name('update');
+            });
+
+            Route::group(['prefix' => 'organizations', 'as' => 'organizations.', 'middleware' => 'auth.api:admin.organizations.list'], function () {
+                Route::get('/', [OrganizationController::class, 'index'])->name('index');
+                Route::get('{id}/members', [OrganizationController::class, 'members'])->name('members');
             });
 
             Route::group(['prefix' => 'users', 'as' => 'users.'], function () {

@@ -6,11 +6,15 @@ use App\Packages\Admin\Users\Models\User;
 
 class LookupOrganizationMemberService
 {
-    public function execute(string $cpf, string $actorId): ?User
+    public function __construct(
+        private ResolveTargetOrganizationService $resolveTargetOrganizationService,
+    ) {}
+
+    public function execute(string $cpf, string $actorId, ?string $organizationId = null): ?User
     {
         $actor = User::findOrFail($actorId);
 
-        $this->guardActorHasOwnOrganization($actor);
+        $targetOrganizationId = $this->resolveTargetOrganizationService->execute($actor, $organizationId);
 
         $target = User::where('cpf', $cpf)->first();
 
@@ -18,30 +22,23 @@ class LookupOrganizationMemberService
             return null;
         }
 
-        $this->guardAgainstAlreadyMember($actor, $target);
+        $this->guardAgainstAlreadyMember($actor, $target, $targetOrganizationId);
 
         return $target;
     }
 
-    private function guardActorHasOwnOrganization(User $actor): void
-    {
-        if ($actor->global_role_id === null && $actor->active_organization_id === null) {
-            throw new \InvalidArgumentException('Você não pertence a nenhuma organization.');
-        }
-    }
-
-    private function guardAgainstAlreadyMember(User $actor, User $target): void
+    private function guardAgainstAlreadyMember(User $actor, User $target, string $organizationId): void
     {
         if ($target->id === $actor->id) {
             throw new \InvalidArgumentException('Esse CPF é o seu próprio.');
         }
 
         $alreadyMember = $target->organizationMemberships()
-            ->where('organization_id', $actor->active_organization_id)
+            ->where('organization_id', $organizationId)
             ->exists();
 
         if ($alreadyMember) {
-            throw new \InvalidArgumentException('Esse usuário já é membro da sua organization.');
+            throw new \InvalidArgumentException('Esse usuário já é membro dessa organization.');
         }
     }
 }

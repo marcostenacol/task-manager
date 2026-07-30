@@ -14,6 +14,7 @@ class OrganizationResource extends JsonResource
             'name' => $this->name,
             'slug' => $this->slug,
             'parent_id' => $this->parent_id,
+            'members_count' => $this->memberships_count ?? $this->memberships()->count(),
         ];
     }
 }

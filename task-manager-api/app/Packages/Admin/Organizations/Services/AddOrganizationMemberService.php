@@ -13,16 +13,18 @@ class AddOrganizationMemberService
     public function __construct(
         private RecordAuditLogService $recordAuditLogService,
         private GuardRoleAssignmentService $guardRoleAssignmentService,
+        private ResolveTargetOrganizationService $resolveTargetOrganizationService,
     ) {}
 
-    public function execute(string $targetUserId, string $roleId, string $actorId): UserOrganization
+    public function execute(string $targetUserId, string $roleId, string $actorId, ?string $organizationId = null): UserOrganization
     {
-        return DB::transaction(function () use ($targetUserId, $roleId, $actorId) {
+        return DB::transaction(function () use ($targetUserId, $roleId, $actorId, $organizationId) {
             $actor = User::findOrFail($actorId);
             $target = User::findOrFail($targetUserId);
             $role = Role::findOrFail($roleId);
 
-            $this->guardActorHasOwnOrganization($actor);
+            $targetOrganizationId = $this->resolveTargetOrganizationService->execute($actor, $organizationId);
+
             $this->guardRoleAssignmentService->guardAgainstAssigningSuperiorOrEqualRole($actor, $role);
 
             if ($role->scope !== 'organization') {
@@ -31,27 +33,20 @@ class AddOrganizationMemberService
 
             $membership = UserOrganization::create([
                 'user_id' => $target->id,
-                'organization_id' => $actor->active_organization_id,
+                'organization_id' => $targetOrganizationId,
                 'role_id' => $role->id,
             ]);
 
             if ($target->active_organization_id === null) {
-                $target->update(['active_organization_id' => $actor->active_organization_id]);
+                $target->update(['active_organization_id' => $targetOrganizationId]);
             }
 
             $this->recordAuditLogService->execute($actorId, 'organization.member_add', 'User', $target->id, [
-                'organization_id' => $actor->active_organization_id,
+                'organization_id' => $targetOrganizationId,
                 'role_id' => $role->id,
             ]);
 
             return $membership;
         });
-    }
-
-    private function guardActorHasOwnOrganization(User $actor): void
-    {
-        if ($actor->active_organization_id === null) {
-            throw new \InvalidArgumentException('Você não pertence a nenhuma organization.');
-        }
     }
 }

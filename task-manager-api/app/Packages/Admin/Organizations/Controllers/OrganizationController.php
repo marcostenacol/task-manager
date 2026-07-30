@@ -8,14 +8,19 @@ use App\Packages\Admin\Organizations\Requests\AddOrganizationMemberRequest;
 use App\Packages\Admin\Organizations\Requests\LookupOrganizationMemberRequest;
 use App\Packages\Admin\Organizations\Requests\OnboardOrganizationRequest;
 use App\Packages\Admin\Organizations\Requests\SwitchActiveOrganizationRequest;
+use App\Packages\Admin\Organizations\Requests\UpdateOrganizationRequest;
 use App\Packages\Admin\Organizations\Resources\MyOrganizationMembershipResource;
 use App\Packages\Admin\Organizations\Resources\OrganizationMemberLookupResource;
+use App\Packages\Admin\Organizations\Resources\OrganizationMemberResource;
 use App\Packages\Admin\Organizations\Resources\OrganizationResource;
 use App\Packages\Admin\Organizations\Services\AddOrganizationMemberService;
 use App\Packages\Admin\Organizations\Services\ListMyOrganizationsService;
+use App\Packages\Admin\Organizations\Services\ListOrganizationMembersService;
+use App\Packages\Admin\Organizations\Services\ListOrganizationsService;
 use App\Packages\Admin\Organizations\Services\LookupOrganizationMemberService;
 use App\Packages\Admin\Organizations\Services\OnboardOrganizationService;
 use App\Packages\Admin\Organizations\Services\SwitchActiveOrganizationService;
+use App\Packages\Admin\Organizations\Services\UpdateOrganizationService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
@@ -43,7 +48,11 @@ class OrganizationController extends Controller
     {
         try {
             $admin = userObject();
-            $data = $service->execute($request->validated('cpf'), $admin->id);
+            $data = $service->execute(
+                $request->validated('cpf'),
+                $admin->id,
+                $request->validated('organization_id')
+            );
 
             return self::successResponse(
                 $data ? OrganizationMemberLookupResource::make($data) : null,
@@ -60,9 +69,48 @@ class OrganizationController extends Controller
     {
         try {
             $admin = userObject();
-            $service->execute($request->validated('user_id'), $request->validated('role_id'), $admin->id);
+            $service->execute(
+                $request->validated('user_id'),
+                $request->validated('role_id'),
+                $admin->id,
+                $request->validated('organization_id')
+            );
 
             return self::successResponse(null, 'Membro adicionado com sucesso.', HttpResponse::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return self::returnError($e);
+        }
+    }
+
+    public function index(ListOrganizationsService $service): JsonResponse
+    {
+        try {
+            $data = $service->execute();
+
+            return self::successResponse(OrganizationResource::collection($data), 'Organizations recuperadas com sucesso.');
+        } catch (\Exception $e) {
+            return self::returnError($e);
+        }
+    }
+
+    public function members(string $id, ListOrganizationMembersService $service): JsonResponse
+    {
+        try {
+            $data = $service->execute($id);
+
+            return self::successResponse(OrganizationMemberResource::collection($data), 'Membros recuperados com sucesso.');
+        } catch (\Exception $e) {
+            return self::returnError($e);
+        }
+    }
+
+    public function update(string $id, UpdateOrganizationRequest $request, UpdateOrganizationService $service): JsonResponse
+    {
+        try {
+            $admin = userObject();
+            $data = $service->execute($id, $request->validated('name'), $admin->id);
+
+            return self::successResponse(OrganizationResource::make($data), 'Organization atualizada com sucesso.');
         } catch (\Exception $e) {
             return self::returnError($e);
         }

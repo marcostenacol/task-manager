@@ -34,15 +34,20 @@ class UserRepository extends BaseRepository
                     U.email,
                     U.avatar_path,
                     U.created_at,
+                    U.active_organization_id,
                     R.id as role_id,
                     R.name as role_name,
                     R.slug as role_slug,
                     R.level as role_level,
                     R.color as role_color,
+                    O.id as organization_id,
+                    O.name as organization_name,
+                    O.slug as organization_slug,
                     S.name as status_name,
                     S.slug as status_slug
                 FROM admin.users U
                 JOIN admin.roles R ON U.role_id = R.id
+                LEFT JOIN admin.organizations O ON O.id = U.active_organization_id
                 LEFT JOIN admin.user_statuses S ON U.last_status_id = S.id
                 WHERE U.deleted_at IS NULL
                 AND R.deleted_at IS NULL
