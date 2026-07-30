@@ -341,3 +341,73 @@ test('org admin não consegue mudar o escopo de uma task de organization de outr
 
     $response->assertStatus(404);
 });
+
+test('admin global consegue escolher explicitamente a organization ao mover uma task de organization pra outra organization', function () {
+    $another_org = Organization::create(['id' => (string) Str::uuid(), 'name' => 'Another Task Org', 'slug' => 'another-task-org-'.Str::random(6)]);
+
+    $task = Task::create([
+        'user_id' => $this->member_b->id,
+        'organization_id' => $this->org->id,
+        'visibility' => 'organization',
+        'status_id' => $this->status_pending->id,
+        'priority_id' => $this->priority_high->id,
+        'title' => 'Task movida pra outra organization pelo global',
+    ]);
+
+    $response = withToken($this->token_global)->putJson("/api/v1/tasks/{$task->id}", [
+        'visibility' => 'organization',
+        'organization_id' => $another_org->id,
+    ]);
+
+    $response->assertStatus(200)->assertJsonPath('data.visibility', 'organization');
+
+    $this->assertDatabaseHas('tasks', [
+        'id' => $task->id,
+        'visibility' => 'organization',
+        'organization_id' => $another_org->id,
+    ]);
+});
+
+test('admin global consegue criar task de organization escolhendo a organization diretamente', function () {
+    $response = withToken($this->token_global)->postJson('/api/v1/tasks', [
+        'title' => 'Task global com organization escolhida',
+        'status_id' => $this->status_pending->id,
+        'priority_id' => $this->priority_high->id,
+        'visibility' => 'organization',
+        'organization_id' => $this->org->id,
+    ]);
+
+    $response->assertStatus(201)->assertJsonPath('data.visibility', 'organization');
+
+    $this->assertDatabaseHas('tasks', [
+        'title' => 'Task global com organization escolhida',
+        'visibility' => 'organization',
+        'organization_id' => $this->org->id,
+    ]);
+});
+
+test('ator não-global não consegue escolher a organization livremente (ignora organization_id enviado)', function () {
+    $task = Task::create([
+        'user_id' => $this->member_a->id,
+        'organization_id' => null,
+        'visibility' => 'personal',
+        'status_id' => $this->status_pending->id,
+        'priority_id' => $this->priority_high->id,
+        'title' => 'Task do member A sem escolha livre de organization',
+    ]);
+
+    $other_org = Organization::create(['id' => (string) Str::uuid(), 'name' => 'Org Que Não Deveria Ser Escolhida', 'slug' => 'org-nao-escolhida-'.Str::random(6)]);
+
+    $response = withToken($this->token_a)->putJson("/api/v1/tasks/{$task->id}", [
+        'visibility' => 'organization',
+        'organization_id' => $other_org->id,
+    ]);
+
+    $response->assertStatus(200);
+
+    $this->assertDatabaseHas('tasks', [
+        'id' => $task->id,
+        'visibility' => 'organization',
+        'organization_id' => $this->org->id,
+    ]);
+});

@@ -4,6 +4,7 @@ namespace App\Packages\Task\Tasks\Services;
 
 use App\Base\Traits\CacheTrait;
 use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
+use App\Packages\Admin\Organizations\Models\Organization;
 use App\Packages\Admin\Users\Models\User;
 use App\Packages\Task\Tasks\Models\Task;
 use App\Packages\Task\Tasks\Resources\TaskResource;
@@ -24,7 +25,7 @@ class CreateTaskService
 
             $visibility = $data['visibility'] ?? 'personal';
 
-            $organization_id = $this->resolveOrganizationId($user, $visibility);
+            $organization_id = $this->resolveOrganizationId($user, $visibility, $data['organization_id'] ?? null);
 
             $task = Task::create([
                 'user_id' => $user_id,
@@ -52,10 +53,21 @@ class CreateTaskService
         });
     }
 
-    private function resolveOrganizationId(User $user, string $visibility): ?string
+    /**
+     * Ator global pode escolher explicitamente pra qual organization a task
+     * vai (ele normalmente não tem organization ativa própria). Qualquer
+     * outro ator sempre cria a task na própria organization ativa.
+     */
+    private function resolveOrganizationId(User $user, string $visibility, ?string $requested_organization_id): ?string
     {
         if ($visibility !== 'organization') {
             return null;
+        }
+
+        if ($requested_organization_id && hasPermission('admin.organizations.list')) {
+            throw_unless(Organization::find($requested_organization_id), new \InvalidArgumentException('Organization não encontrada.'));
+
+            return $requested_organization_id;
         }
 
         throw_unless($user->active_organization_id, new \InvalidArgumentException('Você não pertence a nenhuma organization para criar uma task de organization.'));

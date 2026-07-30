@@ -4,6 +4,7 @@ import { X } from 'lucide-vue-next';
 import { TaskService } from '../services/TaskService';
 import { useTaskForm } from '../hooks/useTaskForm';
 import { useAuth } from '~/modules/auth/hooks/useAuth';
+import { useOrganizations } from '~/modules/organizations/hooks/useOrganizations';
 
 const props = defineProps<{
     show: boolean;
@@ -14,18 +15,21 @@ const emit = defineEmits(['close', 'saved']);
 
 const { user } = useAuth();
 const { form, loading, errors, taskOwnerId, submit, resetForm, fillForm } = useTaskForm();
+const { allOrganizations, fetchAllOrganizations } = useOrganizations();
 
 const statuses = ref<any[]>([]);
 const priorities = ref<any[]>([]);
+const selectedOrganizationId = ref('');
 
 const belongsToOrganization = computed(() => !!user.value?.organization);
 const isGlobalActor = computed(() => user.value?.permissions?.includes('admin.organizations.list') ?? false);
 const canManageOrganizationTasks = computed(() => user.value?.permissions?.includes('admin.organizations.manage-members') ?? false)
 const isOwner = computed(() => !props.taskId || taskOwnerId.value === user.value?.id);
 const canEditVisibility = computed(() => {
-  if (!props.taskId) return belongsToOrganization.value
+  if (!props.taskId) return belongsToOrganization.value || isGlobalActor.value
   return isOwner.value || isGlobalActor.value || canManageOrganizationTasks.value
 });
+const showOrganizationPicker = computed(() => isGlobalActor.value && form.visibility === 'organization');
 
 onMounted(async () => {
     try {
@@ -35,6 +39,9 @@ onMounted(async () => {
         ]);
         statuses.value = s;
         priorities.value = p;
+        if (isGlobalActor.value) {
+            await fetchAllOrganizations();
+        }
     } catch (error) {
         console.error('Erro ao carregar opções:', error);
     }
@@ -42,6 +49,7 @@ onMounted(async () => {
 
 watch(() => props.show, (newVal) => {
     if (newVal) {
+        selectedOrganizationId.value = ''
         if (props.taskId) {
             // Se tiver taskId, carregar dados para edição
             loadTask(props.taskId);
@@ -61,7 +69,10 @@ const loadTask = async (id: string) => {
 };
 
 const handleSave = async () => {
-    const success = await submit(props.taskId || undefined);
+    const extra = showOrganizationPicker.value && selectedOrganizationId.value
+        ? { organization_id: selectedOrganizationId.value }
+        : undefined;
+    const success = await submit(props.taskId || undefined, extra);
     if (success) {
         emit('saved');
         emit('close');
@@ -151,6 +162,19 @@ const handleSave = async () => {
                         >
                             <option value="personal">Pessoal (só eu vejo)</option>
                             <option value="organization">Organization (todos os membros veem)</option>
+                        </select>
+                    </div>
+
+                    <div v-if="showOrganizationPicker">
+                        <label class="field-label">Organization</label>
+                        <select
+                            v-model="selectedOrganizationId"
+                            class="field-input"
+                        >
+                            <option value="">{{ taskId ? 'Manter organization atual' : 'Selecione...' }}</option>
+                            <option v-for="org in allOrganizations" :key="org.id" :value="org.id">
+                                {{ org.name }}
+                            </option>
                         </select>
                     </div>
 

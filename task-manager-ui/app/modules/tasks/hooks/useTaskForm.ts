@@ -45,14 +45,15 @@ export const useTaskForm = () => {
         taskOwnerId.value = task.user_id;
     };
 
-    const submit = async (id?: string) => {
+    const submit = async (id?: string, extra?: Record<string, unknown>) => {
         loading.value = true;
         errors.value = null;
         try {
+            const payload = { ...form, ...extra };
             if (id) {
-                await TaskService.update(id, form);
+                await TaskService.update(id, payload);
             } else {
-                await TaskService.create(form);
+                await TaskService.create(payload);
             }
             return true;
         } catch (error: any) {

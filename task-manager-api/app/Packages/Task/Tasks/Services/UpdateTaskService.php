@@ -4,6 +4,7 @@ namespace App\Packages\Task\Tasks\Services;
 
 use App\Base\Traits\CacheTrait;
 use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
+use App\Packages\Admin\Organizations\Models\Organization;
 use App\Packages\Admin\Users\Models\User;
 use App\Packages\Task\Tasks\Models\Task;
 use App\Packages\Task\Tasks\Resources\TaskResource;
@@ -47,15 +48,19 @@ class UpdateTaskService
 
     private function resolveVisibilityChange(Task $task, array $data, string $actor_id): array
     {
-        if (! array_key_exists('visibility', $data) || $data['visibility'] === $task->visibility) {
-            unset($data['visibility']);
+        $new_visibility = $data['visibility'] ?? $task->visibility;
+        $is_moving_between_organizations = $new_visibility === 'organization' && array_key_exists('organization_id', $data);
+
+        if ($new_visibility === $task->visibility && ! $is_moving_between_organizations) {
+            unset($data['visibility'], $data['organization_id']);
 
             return $data;
         }
 
         throw_unless($this->actorCanChangeVisibility($task, $actor_id), new \InvalidArgumentException('Você não tem permissão para mudar o escopo dessa task.'));
 
-        $data['organization_id'] = $this->resolveOrganizationId($task, $data['visibility']);
+        $data['visibility'] = $new_visibility;
+        $data['organization_id'] = $this->resolveOrganizationId($task, $new_visibility, $actor_id, $data['organization_id'] ?? null);
 
         return $data;
     }
@@ -85,10 +90,24 @@ class UpdateTaskService
         return $task->organization_id !== null && $actor->active_organization_id === $task->organization_id;
     }
 
-    private function resolveOrganizationId(Task $task, string $visibility): ?string
+    /**
+     * Ator global pode escolher explicitamente pra qual organization a task
+     * vai (útil quando ele não tem organization ativa própria, ou quando quer
+     * mover a task pra uma organization diferente da do dono). Qualquer outro
+     * ator (dono ou Org Admin) sempre usa a organization ativa do dono da
+     * task — nunca escolhe livremente, pra não vazar a task pra organization
+     * errada.
+     */
+    private function resolveOrganizationId(Task $task, string $visibility, string $actor_id, ?string $requested_organization_id): ?string
     {
         if ($visibility !== 'organization') {
             return null;
+        }
+
+        if ($requested_organization_id && hasPermission('admin.organizations.list')) {
+            throw_unless(Organization::find($requested_organization_id), new \InvalidArgumentException('Organization não encontrada.'));
+
+            return $requested_organization_id;
         }
 
         $owner = User::findOrFail($task->user_id);
