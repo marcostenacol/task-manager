@@ -10,6 +10,7 @@ use App\Packages\Admin\Organizations\Requests\CreateOrganizationRequest;
 use App\Packages\Admin\Organizations\Requests\LookupOrganizationMemberRequest;
 use App\Packages\Admin\Organizations\Requests\OnboardOrganizationRequest;
 use App\Packages\Admin\Organizations\Requests\SwitchActiveOrganizationRequest;
+use App\Packages\Admin\Organizations\Requests\TransferOrganizationOwnershipRequest;
 use App\Packages\Admin\Organizations\Requests\UpdateOrganizationRequest;
 use App\Packages\Admin\Organizations\Resources\MyOrganizationMembershipResource;
 use App\Packages\Admin\Organizations\Resources\OrganizationMemberLookupResource;
@@ -24,6 +25,7 @@ use App\Packages\Admin\Organizations\Services\ListOrganizationsService;
 use App\Packages\Admin\Organizations\Services\LookupOrganizationMemberService;
 use App\Packages\Admin\Organizations\Services\OnboardOrganizationService;
 use App\Packages\Admin\Organizations\Services\SwitchActiveOrganizationService;
+use App\Packages\Admin\Organizations\Services\TransferOrganizationOwnershipService;
 use App\Packages\Admin\Organizations\Services\UpdateOrganizationService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
@@ -172,6 +174,22 @@ class OrganizationController extends Controller
             $service->execute($request->validated('organization_id'), $admin->id);
 
             return self::successResponse(null, 'Organization ativa alterada com sucesso.');
+        } catch (\Exception $e) {
+            return self::returnError($e);
+        }
+    }
+
+    public function transferOwnership(TransferOrganizationOwnershipRequest $request, TransferOrganizationOwnershipService $service): JsonResponse
+    {
+        try {
+            $admin = userObject();
+            $service->execute(
+                $request->validated('new_owner_user_id'),
+                $admin->id,
+                $request->validated('organization_id')
+            );
+
+            return self::successResponse(null, 'Titularidade da organization transferida com sucesso.');
         } catch (\Exception $e) {
             return self::returnError($e);
         }

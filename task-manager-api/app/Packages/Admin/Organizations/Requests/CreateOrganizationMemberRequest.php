@@ -15,6 +15,13 @@ class CreateOrganizationMemberRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('cpf')) {
+            $this->merge(['cpf' => removeMask($this->cpf)]);
+        }
+    }
+
     public function rules(): array
     {
         return [

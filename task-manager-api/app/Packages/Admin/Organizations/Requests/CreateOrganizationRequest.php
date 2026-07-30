@@ -13,6 +13,13 @@ class CreateOrganizationRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('owner_cpf')) {
+            $this->merge(['owner_cpf' => removeMask($this->owner_cpf)]);
+        }
+    }
+
     public function rules(): array
     {
         return [

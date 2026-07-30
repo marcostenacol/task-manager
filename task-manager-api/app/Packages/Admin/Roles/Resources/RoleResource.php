@@ -17,6 +17,7 @@ class RoleResource extends JsonResource
             'color' => $this->color,
             'scope' => $this->scope,
             'organization_id' => $this->organization_id,
+            'organization_name' => $this->whenLoaded('organization', fn () => $this->organization?->name),
             'permissions_count' => $this->permissions_count ?? $this->permissions->count(),
         ];
     }

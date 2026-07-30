@@ -54,7 +54,12 @@ class RoleController extends Controller
     {
         try {
             $admin = userObject();
-            $data = $service->execute($request->validated('name'), $admin->id, $request->validated('color'));
+            $data = $service->execute(
+                $request->validated('name'),
+                $admin->id,
+                $request->validated('color'),
+                $request->validated('scope')
+            );
 
             return self::successResponse(
                 RoleResource::make($data->loadCount('permissions')),

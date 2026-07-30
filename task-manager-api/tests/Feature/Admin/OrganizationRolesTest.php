@@ -63,6 +63,37 @@ test('org admin cria uma role customizada escopada à própria organization', fu
     ]);
 });
 
+test('duas organizations diferentes podem ter roles com o mesmo nome', function () {
+    $responseA = withToken($this->orgAAdminToken)->postJson('/api/v1/admin/roles', ['name' => 'Moderador']);
+    $responseB = withToken($this->orgBAdminToken)->postJson('/api/v1/admin/roles', ['name' => 'Moderador']);
+
+    $responseA->assertStatus(201);
+    $responseB->assertStatus(201);
+});
+
+test('não deve permitir duas roles com o mesmo nome dentro da mesma organization', function () {
+    withToken($this->orgAAdminToken)->postJson('/api/v1/admin/roles', ['name' => 'Repetida']);
+
+    $response = withToken($this->orgAAdminToken)->postJson('/api/v1/admin/roles', ['name' => 'Repetida']);
+
+    $response->assertStatus(422);
+});
+
+test('org admin não consegue criar uma role com scope global', function () {
+    $response = withToken($this->orgAAdminToken)->postJson('/api/v1/admin/roles', [
+        'name' => 'Tentativa Global',
+        'scope' => 'global',
+    ]);
+
+    $response->assertStatus(201);
+
+    $this->assertDatabaseHas('admin.roles', [
+        'name' => 'Tentativa Global',
+        'scope' => 'organization',
+        'organization_id' => $this->orgA->id,
+    ]);
+});
+
 test('org admin não vê roles customizadas de outra organization na listagem', function () {
     withToken($this->orgAAdminToken)->postJson('/api/v1/admin/roles', ['name' => 'Role Org A']);
     withToken($this->orgBAdminToken)->postJson('/api/v1/admin/roles', ['name' => 'Role Org B']);

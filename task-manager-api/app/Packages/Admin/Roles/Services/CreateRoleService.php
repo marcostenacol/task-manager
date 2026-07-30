@@ -14,19 +14,20 @@ class CreateRoleService
         private RecordAuditLogService $recordAuditLogService,
     ) {}
 
-    public function execute(string $name, string $actorId, ?string $color = null): Role
+    public function execute(string $name, string $actorId, ?string $color = null, ?string $requestedScope = null): Role
     {
-        return DB::transaction(function () use ($name, $actorId, $color) {
+        return DB::transaction(function () use ($name, $actorId, $color, $requestedScope) {
             $actor = User::with('role')->findOrFail($actorId);
 
             $organizationId = $this->resolveOrganizationId($actor);
+            $scope = $this->resolveScope($actor, $organizationId, $requestedScope);
 
             $role = Role::create([
                 'name' => $name,
                 'slug' => $this->buildSlug($name, $organizationId),
                 'level' => $actor->role->level + 1,
                 'color' => $color ?? '#64748b',
-                'scope' => 'organization',
+                'scope' => $scope,
                 'organization_id' => $organizationId,
             ]);
 
@@ -34,6 +35,7 @@ class CreateRoleService
 
             $this->recordAuditLogService->execute($actorId, 'role.create', 'Role', $role->id, [
                 'name' => $role->name,
+                'scope' => $scope,
             ], $organizationId);
 
             return $role;
@@ -49,6 +51,26 @@ class CreateRoleService
         throw_unless($actor->active_organization_id, new \InvalidArgumentException('Você não pertence a nenhuma organization para criar roles.'));
 
         return $actor->active_organization_id;
+    }
+
+    /**
+     * Só um ator global pode escolher o scope da role — role com organization_id
+     * definido é sempre 'organization' (não faz sentido ser 'global' presa a uma
+     * organization específica).
+     */
+    private function resolveScope(User $actor, ?string $organizationId, ?string $requestedScope): string
+    {
+        if ($organizationId) {
+            return 'organization';
+        }
+
+        $isGlobalActor = $actor->global_role_id !== null || $actor->role->scope === 'global';
+
+        if ($isGlobalActor && $requestedScope === 'global') {
+            return 'global';
+        }
+
+        return 'organization';
     }
 
     private function buildSlug(string $name, ?string $organizationId): string

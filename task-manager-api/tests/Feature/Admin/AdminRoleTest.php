@@ -141,6 +141,35 @@ test('deve permitir renomear uma role de level inferior (mais fraca)', function 
     $this->assertDatabaseHas('admin.roles', ['id' => $disposableRole->id, 'name' => 'Renamed Role', 'slug' => $disposableRole->slug]);
 });
 
+test('owner consegue criar uma role com scope global', function () {
+    $response = withToken($this->ownerToken)->postJson('/api/v1/admin/roles', [
+        'name' => 'Global Custom Role',
+        'scope' => 'global',
+    ]);
+
+    $response->assertStatus(201)->assertJsonPath('success', true);
+
+    $this->assertDatabaseHas('admin.roles', [
+        'name' => 'Global Custom Role',
+        'scope' => 'global',
+        'organization_id' => null,
+    ]);
+});
+
+test('owner cria role sem informar scope continua criando como organization (padrão)', function () {
+    $response = withToken($this->ownerToken)->postJson('/api/v1/admin/roles', [
+        'name' => 'Default Scope Role',
+    ]);
+
+    $response->assertStatus(201)->assertJsonPath('success', true);
+
+    $this->assertDatabaseHas('admin.roles', [
+        'name' => 'Default Scope Role',
+        'scope' => 'organization',
+        'organization_id' => null,
+    ]);
+});
+
 test('renomear uma role não deve alterar o slug (identificador estável usado em lookups)', function () {
     $disposableRole = Role::create([
         'id' => (string) Str::uuid(),

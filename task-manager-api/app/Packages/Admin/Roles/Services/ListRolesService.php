@@ -12,7 +12,7 @@ class ListRolesService
     {
         $actor = User::with('role')->findOrFail($actorId);
 
-        $query = Role::withCount('permissions')->orderBy('name');
+        $query = Role::withCount('permissions')->with('organization')->orderBy('name');
 
         if ($actor->global_role_id === null && $actor->role->scope !== 'global') {
             $query->where('scope', '!=', 'global')
