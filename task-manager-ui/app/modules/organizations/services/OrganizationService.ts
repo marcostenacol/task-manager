@@ -30,8 +30,8 @@ export const OrganizationService = {
         return useApi('/v1/admin/organizations');
     },
 
-    async create(name: string, parentId?: string) {
-        return useApi('/v1/admin/organizations', { method: 'POST', body: { name, parent_id: parentId } });
+    async create(name: string, parentId?: string, ownerCpf?: string) {
+        return useApi('/v1/admin/organizations', { method: 'POST', body: { name, parent_id: parentId, owner_cpf: ownerCpf } });
     },
 
     async listMembers(organizationId: string) {

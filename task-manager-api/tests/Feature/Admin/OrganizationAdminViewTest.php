@@ -160,3 +160,30 @@ test('org admin não consegue criar organization', function () {
 
     $response->assertStatus(403);
 });
+
+test('admin global cria organization e atribui um responsável por cpf', function () {
+    $owner = User::factory()->create(['role_id' => $this->userRole->id, 'cpf' => '52998224725']);
+
+    $response = withToken($this->adminToken)->postJson('/api/v1/admin/organizations', [
+        'name' => 'Organization Com Dono',
+        'owner_cpf' => '52998224725',
+    ]);
+
+    $response->assertStatus(201)->assertJsonPath('success', true);
+
+    $orgAdminRole = Role::where('slug', 'org-admin')->first();
+    $this->assertDatabaseHas('admin.user_organizations', [
+        'user_id' => $owner->id,
+        'organization_id' => $response->json('data.id'),
+        'role_id' => $orgAdminRole->id,
+    ]);
+});
+
+test('não deve criar organization com owner_cpf inexistente', function () {
+    $response = withToken($this->adminToken)->postJson('/api/v1/admin/organizations', [
+        'name' => 'Organization Órfã de Dono',
+        'owner_cpf' => '11144477735',
+    ]);
+
+    $response->assertStatus(400)->assertJsonPath('success', false);
+});

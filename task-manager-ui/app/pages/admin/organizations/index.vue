@@ -37,6 +37,7 @@
                 {{ org.name }}
               </option>
             </select>
+            <input v-model="newOrgOwnerCpf" type="text" class="field-input" placeholder="CPF do responsável (opcional)" maxlength="11">
             <button type="submit" class="btn-add" :disabled="creating">
               {{ creating ? 'Criando...' : 'Criar' }}
             </button>
@@ -50,6 +51,18 @@
               {{ renaming ? 'Salvando...' : 'Renomear' }}
             </button>
           </form>
+
+          <template v-if="!canListAll">
+            <h3 class="section-title">Fundar outra organization</h3>
+            <p class="section-hint">Você vira administrador dela e ela passa a ser sua organization ativa.</p>
+            <form class="rename-form" @submit.prevent="handleFound">
+              <input v-model="newOrgName" type="text" class="field-input" placeholder="Nome da nova organization" required>
+              <button type="submit" class="btn-secondary" :disabled="founding">
+                {{ founding ? 'Criando...' : 'Fundar' }}
+              </button>
+            </form>
+            <p v-if="foundError" class="error-message">{{ foundError }}</p>
+          </template>
 
           <h3 class="section-title">Membros</h3>
           <table class="members-table">
@@ -114,7 +127,7 @@ definePageMeta({
   middleware: 'auth'
 })
 
-const { user } = useAuth()
+const { user, restoreSession } = useAuth()
 const {
   allOrganizations,
   members,
@@ -123,7 +136,8 @@ const {
   lookupMember,
   addMember,
   updateOrganization,
-  createOrganization
+  createOrganization,
+  onboard
 } = useOrganizations()
 const { roles, fetchRoles } = useRoles()
 
@@ -147,7 +161,11 @@ const addingMember = ref(false)
 const showCreateForm = ref(false)
 const newOrgName = ref('')
 const newOrgParentId = ref('')
+const newOrgOwnerCpf = ref('')
 const creating = ref(false)
+
+const founding = ref(false)
+const foundError = ref('')
 
 watchEffect(() => {
   if (accessDenied.value) {
@@ -202,17 +220,37 @@ async function handleRename() {
 async function handleCreate() {
   creating.value = true
   try {
-    const result = await createOrganization(newOrgName.value, newOrgParentId.value || undefined)
+    const result = await createOrganization(newOrgName.value, newOrgParentId.value || undefined, newOrgOwnerCpf.value || undefined)
     if (!result.success) {
       window.alert(result.message)
       return
     }
     newOrgName.value = ''
     newOrgParentId.value = ''
+    newOrgOwnerCpf.value = ''
     showCreateForm.value = false
     await fetchAllOrganizations()
   } finally {
     creating.value = false
+  }
+}
+
+async function handleFound() {
+  founding.value = true
+  foundError.value = ''
+  try {
+    const result = await onboard(newOrgName.value)
+    if (!result.success) {
+      foundError.value = result.message || 'Não foi possível fundar a organization.'
+      return
+    }
+    newOrgName.value = ''
+    await restoreSession()
+    if (user.value?.organization) {
+      selectOrganization(user.value.organization.id)
+    }
+  } finally {
+    founding.value = false
   }
 }
 
@@ -344,6 +382,12 @@ async function handleAdd() {
   display: flex;
   gap: 0.75rem;
   max-width: 28rem;
+}
+
+.section-hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
 }
 
 .field-input {

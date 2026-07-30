@@ -94,9 +94,9 @@ export const useOrganizations = () => {
         }
     };
 
-    const createOrganization = async (name: string, parentId?: string) => {
+    const createOrganization = async (name: string, parentId?: string, ownerCpf?: string) => {
         try {
-            await OrganizationService.create(name, parentId);
+            await OrganizationService.create(name, parentId, ownerCpf);
             return { success: true };
         } catch (error: any) {
             console.error('Erro ao criar organization:', error);

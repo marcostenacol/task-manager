@@ -99,7 +99,12 @@ class OrganizationController extends Controller
     {
         try {
             $admin = userObject();
-            $data = $service->execute($request->validated('name'), $request->validated('parent_id'), $admin->id);
+            $data = $service->execute(
+                $request->validated('name'),
+                $request->validated('parent_id'),
+                $admin->id,
+                $request->validated('owner_cpf')
+            );
 
             return self::successResponse(
                 OrganizationResource::make($data),

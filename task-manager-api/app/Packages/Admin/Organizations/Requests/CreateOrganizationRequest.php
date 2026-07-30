@@ -18,6 +18,7 @@ class CreateOrganizationRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'parent_id' => ['sometimes', 'nullable', 'uuid', Rule::exists(Organization::class, 'id')],
+            'owner_cpf' => ['sometimes', 'nullable', 'string', 'size:11'],
         ];
     }
 }
