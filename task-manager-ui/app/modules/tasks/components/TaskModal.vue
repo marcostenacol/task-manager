@@ -81,9 +81,6 @@ const loadTask = async (id: string) => {
         fillForm(task);
         taskOrganizationId.value = task.organization_id || '';
         assigneeUserId.value = '';
-        if (taskOrganizationId.value) {
-            await fetchMembers(taskOrganizationId.value, { limit: 500 });
-        }
     } catch (error) {
         console.error('Erro ao carregar tarefa:', error);
     }
