@@ -8,18 +8,28 @@ use Illuminate\Database\Eloquent\Collection;
 
 class ListRolesService
 {
-    public function execute(string $actorId): Collection
+    public function execute(string $actorId, ?string $scope = null, ?string $organizationId = null): Collection
     {
         $actor = User::with('role')->findOrFail($actorId);
+        $actorIsGlobal = $actor->global_role_id !== null || $actor->role->scope === 'global';
 
         $query = Role::withCount('permissions')->with('organization')->orderBy('name');
 
-        if ($actor->global_role_id === null && $actor->role->scope !== 'global') {
-            $query->where('scope', '!=', 'global')
+        if (! $actorIsGlobal) {
+            return $query->where('scope', '!=', 'global')
                 ->where(function ($subQuery) use ($actor) {
                     $subQuery->whereNull('organization_id')
                         ->orWhere('organization_id', $actor->active_organization_id);
-                });
+                })
+                ->get();
+        }
+
+        if ($scope === 'global') {
+            $query->where('scope', 'global');
+        }
+
+        if ($organizationId !== null) {
+            $query->where('scope', '!=', 'global')->where('organization_id', $organizationId);
         }
 
         return $query->get();

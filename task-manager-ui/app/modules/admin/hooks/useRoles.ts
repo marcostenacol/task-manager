@@ -6,11 +6,13 @@ export const useRoles = () => {
     const roles = ref<Role[]>([]);
     const permissions = ref<Permission[]>([]);
     const loading = ref(false);
+    const currentFilters = ref<{ scope?: string; organization_id?: string }>({});
 
-    const fetchRoles = async () => {
+    const fetchRoles = async (filters?: { scope?: string; organization_id?: string }) => {
+        currentFilters.value = filters || {};
         loading.value = true;
         try {
-            const response = await AdminService.listRoles() as any;
+            const response = await AdminService.listRoles(currentFilters.value) as any;
             roles.value = response.data || [];
         } catch (error) {
             console.error('Erro ao buscar roles:', error);
@@ -40,18 +42,18 @@ export const useRoles = () => {
 
     const createRole = async (name: string) => {
         await AdminService.createRole(name);
-        await fetchRoles();
+        await fetchRoles(currentFilters.value);
     };
 
     const syncRolePermissions = async (id: string, permissionIds: string[]) => {
         await AdminService.syncRolePermissions(id, permissionIds);
-        await fetchRoles();
+        await fetchRoles(currentFilters.value);
     };
 
     const deleteRole = async (id: string) => {
         try {
             await AdminService.deleteRole(id);
-            await fetchRoles();
+            await fetchRoles(currentFilters.value);
             return true;
         } catch (error: any) {
             console.error('Erro ao excluir role:', error);

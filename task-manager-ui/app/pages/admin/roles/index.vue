@@ -11,10 +11,21 @@
           <h1 class="page-title">Roles</h1>
           <p class="page-subtitle">Gerencie roles e suas permissões.</p>
         </div>
-        <button class="btn-new-role" @click="openCreateModal">
-          <Plus class="btn-icon" :size="20" />
-          Nova Role
-        </button>
+        <div class="header-actions">
+          <div v-if="isGlobalActor" class="org-filter">
+            <label class="org-filter-label" for="role-scope-select">Escopo</label>
+            <select id="role-scope-select" v-model="selectedScope" class="org-filter-select" @change="handleScopeChange">
+              <option value="global">Global</option>
+              <option v-for="org in allOrganizations" :key="org.id" :value="org.id">
+                {{ org.name }}
+              </option>
+            </select>
+          </div>
+          <button class="btn-new-role" @click="openCreateModal">
+            <Plus class="btn-icon" :size="20" />
+            Nova Role
+          </button>
+        </div>
       </div>
       <RoleTable
         class="role-table-wrap"
@@ -46,6 +57,7 @@ import RoleTable from '~/modules/admin/components/RoleTable.vue'
 import RoleFormModal from '~/modules/admin/components/RoleFormModal.vue'
 import { useAuth } from '~/modules/auth/hooks/useAuth'
 import { useRoles } from '~/modules/admin/hooks/useRoles'
+import { useOrganizations } from '~/modules/organizations/hooks/useOrganizations'
 import type { Role } from '~/modules/admin/models/admin'
 
 definePageMeta({
@@ -54,9 +66,11 @@ definePageMeta({
 
 const { user } = useAuth()
 const { roles, permissions, loading, fetchRoles, fetchPermissions, deleteRole } = useRoles()
+const { allOrganizations, fetchAllOrganizations } = useOrganizations()
 
 const showModal = ref(false)
 const selectedRole = ref<Role | null>(null)
+const selectedScope = ref('global')
 
 const accessDenied = computed(() => {
   if (!user.value) return true
@@ -74,10 +88,21 @@ watchEffect(() => {
 
 onMounted(() => {
   if (!accessDenied.value) {
-    fetchRoles()
+    fetchRoles(isGlobalActor.value ? { scope: 'global' } : undefined)
     fetchPermissions()
+    if (isGlobalActor.value) {
+      fetchAllOrganizations()
+    }
   }
 })
+
+function handleScopeChange() {
+  if (selectedScope.value === 'global') {
+    fetchRoles({ scope: 'global' })
+    return
+  }
+  fetchRoles({ organization_id: selectedScope.value })
+}
 
 function openCreateModal() {
   selectedRole.value = null
@@ -114,6 +139,35 @@ function handleDelete(role: Role) {
 .page-subtitle {
   color: var(--muted);
   margin-top: 0.25rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.org-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.org-filter-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.org-filter-select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+  color: var(--ink);
+  font-size: 0.85rem;
 }
 
 .btn-new-role {

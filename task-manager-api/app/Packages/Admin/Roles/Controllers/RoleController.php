@@ -18,6 +18,7 @@ use App\Packages\Admin\Roles\Services\SyncRolePermissionsService;
 use App\Packages\Admin\Roles\Services\UpdateRoleLevelService;
 use App\Packages\Admin\Roles\Services\UpdateRoleNameService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class RoleController extends Controller
@@ -28,10 +29,14 @@ class RoleController extends Controller
         private ListRolesService $listRolesService,
     ) {}
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         try {
-            $data = $this->listRolesService->execute(userObject()->id);
+            $data = $this->listRolesService->execute(
+                userObject()->id,
+                $request->query('scope'),
+                $request->query('organization_id')
+            );
 
             return self::successResponse(RoleResource::collection($data), 'Roles recuperadas com sucesso.');
         } catch (\Exception $e) {

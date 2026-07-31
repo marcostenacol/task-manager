@@ -82,7 +82,7 @@ export const useUsers = () => {
 
     const fetchRoles = async () => {
         try {
-            const response = await AdminService.listRoles() as any;
+            const response = await AdminService.listRoles({ scope: 'global' }) as any;
             roles.value = response.data || [];
         } catch (error) {
             console.error('Erro ao buscar roles:', error);

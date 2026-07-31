@@ -176,3 +176,40 @@ test('org admin consegue atribuir uma permissão normal à sua role customizada'
         'permission_id' => $taskPermission->id,
     ]);
 });
+
+test('ator global com scope=global não vê roles customizadas de organizations', function () {
+    withToken($this->orgAAdminToken)->postJson('/api/v1/admin/roles', ['name' => 'Custom Org A']);
+
+    $globalAdminRole = Role::where('slug', 'admin')->first();
+    $globalAdmin = User::factory()->create(['role_id' => $globalAdminRole->id, 'global_role_id' => $globalAdminRole->id, 'password' => 'password123']);
+    $globalAdminToken = postJson(route('v1.auth.login'), [
+        'email' => $globalAdmin->email,
+        'password' => 'password123',
+    ])->json('data.access_token.token');
+
+    $response = withToken($globalAdminToken)->getJson('/api/v1/admin/roles?scope=global');
+
+    $response->assertStatus(200);
+    collect($response->json('data'))->each(function ($role) {
+        expect($role['scope'])->toBe('global');
+    });
+});
+
+test('ator global filtra roles por organization_id e só vê as customizadas daquela organization', function () {
+    withToken($this->orgAAdminToken)->postJson('/api/v1/admin/roles', ['name' => 'Custom Org A']);
+    withToken($this->orgBAdminToken)->postJson('/api/v1/admin/roles', ['name' => 'Custom Org B']);
+
+    $globalAdminRole = Role::where('slug', 'admin')->first();
+    $globalAdmin = User::factory()->create(['role_id' => $globalAdminRole->id, 'global_role_id' => $globalAdminRole->id, 'password' => 'password123']);
+    $globalAdminToken = postJson(route('v1.auth.login'), [
+        'email' => $globalAdmin->email,
+        'password' => 'password123',
+    ])->json('data.access_token.token');
+
+    $response = withToken($globalAdminToken)->getJson("/api/v1/admin/roles?organization_id={$this->orgA->id}");
+
+    $response->assertStatus(200);
+    $names = collect($response->json('data'))->pluck('name');
+    expect($names)->toContain('Custom Org A');
+    expect($names)->not->toContain('Custom Org B');
+});

@@ -5,8 +5,8 @@ export const AdminService = {
         return useApi('/v1/admin/users', { query: filters });
     },
 
-    async listRoles() {
-        return useApi('/v1/admin/roles');
+    async listRoles(filters?: { scope?: string; organization_id?: string }) {
+        return useApi('/v1/admin/roles', { query: filters });
     },
 
     async createUser(data: CreateUserData) {
