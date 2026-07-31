@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { X } from 'lucide-vue-next';
 import { TaskService } from '../services/TaskService';
 import { useTaskForm } from '../hooks/useTaskForm';
@@ -41,6 +41,11 @@ const canAssign = computed(() => (
     && !!taskOrganizationId.value
     && (isOwner.value || isGlobalActor.value || canManageOrganizationTasks.value)
 ));
+const currentOrganizationName = computed(() => {
+    const current = allOrganizations.value.find((org: any) => org.id === taskOrganizationId.value);
+    return current?.name || 'organization atual';
+});
+const effectiveOrganizationId = computed(() => selectedOrganizationId.value || taskOrganizationId.value);
 
 onMounted(async () => {
     try {
@@ -83,6 +88,12 @@ const loadTask = async (id: string) => {
         console.error('Erro ao carregar tarefa:', error);
     }
 };
+
+watch(effectiveOrganizationId, async (organizationId, previousOrganizationId) => {
+    if (!organizationId || organizationId === previousOrganizationId) return;
+    assigneeUserId.value = '';
+    await fetchMembers(organizationId, { limit: 500 });
+});
 
 const handleAssign = async () => {
     if (!props.taskId || !assigneeUserId.value) return;
@@ -201,7 +212,7 @@ const handleSave = async () => {
                             v-model="selectedOrganizationId"
                             class="field-input"
                         >
-                            <option value="">{{ taskId ? 'Manter organization atual' : 'Selecione...' }}</option>
+                            <option value="">{{ taskId ? `Manter organization atual (${currentOrganizationName})` : 'Selecione...' }}</option>
                             <option v-for="org in allOrganizations" :key="org.id" :value="org.id">
                                 {{ org.name }}
                             </option>
