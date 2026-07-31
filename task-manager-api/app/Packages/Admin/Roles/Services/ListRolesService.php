@@ -29,7 +29,11 @@ class ListRolesService
         }
 
         if ($organizationId !== null) {
-            $query->where('scope', '!=', 'global')->where('organization_id', $organizationId);
+            $query->where('scope', '!=', 'global')
+                ->where(function ($subQuery) use ($organizationId) {
+                    $subQuery->whereNull('organization_id')
+                        ->orWhere('organization_id', $organizationId);
+                });
         }
 
         return $query->get();

@@ -212,4 +212,6 @@ test('ator global filtra roles por organization_id e só vê as customizadas daq
     $names = collect($response->json('data'))->pluck('name');
     expect($names)->toContain('Custom Org A');
     expect($names)->not->toContain('Custom Org B');
+    // roles-base compartilhadas (organization_id null, ex.: org-admin/user) continuam visíveis em qualquer organization
+    expect($names)->toContain($this->orgAdminRole->name);
 });
