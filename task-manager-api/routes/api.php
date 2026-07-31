@@ -6,6 +6,7 @@ use App\Packages\Admin\Permissions\Controllers\PermissionController;
 use App\Packages\Admin\Roles\Controllers\RoleController;
 use App\Packages\Admin\Settings\Controllers\SettingController;
 use App\Packages\Admin\Users\Controllers\AdminUserController;
+use App\Packages\Admin\UserStatuses\Controllers\UserStatusController;
 use App\Packages\Auth\Auth\Controllers\LoginController;
 use App\Packages\Auth\Auth\Controllers\LogoutController;
 use App\Packages\Auth\Auth\Controllers\RefreshTokenController;
@@ -83,6 +84,7 @@ Route::group(['prefix' => 'v1', 'as' => 'v1.', 'middleware' => 'throttle:api'], 
             Route::put('{id}', [TaskController::class, 'update'])->name('update');
             Route::delete('{id}', [TaskController::class, 'destroy'])->name('destroy');
             Route::patch('{id}/status', [TaskController::class, 'updateStatus'])->name('update-status');
+            Route::patch('{id}/assign', [TaskController::class, 'assign'])->name('assign');
         });
 
         Route::get('task-statuses', [StatusController::class, 'index'])->name('task-statuses.index');
@@ -90,6 +92,7 @@ Route::group(['prefix' => 'v1', 'as' => 'v1.', 'middleware' => 'throttle:api'], 
 
         Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
             Route::get('roles', [RoleController::class, 'index'])->middleware('auth.api:admin.users.list')->name('roles.index');
+            Route::get('user-statuses', [UserStatusController::class, 'index'])->middleware('auth.api:admin.users.list')->name('user-statuses.index');
             Route::get('audit-logs', [AuditLogController::class, 'index'])->middleware('auth.api:admin.audit-logs.list')->name('audit-logs.index');
             Route::get('permissions', [PermissionController::class, 'index'])->middleware('auth.api:admin.roles.manage')->name('permissions.index');
 

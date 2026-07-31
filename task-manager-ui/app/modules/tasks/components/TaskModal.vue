@@ -17,9 +17,14 @@ const { user } = useAuth();
 const { form, loading, errors, taskOwnerId, submit, resetForm, fillForm } = useTaskForm();
 const { allOrganizations, fetchAllOrganizations } = useOrganizations();
 
+const { members, fetchMembers } = useOrganizations()
+
 const statuses = ref<any[]>([]);
 const priorities = ref<any[]>([]);
 const selectedOrganizationId = ref('');
+const taskOrganizationId = ref('');
+const assigneeUserId = ref('');
+const assigning = ref(false);
 
 const belongsToOrganization = computed(() => !!user.value?.organization);
 const isGlobalActor = computed(() => user.value?.permissions?.includes('admin.organizations.list') ?? false);
@@ -30,6 +35,12 @@ const canEditVisibility = computed(() => {
   return isOwner.value || isGlobalActor.value || canManageOrganizationTasks.value
 });
 const showOrganizationPicker = computed(() => isGlobalActor.value && form.visibility === 'organization');
+const canAssign = computed(() => (
+    !!props.taskId
+    && form.visibility === 'organization'
+    && !!taskOrganizationId.value
+    && (isOwner.value || isGlobalActor.value || canManageOrganizationTasks.value)
+));
 
 onMounted(async () => {
     try {
@@ -63,8 +74,27 @@ const loadTask = async (id: string) => {
     try {
         const task = await TaskService.show(id);
         fillForm(task);
+        taskOrganizationId.value = task.organization_id || '';
+        assigneeUserId.value = '';
+        if (taskOrganizationId.value) {
+            await fetchMembers(taskOrganizationId.value);
+        }
     } catch (error) {
         console.error('Erro ao carregar tarefa:', error);
+    }
+};
+
+const handleAssign = async () => {
+    if (!props.taskId || !assigneeUserId.value) return;
+    assigning.value = true;
+    try {
+        await TaskService.assign(props.taskId, assigneeUserId.value);
+        emit('saved');
+        emit('close');
+    } catch (error: any) {
+        window.alert(error?.data?.message || 'Não foi possível atribuir a tarefa.');
+    } finally {
+        assigning.value = false;
     }
 };
 
@@ -183,6 +213,26 @@ const handleSave = async () => {
                         <p class="field-static">
                             {{ form.visibility === 'organization' ? 'Organization (todos os membros veem)' : 'Pessoal (só eu vejo)' }}
                         </p>
+                    </div>
+
+                    <div v-if="canAssign" class="assign-section">
+                        <label class="field-label">Atribuir a</label>
+                        <div class="assign-row">
+                            <select v-model="assigneeUserId" class="field-input">
+                                <option value="">Selecione um membro...</option>
+                                <option v-for="member in members" :key="member.user_id" :value="member.user_id">
+                                    {{ member.name }}
+                                </option>
+                            </select>
+                            <button
+                                type="button"
+                                class="btn-assign"
+                                :disabled="!assigneeUserId || assigning"
+                                @click="handleAssign"
+                            >
+                                {{ assigning ? 'Atribuindo...' : 'Atribuir' }}
+                            </button>
+                        </div>
                     </div>
 
                     <div class="modal-actions">
@@ -334,9 +384,43 @@ const handleSave = async () => {
     gap: 1rem;
 }
 
+.assign-row {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.assign-row .field-input {
+    flex: 1;
+}
+
+.btn-assign {
+    padding: 0.75rem 1.25rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--ink);
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+}
+
+.btn-assign:hover:not(:disabled) {
+    opacity: 0.85;
+}
+
+.btn-assign:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 @media (max-width: 480px) {
     .field-grid {
         grid-template-columns: 1fr;
+    }
+
+    .assign-row {
+        flex-direction: column;
     }
 }
 

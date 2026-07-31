@@ -5,6 +5,7 @@ import { AdminService } from '../services/AdminService';
 export const useUsers = () => {
     const users = ref<AdminUser[]>([]);
     const roles = ref<Role[]>([]);
+    const userStatuses = ref<{ id: string; name: string; slug: string }[]>([]);
     const loading = ref(false);
     const meta = ref<any>(null);
 
@@ -12,6 +13,7 @@ export const useUsers = () => {
         search: '',
         role_id: '',
         status_id: '',
+        organization_id: '',
         page: 1,
         limit: 15
     });
@@ -89,14 +91,25 @@ export const useUsers = () => {
         }
     };
 
+    const fetchUserStatuses = async () => {
+        try {
+            const response = await AdminService.listUserStatuses() as any;
+            userStatuses.value = response.data || [];
+        } catch (error) {
+            console.error('Erro ao buscar status de usuário:', error);
+        }
+    };
+
     return {
         users,
         roles,
+        userStatuses,
         loading,
         meta,
         filters,
         fetchUsers,
         fetchRoles,
+        fetchUserStatuses,
         applyFilters,
         banUser,
         activateUser,

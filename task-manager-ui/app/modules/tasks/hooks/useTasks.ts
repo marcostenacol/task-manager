@@ -11,6 +11,7 @@ export const useTasks = () => {
         search: '',
         status_id: '',
         priority_id: '',
+        organization_id: '',
         page: 1,
         limit: 15
     });

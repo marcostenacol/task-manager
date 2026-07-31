@@ -26,6 +26,8 @@ class AuditLogResource extends JsonResource
         'organization_id' => Organization::class,
         'parent_id' => Organization::class,
         'new_owner_user_id' => User::class,
+        'old_user_id' => User::class,
+        'new_user_id' => User::class,
         'permission_ids' => Permission::class,
     ];
 

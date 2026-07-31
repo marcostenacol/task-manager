@@ -67,6 +67,7 @@ export interface AdminUserFilters {
     search?: string;
     role_id?: string;
     status_id?: string;
+    organization_id?: string;
     page: number;
     limit: number;
 }

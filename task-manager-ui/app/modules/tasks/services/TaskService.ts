@@ -27,6 +27,11 @@ export const TaskService = {
         return response.data;
     },
 
+    async assign(id: string, userId: string): Promise<Task> {
+        const response = await useApi<{ data: Task }>(`${prefix}/${id}/assign`, { method: 'PATCH', body: { user_id: userId } });
+        return response.data;
+    },
+
     async delete(id: string): Promise<void> {
         return useApi(`${prefix}/${id}`, { method: 'DELETE' });
     },

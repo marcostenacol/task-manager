@@ -17,6 +17,7 @@ export interface Task {
     title: string;
     description: string | null;
     visibility: 'personal' | 'organization';
+    organization_id: string | null;
     due_date: string | null;
     completed_at: string | null;
     status: TaskStatus;
@@ -30,6 +31,7 @@ export interface TaskFilters {
     status_id?: string;
     priority_id?: string;
     due_date?: string;
+    organization_id?: string;
     page?: number;
     limit?: number;
 }

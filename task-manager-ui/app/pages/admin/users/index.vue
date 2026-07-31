@@ -16,6 +16,30 @@
           Novo Usuário
         </button>
       </div>
+
+      <form class="filters" @submit.prevent="applyFilters">
+        <input v-model="filters.search" type="text" class="filter-input" placeholder="Buscar por nome ou e-mail">
+        <select v-model="filters.role_id" class="filter-input">
+          <option value="">Todas as roles</option>
+          <option v-for="role in roles" :key="role.id" :value="role.id">
+            {{ role.name }}
+          </option>
+        </select>
+        <select v-model="filters.status_id" class="filter-input">
+          <option value="">Todos os status</option>
+          <option v-for="status in userStatuses" :key="status.id" :value="status.id">
+            {{ status.name }}
+          </option>
+        </select>
+        <select v-if="isGlobalActor" v-model="filters.organization_id" class="filter-input">
+          <option value="">Todas as organizations</option>
+          <option v-for="org in allOrganizations" :key="org.id" :value="org.id">
+            {{ org.name }}
+          </option>
+        </select>
+        <button type="submit" class="btn-filter">Filtrar</button>
+      </form>
+
       <UserTable
         class="user-table-wrap"
         :users="users"
@@ -28,6 +52,13 @@
         @delete="handleDelete"
         @reset-password="handleResetPassword"
       />
+
+      <div v-if="!loading && users.length > 0 && meta" class="pagination">
+        <button class="btn-page" :disabled="meta.current_page <= 1" @click="previousPage">Anterior</button>
+        <span class="page-info">Página {{ meta.current_page }} de {{ meta.last_page }} ({{ meta.total }} usuários)</span>
+        <button class="btn-page" :disabled="meta.current_page >= meta.last_page" @click="nextPage">Próxima</button>
+      </div>
+
       <UserFormModal
         :show="showModal"
         :user="selectedUser"
@@ -47,6 +78,7 @@ import UserTable from '~/modules/admin/components/UserTable.vue'
 import UserFormModal from '~/modules/admin/components/UserFormModal.vue'
 import { useAuth } from '~/modules/auth/hooks/useAuth'
 import { useUsers } from '~/modules/admin/hooks/useUsers'
+import { useOrganizations } from '~/modules/organizations/hooks/useOrganizations'
 import type { AdminUser } from '~/modules/admin/models/admin'
 
 definePageMeta({
@@ -54,7 +86,8 @@ definePageMeta({
 })
 
 const { user } = useAuth()
-const { users, roles, loading, fetchUsers, fetchRoles, banUser, activateUser, deleteUser, resetPassword } = useUsers()
+const { users, roles, userStatuses, meta, filters, loading, fetchUsers, fetchRoles, fetchUserStatuses, applyFilters, banUser, activateUser, deleteUser, resetPassword } = useUsers()
+const { allOrganizations, fetchAllOrganizations } = useOrganizations()
 
 const showModal = ref(false)
 const selectedUser = ref<AdminUser | null>(null)
@@ -65,6 +98,18 @@ const accessDenied = computed(() => {
   const hasPermission = user.value.permissions?.includes('admin.users.list')
   return !isAdmin && !hasPermission
 })
+
+const isGlobalActor = computed(() => user.value?.permissions?.includes('admin.organizations.list') ?? false)
+
+function nextPage() {
+  filters.page += 1
+  fetchUsers()
+}
+
+function previousPage() {
+  filters.page -= 1
+  fetchUsers()
+}
 
 const currentUserLevel = computed(() => {
   const currentRole = roles.value.find((role) => role.slug === user.value?.role?.slug)
@@ -81,6 +126,10 @@ onMounted(() => {
   if (!accessDenied.value) {
     fetchUsers()
     fetchRoles()
+    fetchUserStatuses()
+    if (isGlobalActor.value) {
+      fetchAllOrganizations()
+    }
   }
 })
 
@@ -169,6 +218,79 @@ function openEditModal(targetUser: AdminUser) {
 .user-table-wrap {
   display: block;
   margin-top: 1.5rem;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.filter-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.6rem 0.85rem;
+  color: var(--ink);
+  font-size: 0.875rem;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.filter-input option {
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.btn-filter {
+  padding: 0.6rem 1.25rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-filter:hover {
+  opacity: 0.9;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.page-info {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.btn-page {
+  padding: 0.5rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-page:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.btn-page:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .access-denied {

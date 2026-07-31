@@ -11,5 +11,6 @@ export const ACTION_LABELS: Record<string, string> = {
     'role.permissions_update': 'Atualizou permissões da role',
     'role.level_update': 'Atualizou nível da role',
     'role.delete': 'Excluiu role',
-    'setting.update': 'Atualizou configuração'
+    'setting.update': 'Atualizou configuração',
+    'task.assign': 'Atribuiu tarefa a outro usuário'
 };

@@ -79,5 +79,9 @@ export const AdminService = {
 
     async resetUserPassword(id: string, password: string) {
         return useApi(`/v1/admin/users/${id}/password`, { method: 'PUT', body: { password } });
+    },
+
+    async listUserStatuses() {
+        return useApi('/v1/admin/user-statuses');
     }
 };

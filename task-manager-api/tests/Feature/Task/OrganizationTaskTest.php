@@ -411,3 +411,141 @@ test('ator não-global não consegue escolher a organization livremente (ignora 
         'organization_id' => $this->org->id,
     ]);
 });
+
+test('dono consegue atribuir sua task de organization a outro membro', function () {
+    $task = Task::create([
+        'user_id' => $this->member_a->id,
+        'organization_id' => $this->org->id,
+        'visibility' => 'organization',
+        'status_id' => $this->status_pending->id,
+        'priority_id' => $this->priority_high->id,
+        'title' => 'Task pra delegar',
+    ]);
+
+    $response = withToken($this->token_a)->patchJson("/api/v1/tasks/{$task->id}/assign", [
+        'user_id' => $this->member_b->id,
+    ]);
+
+    $response->assertStatus(200)->assertJsonPath('success', true);
+
+    $this->assertDatabaseHas('tasks', [
+        'id' => $task->id,
+        'user_id' => $this->member_b->id,
+    ]);
+});
+
+test('admin global consegue atribuir uma task de organization de qualquer organization', function () {
+    $task = Task::create([
+        'user_id' => $this->member_b->id,
+        'organization_id' => $this->org->id,
+        'visibility' => 'organization',
+        'status_id' => $this->status_pending->id,
+        'priority_id' => $this->priority_high->id,
+        'title' => 'Task pra admin global reatribuir',
+    ]);
+
+    $response = withToken($this->token_global)->patchJson("/api/v1/tasks/{$task->id}/assign", [
+        'user_id' => $this->member_a->id,
+    ]);
+
+    $response->assertStatus(200)->assertJsonPath('success', true);
+
+    $this->assertDatabaseHas('tasks', [
+        'id' => $task->id,
+        'user_id' => $this->member_a->id,
+    ]);
+});
+
+test('membro comum (não dono, não admin) não consegue atribuir task de outro membro', function () {
+    $task = Task::create([
+        'user_id' => $this->member_a->id,
+        'organization_id' => $this->org->id,
+        'visibility' => 'organization',
+        'status_id' => $this->status_pending->id,
+        'priority_id' => $this->priority_high->id,
+        'title' => 'Task do member A',
+    ]);
+
+    $response = withToken($this->token_b)->patchJson("/api/v1/tasks/{$task->id}/assign", [
+        'user_id' => $this->member_b->id,
+    ]);
+
+    $response->assertStatus(400);
+
+    $this->assertDatabaseHas('tasks', [
+        'id' => $task->id,
+        'user_id' => $this->member_a->id,
+    ]);
+});
+
+test('não deve permitir atribuir a alguém que não é membro da organization', function () {
+    $task = Task::create([
+        'user_id' => $this->member_a->id,
+        'organization_id' => $this->org->id,
+        'visibility' => 'organization',
+        'status_id' => $this->status_pending->id,
+        'priority_id' => $this->priority_high->id,
+        'title' => 'Task pra tentar atribuir a outsider',
+    ]);
+
+    $response = withToken($this->token_a)->patchJson("/api/v1/tasks/{$task->id}/assign", [
+        'user_id' => $this->outsider->id,
+    ]);
+
+    $response->assertStatus(400);
+
+    $this->assertDatabaseHas('tasks', [
+        'id' => $task->id,
+        'user_id' => $this->member_a->id,
+    ]);
+});
+
+test('não deve permitir atribuir uma task pessoal', function () {
+    $task = Task::create([
+        'user_id' => $this->member_a->id,
+        'organization_id' => null,
+        'visibility' => 'personal',
+        'status_id' => $this->status_pending->id,
+        'priority_id' => $this->priority_high->id,
+        'title' => 'Task pessoal do member A',
+    ]);
+
+    $response = withToken($this->token_a)->patchJson("/api/v1/tasks/{$task->id}/assign", [
+        'user_id' => $this->member_b->id,
+    ]);
+
+    $response->assertStatus(400);
+
+    $this->assertDatabaseHas('tasks', [
+        'id' => $task->id,
+        'user_id' => $this->member_a->id,
+    ]);
+});
+
+test('admin global filtra tasks por organization_id e só vê as de organization daquela organization', function () {
+    $other_org = Organization::create(['id' => (string) Str::uuid(), 'name' => 'Outra Org Filtro', 'slug' => 'outra-org-filtro-'.Str::random(6)]);
+
+    Task::create([
+        'user_id' => $this->member_a->id,
+        'organization_id' => $this->org->id,
+        'visibility' => 'organization',
+        'status_id' => $this->status_pending->id,
+        'priority_id' => $this->priority_high->id,
+        'title' => 'Task da org filtrada',
+    ]);
+
+    Task::create([
+        'user_id' => $this->member_a->id,
+        'organization_id' => $other_org->id,
+        'visibility' => 'organization',
+        'status_id' => $this->status_pending->id,
+        'priority_id' => $this->priority_high->id,
+        'title' => 'Task de outra organization',
+    ]);
+
+    $response = withToken($this->token_global)->getJson("/api/v1/tasks?organization_id={$this->org->id}");
+
+    $titles = collect($response->json('data.data'))->pluck('title');
+    expect($titles)->toContain('Task da org filtrada');
+    expect($titles)->not->toContain('Task de outra organization');
+});

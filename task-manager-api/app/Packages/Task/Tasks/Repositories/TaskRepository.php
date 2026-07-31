@@ -30,8 +30,9 @@ class TaskRepository extends BaseRepository
         $status_id = $filters['status_id'] ?? null;
         $priority_id = $filters['priority_id'] ?? null;
         $due_date = $filters['due_date'] ?? null;
+        $filter_organization_id = $actor_is_global ? ($filters['organization_id'] ?? null) : null;
 
-        $visibility_condition = $this->buildVisibilityCondition($actor_is_global, $organization_id);
+        $visibility_condition = $this->buildVisibilityCondition($actor_is_global, $organization_id, $filter_organization_id);
 
         $query = '
             WITH tasks_filtered AS (
@@ -60,6 +61,9 @@ class TaskRepository extends BaseRepository
         if (! $actor_is_global && $organization_id) {
             $params['organization_id'] = $organization_id;
         }
+        if ($filter_organization_id) {
+            $params['filter_organization_id'] = $filter_organization_id;
+        }
         if ($search) {
             $params['search'] = "%{$search}%";
         }
@@ -87,9 +91,13 @@ class TaskRepository extends BaseRepository
         );
     }
 
-    private function buildVisibilityCondition(bool $actor_is_global, ?string $organization_id): string
+    private function buildVisibilityCondition(bool $actor_is_global, ?string $organization_id, ?string $filter_organization_id = null): string
     {
         if ($actor_is_global) {
+            if ($filter_organization_id) {
+                return "T.user_id = :user_id OR (T.visibility = 'organization' AND T.organization_id = :filter_organization_id)";
+            }
+
             return "T.user_id = :user_id OR T.visibility = 'organization'";
         }
 

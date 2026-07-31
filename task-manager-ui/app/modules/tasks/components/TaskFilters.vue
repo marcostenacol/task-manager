@@ -2,13 +2,19 @@
 import { ref, onMounted } from 'vue';
 import { Search } from 'lucide-vue-next';
 import { TaskService } from '../services/TaskService';
+import { useAuth } from '~/modules/auth/hooks/useAuth';
+import { useOrganizations } from '~/modules/organizations/hooks/useOrganizations';
 
 const filters = defineModel<Record<string, unknown>>('filters', { required: true });
 
 const emit = defineEmits(['apply']);
 
+const { user } = useAuth();
+const { allOrganizations, fetchAllOrganizations } = useOrganizations();
+
 const statuses = ref<any[]>([]);
 const priorities = ref<any[]>([]);
+const isGlobalActor = user.value?.permissions?.includes('admin.organizations.list') ?? false;
 
 onMounted(async () => {
     try {
@@ -18,6 +24,9 @@ onMounted(async () => {
         ]);
         statuses.value = s;
         priorities.value = p;
+        if (isGlobalActor) {
+            await fetchAllOrganizations();
+        }
     } catch (error) {
         console.error('Erro ao carregar filtros:', error);
     }
@@ -58,6 +67,19 @@ onMounted(async () => {
                 <option value="">Todas Prioridades</option>
                 <option v-for="p in priorities" :key="p.id" :value="p.id">
                     {{ p.name }}
+                </option>
+            </select>
+        </div>
+
+        <div v-if="isGlobalActor" class="filter-select">
+            <select
+                v-model="filters.organization_id"
+                class="filter-input"
+                @change="emit('apply')"
+            >
+                <option value="">Todas as Organizations</option>
+                <option v-for="org in allOrganizations" :key="org.id" :value="org.id">
+                    {{ org.name }}
                 </option>
             </select>
         </div>

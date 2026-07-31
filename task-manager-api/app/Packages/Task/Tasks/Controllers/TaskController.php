@@ -4,9 +4,11 @@ namespace App\Packages\Task\Tasks\Controllers;
 
 use App\Base\Traits\Response;
 use App\Http\Controllers\Controller;
+use App\Packages\Task\Tasks\Requests\AssignTaskRequest;
 use App\Packages\Task\Tasks\Requests\CreateTaskRequest;
 use App\Packages\Task\Tasks\Requests\UpdateTaskRequest;
 use App\Packages\Task\Tasks\Requests\UpdateTaskStatusRequest;
+use App\Packages\Task\Tasks\Services\AssignTaskService;
 use App\Packages\Task\Tasks\Services\CreateTaskService;
 use App\Packages\Task\Tasks\Services\DeleteTaskService;
 use App\Packages\Task\Tasks\Services\DetailTaskService;
@@ -83,6 +85,17 @@ class TaskController extends Controller
             $data = $service->execute($id, $request->validated('status_id'));
 
             return self::successResponse($data, 'Status da tarefa atualizado com sucesso.');
+        } catch (\Exception $e) {
+            return self::returnError($e);
+        }
+    }
+
+    public function assign(string $id, AssignTaskRequest $request, AssignTaskService $service): JsonResponse
+    {
+        try {
+            $data = $service->execute($id, $request->validated('user_id'), userObject()->id);
+
+            return self::successResponse($data, 'Tarefa atribuída com sucesso.');
         } catch (\Exception $e) {
             return self::returnError($e);
         }

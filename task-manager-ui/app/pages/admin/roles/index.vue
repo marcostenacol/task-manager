@@ -12,6 +12,16 @@
           <p class="page-subtitle">Gerencie roles e suas permissões.</p>
         </div>
         <div class="header-actions">
+          <div class="org-filter">
+            <label class="org-filter-label" for="role-name-search">Nome</label>
+            <input
+              id="role-name-search"
+              v-model="nameFilter"
+              type="text"
+              placeholder="Buscar por nome..."
+              class="org-filter-select"
+            >
+          </div>
           <div v-if="isGlobalActor" class="org-filter">
             <label class="org-filter-label" for="role-scope-select">Escopo</label>
             <select id="role-scope-select" v-model="selectedScope" class="org-filter-select" @change="handleScopeChange">
@@ -29,7 +39,7 @@
       </div>
       <RoleTable
         class="role-table-wrap"
-        :roles="roles"
+        :roles="filteredRoles"
         :loading="loading"
         :current-role-id="currentRole?.id"
         :current-role-level="currentRole?.level"
@@ -71,6 +81,7 @@ const { allOrganizations, fetchAllOrganizations } = useOrganizations()
 const showModal = ref(false)
 const selectedRole = ref<Role | null>(null)
 const selectedScope = ref('global')
+const nameFilter = ref('')
 
 const accessDenied = computed(() => {
   if (!user.value) return true
@@ -79,6 +90,11 @@ const accessDenied = computed(() => {
 
 const currentRole = computed(() => roles.value.find((role) => role.slug === user.value?.role?.slug) ?? null)
 const isGlobalActor = computed(() => user.value?.permissions?.includes('admin.organizations.list') ?? false)
+const filteredRoles = computed(() => {
+  const term = nameFilter.value.trim().toLowerCase()
+  if (!term) return roles.value
+  return roles.value.filter((role) => role.name.toLowerCase().includes(term))
+})
 
 watchEffect(() => {
   if (accessDenied.value) {

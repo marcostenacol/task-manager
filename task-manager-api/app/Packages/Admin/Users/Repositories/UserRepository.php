@@ -97,6 +97,11 @@ class UserRepository extends BaseRepository
             $params['status_id'] = $filters['status_id'];
         }
 
+        if (! empty($filters['organization_id'])) {
+            $sql .= ' AND U.active_organization_id = :filter_organization_id';
+            $params['filter_organization_id'] = $filters['organization_id'];
+        }
+
         $sql .= '
             ),
             total_count AS (
