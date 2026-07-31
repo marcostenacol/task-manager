@@ -151,7 +151,7 @@
                 {{ org.name }}
               </option>
             </select>
-            <input v-model="newOrgOwnerCpf" type="text" class="field-input" placeholder="CPF do responsável (opcional)" maxlength="11">
+            <input v-model="newOrgOwnerCpf" type="text" class="field-input" placeholder="CPF do responsável (opcional) — 000.000.000-00" maxlength="14">
             <button type="submit" class="btn-add" :disabled="creating">
               {{ creating ? 'Criando...' : 'Criar' }}
             </button>

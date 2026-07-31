@@ -20,8 +20,8 @@
         id="cpf"
         v-model="formData.cpf"
         type="text"
-        placeholder="Somente números"
-        maxlength="11"
+        placeholder="000.000.000-00"
+        maxlength="14"
         class="form-input"
       >
     </div>

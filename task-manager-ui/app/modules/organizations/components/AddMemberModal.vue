@@ -116,7 +116,7 @@ async function handleCreateMember() {
         </div>
 
         <form class="lookup-form" @submit.prevent="handleLookup">
-          <input v-model="cpf" type="text" class="field-input" placeholder="CPF (somente números)" maxlength="11">
+          <input v-model="cpf" type="text" class="field-input" placeholder="000.000.000-00" maxlength="14">
           <button type="submit" class="btn-secondary" :disabled="loadingLookup">
             {{ loadingLookup ? 'Buscando...' : 'Buscar' }}
           </button>
