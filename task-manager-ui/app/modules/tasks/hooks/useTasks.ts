@@ -4,6 +4,7 @@ import { TaskService } from '../services/TaskService';
 
 export const useTasks = () => {
     const tasks = ref<Task[]>([]);
+    const kanbanTasks = ref<Task[]>([]);
     const loading = ref(false);
     const meta = ref<any>(null);
     
@@ -12,6 +13,7 @@ export const useTasks = () => {
         status_id: '',
         priority_id: '',
         organization_id: '',
+        completed: false,
         page: 1,
         limit: 15
     });
@@ -27,6 +29,28 @@ export const useTasks = () => {
             }
         } catch (error) {
             console.error('Erro ao buscar tarefas:', error);
+        } finally {
+            loading.value = false;
+        }
+    };
+
+    const fetchKanbanTasks = async () => {
+        loading.value = true;
+        try {
+            // Kanban mostra as 3 colunas de status ao mesmo tempo, então
+            // ignora o filtro Ativas/Concluídas e a paginação da lista.
+            const response = await TaskService.list({
+                ...filters,
+                completed: undefined,
+                view: 'all',
+                page: 1,
+                limit: 500
+            }) as any;
+            if (response.success && response.data) {
+                kanbanTasks.value = response.data.data || [];
+            }
+        } catch (error) {
+            console.error('Erro ao buscar tarefas do kanban:', error);
         } finally {
             loading.value = false;
         }
@@ -55,10 +79,12 @@ export const useTasks = () => {
 
     return {
         tasks,
+        kanbanTasks,
         loading,
         meta,
         filters,
         fetchTasks,
+        fetchKanbanTasks,
         changePage,
         applyFilters,
         deleteTask

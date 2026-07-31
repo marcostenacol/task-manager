@@ -25,14 +25,30 @@ class TaskRepository extends BaseRepository
      */
     public function listWithFilters(string $user_id, array $filters = [], ?string $organization_id = null, bool $actor_is_global = false): LengthAwarePaginator
     {
-        $limit = $filters['limit'] ?? 15;
+        $page = (int) ($filters['page'] ?? 1);
+        $limit = (int) ($filters['limit'] ?? 15);
+        $offset = ($page - 1) * $limit;
         $search = $filters['search'] ?? null;
         $status_id = $filters['status_id'] ?? null;
         $priority_id = $filters['priority_id'] ?? null;
         $due_date = $filters['due_date'] ?? null;
         $filter_organization_id = $actor_is_global ? ($filters['organization_id'] ?? null) : null;
+        $show_completed = filter_var($filters['completed'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $show_all_statuses = ($filters['view'] ?? null) === 'all';
 
         $visibility_condition = $this->buildVisibilityCondition($actor_is_global, $organization_id, $filter_organization_id);
+
+        // Tasks concluídas ('done') nunca somem, só se acumulam — sem esse
+        // corte por padrão, a listagem principal cresce sem limite pra
+        // qualquer usuário que só marca tasks como concluídas em vez de
+        // excluí-las. A aba "Concluídas" existe à parte (filters.completed).
+        // view=all bypassa o corte por completo (usado pelo Kanban, que
+        // precisa mostrar as 3 colunas de status ao mesmo tempo).
+        $completed_condition = match (true) {
+            $show_all_statuses => '1=1',
+            $show_completed => "S.slug = 'done'",
+            default => "S.slug != 'done'",
+        };
 
         $query = '
             WITH tasks_filtered AS (
@@ -48,13 +64,21 @@ class TaskRepository extends BaseRepository
                 JOIN public.task_priorities P ON T.priority_id = P.id
                 WHERE ('.$visibility_condition.')
                 AND T.deleted_at IS NULL
+                AND '.$completed_condition.'
                 '.($search ? 'AND (T.title ILIKE :search OR T.description ILIKE :search)' : '').'
                 '.($status_id ? 'AND T.status_id = :status_id' : '').'
                 '.($priority_id ? 'AND T.priority_id = :priority_id' : '').'
                 '.($due_date ? 'AND T.due_date::date = :due_date::date' : '').'
+            ),
+            total_count AS (
+                SELECT COUNT(*) as count FROM tasks_filtered
             )
-            SELECT * FROM tasks_filtered
+            SELECT
+                tasks_filtered.*,
+                total_count.count as total
+            FROM tasks_filtered, total_count
             ORDER BY priority_order DESC, due_date ASC NULLS LAST, created_at DESC
+            LIMIT :limit OFFSET :offset
         ';
 
         $params = ['user_id' => $user_id];
@@ -76,15 +100,15 @@ class TaskRepository extends BaseRepository
         if ($due_date) {
             $params['due_date'] = $due_date;
         }
+        $params['limit'] = $limit;
+        $params['offset'] = $offset;
 
         $results = DB::select($query, $params);
-        $collection = collect($results);
-
-        $page = (int) request()->get('page', 1);
+        $total = $results[0]->total ?? 0;
 
         return new LengthAwarePaginator(
-            $collection->forPage($page, $limit)->values(),
-            $collection->count(),
+            collect($results),
+            $total,
             $limit,
             $page,
             ['path' => request()->url(), 'query' => request()->query()]

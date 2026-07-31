@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { FolderOpen, Plus } from 'lucide-vue-next';
 import { useTasks } from '~/modules/tasks/hooks/useTasks';
 import { TaskService } from '~/modules/tasks/services/TaskService';
@@ -12,12 +12,28 @@ definePageMeta({
     middleware: ['auth']
 });
 
-const { tasks, loading, filters, fetchTasks, applyFilters, deleteTask } = useTasks();
+const { tasks, kanbanTasks, loading, filters, fetchTasks, fetchKanbanTasks, applyFilters, deleteTask } = useTasks();
 
 const viewMode = ref<'list' | 'kanban'>('list');
 const showModal = ref(false);
 const selectedTaskId = ref<string | null>(null);
 const statuses = ref<any[]>([]);
+
+function selectTab(completed: boolean) {
+    filters.completed = completed;
+    filters.page = 1;
+    fetchTasks();
+}
+
+function fetchForCurrentView() {
+    if (viewMode.value === 'kanban') {
+        fetchKanbanTasks();
+        return;
+    }
+    fetchTasks();
+}
+
+watch(viewMode, fetchForCurrentView);
 
 const openCreateModal = () => {
     selectedTaskId.value = null;
@@ -29,16 +45,18 @@ const openEditModal = (task: any) => {
     showModal.value = true;
 };
 
-const handleDelete = (task: any) => {
-    if (window.confirm(`Excluir a tarefa "${task.title}"? Essa ação não pode ser desfeita.`)) {
-        deleteTask(task.id);
+const handleDelete = async (task: any) => {
+    if (!window.confirm(`Excluir a tarefa "${task.title}"? Essa ação não pode ser desfeita.`)) return;
+    await deleteTask(task.id);
+    if (viewMode.value === 'kanban') {
+        fetchKanbanTasks();
     }
 };
 
 const STATUS_ORDER = ['pending', 'in_progress', 'done'];
 
 onMounted(async () => {
-    fetchTasks();
+    fetchForCurrentView();
     try {
         const fetchedStatuses = await TaskService.getStatuses();
         statuses.value = [...fetchedStatuses].sort(
@@ -89,6 +107,23 @@ onMounted(async () => {
                 </button>
             </div>
 
+            <div v-if="viewMode === 'list'" class="status-tabs">
+                <button
+                    class="status-tab-btn"
+                    :class="{ 'is-active': !filters.completed }"
+                    @click="selectTab(false)"
+                >
+                    Ativas
+                </button>
+                <button
+                    class="status-tab-btn"
+                    :class="{ 'is-active': filters.completed }"
+                    @click="selectTab(true)"
+                >
+                    Concluídas
+                </button>
+            </div>
+
             <div v-if="viewMode === 'list'" class="toolbar-filters">
                 <TaskFilters v-model:filters="filters" @apply="applyFilters" />
             </div>
@@ -101,7 +136,7 @@ onMounted(async () => {
         </div>
 
         <template v-else>
-            <div v-if="tasks.length > 0">
+            <div v-if="(viewMode === 'list' ? tasks : kanbanTasks).length > 0">
                 <div v-if="viewMode === 'list'" class="task-grid">
                     <TaskCard
                         v-for="task in tasks"
@@ -113,10 +148,10 @@ onMounted(async () => {
                 </div>
                 <div v-else>
                     <TaskKanban
-                        :tasks="tasks"
+                        :tasks="kanbanTasks"
                         :statuses="statuses"
                         @task-click="openEditModal"
-                        @task-updated="fetchTasks"
+                        @task-updated="fetchKanbanTasks"
                         @task-delete="handleDelete"
                     />
                 </div>
@@ -144,7 +179,7 @@ onMounted(async () => {
             :show="showModal"
             :task-id="selectedTaskId"
             @close="showModal = false"
-            @saved="fetchTasks"
+            @saved="fetchForCurrentView"
         />
     </div>
 </template>
@@ -243,6 +278,36 @@ onMounted(async () => {
 }
 
 .view-switcher-btn.is-active {
+    background: var(--accent);
+    color: var(--accent-ink);
+}
+
+.status-tabs {
+    display: inline-flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.status-tab-btn {
+    padding: 0.375rem 1rem;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.status-tab-btn:hover:not(.is-active) {
+    color: var(--ink);
+}
+
+.status-tab-btn.is-active {
     background: var(--accent);
     color: var(--accent-ink);
 }

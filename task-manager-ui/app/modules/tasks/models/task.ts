@@ -32,6 +32,8 @@ export interface TaskFilters {
     priority_id?: string;
     due_date?: string;
     organization_id?: string;
+    completed?: boolean;
+    view?: 'all';
     page?: number;
     limit?: number;
 }
