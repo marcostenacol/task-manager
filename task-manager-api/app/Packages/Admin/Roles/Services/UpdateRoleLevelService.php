@@ -3,6 +3,7 @@
 namespace App\Packages\Admin\Roles\Services;
 
 use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
+use App\Packages\Admin\Organizations\Services\GuardRoleAssignmentService;
 use App\Packages\Admin\Roles\Models\Role;
 use App\Packages\Admin\Users\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +12,7 @@ class UpdateRoleLevelService
 {
     public function __construct(
         private RecordAuditLogService $recordAuditLogService,
+        private GuardRoleAssignmentService $guardRoleAssignmentService,
     ) {}
 
     public function execute(string $roleId, int $level, string $actorId, ?string $color = null): Role
@@ -20,7 +22,7 @@ class UpdateRoleLevelService
             $role = Role::findOrFail($roleId);
 
             $this->guardAgainstEditingSuperiorOrEqual($actor, $role);
-            $this->guardAgainstElevatingAboveActor($actor, $level);
+            $this->guardAgainstElevatingAboveActor($actor, $level, $role);
             $this->guardAgainstCrossOrganizationAccess($actor, $role);
 
             $role->update(array_filter([
@@ -54,14 +56,20 @@ class UpdateRoleLevelService
             throw new \InvalidArgumentException('Você não pode editar o nível da sua própria role por aqui.');
         }
 
-        if ($role->level <= $actor->role->level) {
+        if ($this->guardRoleAssignmentService->isRoleSuperiorOrEqual($actor, $role)) {
             throw new \InvalidArgumentException('Você não pode editar uma role igual ou superior à sua.');
         }
     }
 
-    private function guardAgainstElevatingAboveActor(User $actor, int $level): void
+    private function guardAgainstElevatingAboveActor(User $actor, int $level, Role $role): void
     {
-        if ($level <= $actor->role->level) {
+        $actorIsGlobal = $actor->global_role_id !== null;
+
+        if ($actorIsGlobal && $role->scope === 'organization') {
+            return;
+        }
+
+        if ($level <= $this->guardRoleAssignmentService->resolveActorLevel($actor)) {
             throw new \InvalidArgumentException('Você não pode definir um nível igual ou superior ao da sua própria role.');
         }
     }

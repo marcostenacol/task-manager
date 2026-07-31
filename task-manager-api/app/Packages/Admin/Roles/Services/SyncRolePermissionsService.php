@@ -3,6 +3,7 @@
 namespace App\Packages\Admin\Roles\Services;
 
 use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
+use App\Packages\Admin\Organizations\Services\GuardRoleAssignmentService;
 use App\Packages\Admin\Permissions\Models\Permission;
 use App\Packages\Admin\Roles\Models\Role;
 use App\Packages\Admin\Users\Models\User;
@@ -19,6 +20,7 @@ class SyncRolePermissionsService
 
     public function __construct(
         private RecordAuditLogService $recordAuditLogService,
+        private GuardRoleAssignmentService $guardRoleAssignmentService,
     ) {}
 
     public function execute(string $roleId, array $permissionIds, string $actorId): Role
@@ -47,7 +49,7 @@ class SyncRolePermissionsService
             throw new \InvalidArgumentException('Você não pode editar as permissões da sua própria role por aqui.');
         }
 
-        if ($role->level <= $actor->role->level) {
+        if ($this->guardRoleAssignmentService->isRoleSuperiorOrEqual($actor, $role)) {
             throw new \InvalidArgumentException('Você não pode editar uma role igual ou superior à sua.');
         }
     }

@@ -215,3 +215,30 @@ test('ator global filtra roles por organization_id e só vê as customizadas daq
     // roles-base compartilhadas (organization_id null, ex.: org-admin/user) continuam visíveis em qualquer organization
     expect($names)->toContain($this->orgAdminRole->name);
 });
+
+test('ator global (owner) consegue renomear, mudar nível, sincronizar permissões e excluir uma role customizada de qualquer organization', function () {
+    $roleResponse = withToken($this->orgAAdminToken)->postJson('/api/v1/admin/roles', ['name' => 'Custom Org A Editável']);
+    $roleId = $roleResponse->json('data.id');
+
+    $ownerRole = Role::where('slug', 'owner')->first();
+    $owner = User::factory()->create(['role_id' => $ownerRole->id, 'global_role_id' => $ownerRole->id, 'password' => 'password123']);
+    $ownerToken = postJson(route('v1.auth.login'), [
+        'email' => $owner->email,
+        'password' => 'password123',
+    ])->json('data.access_token.token');
+
+    withToken($ownerToken)->patchJson("/api/v1/admin/roles/{$roleId}/name", ['name' => 'Renomeada pelo Owner'])
+        ->assertStatus(200)->assertJsonPath('success', true);
+
+    withToken($ownerToken)->patchJson("/api/v1/admin/roles/{$roleId}/level", ['level' => 50])
+        ->assertStatus(200)->assertJsonPath('success', true);
+
+    $taskPermission = Permission::where('name', 'task.tasks.list')->first();
+    withToken($ownerToken)->putJson("/api/v1/admin/roles/{$roleId}/permissions", ['permission_ids' => [$taskPermission->id]])
+        ->assertStatus(200)->assertJsonPath('success', true);
+
+    withToken($ownerToken)->deleteJson("/api/v1/admin/roles/{$roleId}")
+        ->assertStatus(200)->assertJsonPath('success', true);
+
+    expect(Role::find($roleId))->toBeNull();
+});

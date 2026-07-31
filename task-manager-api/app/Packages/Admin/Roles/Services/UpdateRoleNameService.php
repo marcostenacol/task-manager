@@ -3,6 +3,7 @@
 namespace App\Packages\Admin\Roles\Services;
 
 use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
+use App\Packages\Admin\Organizations\Services\GuardRoleAssignmentService;
 use App\Packages\Admin\Roles\Models\Role;
 use App\Packages\Admin\Users\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +12,7 @@ class UpdateRoleNameService
 {
     public function __construct(
         private RecordAuditLogService $recordAuditLogService,
+        private GuardRoleAssignmentService $guardRoleAssignmentService,
     ) {}
 
     public function execute(string $roleId, string $name, string $actorId): Role
@@ -44,7 +46,7 @@ class UpdateRoleNameService
             throw new \InvalidArgumentException('Você não pode renomear a sua própria role por aqui.');
         }
 
-        if ($role->level <= $actor->role->level) {
+        if ($this->guardRoleAssignmentService->isRoleSuperiorOrEqual($actor, $role)) {
             throw new \InvalidArgumentException('Você não pode editar uma role igual ou superior à sua.');
         }
     }

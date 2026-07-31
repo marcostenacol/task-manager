@@ -20,17 +20,33 @@ class GuardRoleAssignmentService
     {
         $actorIsGlobal = $actor->global_role_id !== null;
 
-        if ($actorIsGlobal && $role->scope === 'organization') {
-            return;
-        }
-
         if (! $actorIsGlobal && $role->scope === 'global') {
             throw new \InvalidArgumentException('Você não pode atribuir uma role global.');
         }
 
-        if ($role->level <= $this->resolveActorLevel($actor)) {
+        if ($this->isRoleSuperiorOrEqual($actor, $role)) {
             throw new \InvalidArgumentException('Você não pode atribuir uma role igual ou superior à sua.');
         }
+    }
+
+    /**
+     * Compara a hierarquia entre a role e o ator. Um ator global é sempre
+     * inferior/igual a uma role global de nível maior/igual, mas nunca a uma
+     * role de organization (que é inerentemente subordinada a qualquer role
+     * global) — mesma regra de `guardAgainstAssigningSuperiorOrEqualRole`,
+     * exposta separadamente para reuso nos Services de edição de Role
+     * (rename/level/permissions/delete), que precisam da checagem sem o
+     * `throw` amarrado à mensagem de "atribuição".
+     */
+    public function isRoleSuperiorOrEqual(User $actor, Role $role): bool
+    {
+        $actorIsGlobal = $actor->global_role_id !== null;
+
+        if ($actorIsGlobal && $role->scope === 'organization') {
+            return false;
+        }
+
+        return $role->level <= $this->resolveActorLevel($actor);
     }
 
     public function resolveActorLevel(User $actor): int

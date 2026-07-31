@@ -3,6 +3,7 @@
 namespace App\Packages\Admin\Roles\Services;
 
 use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
+use App\Packages\Admin\Organizations\Services\GuardRoleAssignmentService;
 use App\Packages\Admin\Roles\Models\Role;
 use App\Packages\Admin\Users\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +12,7 @@ class DeleteRoleService
 {
     public function __construct(
         private RecordAuditLogService $recordAuditLogService,
+        private GuardRoleAssignmentService $guardRoleAssignmentService,
     ) {}
 
     public function execute(string $roleId, string $actorId): void
@@ -53,7 +55,7 @@ class DeleteRoleService
 
     private function guardAgainstDeletingSuperiorOrEqual(User $actor, Role $role): void
     {
-        if ($role->level <= $actor->role->level) {
+        if ($this->guardRoleAssignmentService->isRoleSuperiorOrEqual($actor, $role)) {
             throw new \InvalidArgumentException('Você não pode excluir uma role igual ou superior à sua.');
         }
     }
