@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Packages\Admin\Organizations\Requests\AddOrganizationMemberRequest;
 use App\Packages\Admin\Organizations\Requests\CreateOrganizationMemberRequest;
 use App\Packages\Admin\Organizations\Requests\CreateOrganizationRequest;
+use App\Packages\Admin\Organizations\Requests\CreateSubOrganizationRequest;
 use App\Packages\Admin\Organizations\Requests\LookupOrganizationMemberRequest;
 use App\Packages\Admin\Organizations\Requests\OnboardOrganizationRequest;
 use App\Packages\Admin\Organizations\Requests\RemoveOrganizationMemberRequest;
@@ -20,6 +21,7 @@ use App\Packages\Admin\Organizations\Resources\OrganizationResource;
 use App\Packages\Admin\Organizations\Services\AddOrganizationMemberService;
 use App\Packages\Admin\Organizations\Services\CreateOrganizationMemberService;
 use App\Packages\Admin\Organizations\Services\CreateOrganizationService;
+use App\Packages\Admin\Organizations\Services\CreateSubOrganizationService;
 use App\Packages\Admin\Organizations\Services\ListMyOrganizationsService;
 use App\Packages\Admin\Organizations\Services\ListOrganizationMembersService;
 use App\Packages\Admin\Organizations\Services\ListOrganizationsService;
@@ -87,6 +89,22 @@ class OrganizationController extends Controller
             );
 
             return self::successResponse(null, 'Membro adicionado com sucesso.', HttpResponse::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return self::returnError($e);
+        }
+    }
+
+    public function createSubOrganization(CreateSubOrganizationRequest $request, CreateSubOrganizationService $service): JsonResponse
+    {
+        try {
+            $admin = userObject();
+            $data = $service->execute(
+                $request->validated('name'),
+                $admin->id,
+                $request->validated('organization_id')
+            );
+
+            return self::successResponse(OrganizationResource::make($data), 'Sub-organization criada com sucesso.', HttpResponse::HTTP_CREATED);
         } catch (\Exception $e) {
             return self::returnError($e);
         }

@@ -51,6 +51,9 @@
             <button v-if="!canListAll" class="btn-secondary" @click="showFoundModal = true">
               Fundar outra organization
             </button>
+            <button v-if="!canListAll" class="btn-secondary" @click="showCreateSubOrgModal = true">
+              + Criar sub-organization
+            </button>
             <button class="btn-secondary" @click="showAddMemberModal = true">
               + Adicionar membro
             </button>
@@ -119,6 +122,12 @@
       @founded="handleFounded"
     />
 
+    <CreateSubOrganizationModal
+      :show="showCreateSubOrgModal"
+      @close="showCreateSubOrgModal = false"
+      @created="handleSubOrgCreated"
+    />
+
     <AddMemberModal
       v-if="selectedOrganizationId"
       :show="showAddMemberModal"
@@ -176,6 +185,7 @@ import { useOrganizations } from '~/modules/organizations/hooks/useOrganizations
 import { OrganizationService } from '~/modules/organizations/services/OrganizationService'
 import { useRoles } from '~/modules/admin/hooks/useRoles'
 import FoundOrganizationModal from '~/modules/organizations/components/FoundOrganizationModal.vue'
+import CreateSubOrganizationModal from '~/modules/organizations/components/CreateSubOrganizationModal.vue'
 import AddMemberModal from '~/modules/organizations/components/AddMemberModal.vue'
 import TransferOwnershipModal from '~/modules/organizations/components/TransferOwnershipModal.vue'
 
@@ -214,6 +224,7 @@ const renaming = ref(false)
 const editingName = ref(false)
 
 const showFoundModal = ref(false)
+const showCreateSubOrgModal = ref(false)
 const showAddMemberModal = ref(false)
 const showTransferModal = ref(false)
 const showCreateOrgModal = ref(false)
@@ -312,6 +323,10 @@ async function handleFounded() {
   if (user.value?.organization) {
     selectOrganization(user.value.organization.id)
   }
+}
+
+function handleSubOrgCreated() {
+  window.alert('Sub-organization criada com sucesso. Use o seletor de organization no menu lateral pra trocar para ela e gerenciá-la.')
 }
 
 async function handleTransferred() {

@@ -5,7 +5,7 @@ namespace App\Packages\Task\Tasks\Services;
 use App\Base\Traits\CacheTrait;
 use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
 use App\Packages\Admin\Organizations\Models\UserOrganization;
-use App\Packages\Admin\Users\Models\User;
+use App\Packages\Admin\Organizations\Services\ResolveOrganizationScopeService;
 use App\Packages\Task\Tasks\Models\Task;
 use App\Packages\Task\Tasks\Resources\TaskResource;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +16,7 @@ class AssignTaskService
 
     public function __construct(
         private RecordAuditLogService $record_audit_log_service,
+        private ResolveOrganizationScopeService $resolve_organization_scope_service,
     ) {}
 
     public function execute(string $task_id, string $new_user_id, string $actor_id): TaskResource
@@ -62,9 +63,9 @@ class AssignTaskService
 
         throw_unless(hasPermission('admin.organizations.manage-members'), new \InvalidArgumentException('Você não tem permissão para atribuir essa task.'));
 
-        $actor = User::findOrFail($actor_id);
+        $organization_ids = $this->resolve_organization_scope_service->execute($actor_id);
 
-        throw_unless($actor->active_organization_id === $task->organization_id, new \InvalidArgumentException('Você não tem permissão para atribuir essa task.'));
+        throw_unless(in_array($task->organization_id, $organization_ids ?? [], true), new \InvalidArgumentException('Você não tem permissão para atribuir essa task.'));
     }
 
     private function guardNewOwnerBelongsToOrganization(Task $task, string $new_user_id): void

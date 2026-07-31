@@ -19,11 +19,12 @@ class TaskRepository extends BaseRepository
      *
      * Visibilidade: sempre inclui as tasks pessoais do próprio ator. Além
      * disso, tasks com visibility='organization' entram se: o ator for global
-     * (vê de qualquer organization) ou o ator pertencer à mesma organization
-     * da task. $organization_id/$actor_is_global vêm de ListTasksService, que
-     * já resolve o escopo do ator antes de chamar este método.
+     * (vê de qualquer organization) ou a task pertencer a uma das
+     * organizations do escopo do ator (a própria + descendentes — ver
+     * `ResolveOrganizationScopeService`). $organization_ids/$actor_is_global
+     * vêm de ListTasksService, que já resolve o escopo antes de chamar isso.
      */
-    public function listWithFilters(string $user_id, array $filters = [], ?string $organization_id = null, bool $actor_is_global = false): LengthAwarePaginator
+    public function listWithFilters(string $user_id, array $filters = [], ?array $organization_ids = null, bool $actor_is_global = false): LengthAwarePaginator
     {
         $page = (int) ($filters['page'] ?? 1);
         $limit = (int) ($filters['limit'] ?? 15);
@@ -36,7 +37,7 @@ class TaskRepository extends BaseRepository
         $show_completed = filter_var($filters['completed'] ?? false, FILTER_VALIDATE_BOOLEAN);
         $show_all_statuses = ($filters['view'] ?? null) === 'all';
 
-        $visibility_condition = $this->buildVisibilityCondition($actor_is_global, $organization_id, $filter_organization_id);
+        $visibility_condition = $this->buildVisibilityCondition($actor_is_global, $organization_ids, $filter_organization_id);
 
         // Tasks concluídas ('done') nunca somem, só se acumulam — sem esse
         // corte por padrão, a listagem principal cresce sem limite pra
@@ -82,8 +83,10 @@ class TaskRepository extends BaseRepository
         ';
 
         $params = ['user_id' => $user_id];
-        if (! $actor_is_global && $organization_id) {
-            $params['organization_id'] = $organization_id;
+        if (! $actor_is_global && ! empty($organization_ids)) {
+            foreach (array_values($organization_ids) as $index => $organizationId) {
+                $params["org_scope_{$index}"] = $organizationId;
+            }
         }
         if ($filter_organization_id) {
             $params['filter_organization_id'] = $filter_organization_id;
@@ -115,7 +118,7 @@ class TaskRepository extends BaseRepository
         );
     }
 
-    private function buildVisibilityCondition(bool $actor_is_global, ?string $organization_id, ?string $filter_organization_id = null): string
+    private function buildVisibilityCondition(bool $actor_is_global, ?array $organization_ids, ?string $filter_organization_id = null): string
     {
         if ($actor_is_global) {
             if ($filter_organization_id) {
@@ -125,8 +128,13 @@ class TaskRepository extends BaseRepository
             return "T.user_id = :user_id OR T.visibility = 'organization'";
         }
 
-        if ($organization_id) {
-            return "T.user_id = :user_id OR (T.visibility = 'organization' AND T.organization_id = :organization_id)";
+        if (! empty($organization_ids)) {
+            $placeholders = [];
+            foreach (array_keys(array_values($organization_ids)) as $index) {
+                $placeholders[] = ":org_scope_{$index}";
+            }
+
+            return "T.user_id = :user_id OR (T.visibility = 'organization' AND T.organization_id IN (".implode(',', $placeholders).'))';
         }
 
         return 'T.user_id = :user_id';

@@ -5,6 +5,7 @@ namespace App\Packages\Task\Tasks\Services;
 use App\Base\Traits\CacheTrait;
 use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
 use App\Packages\Admin\Organizations\Models\Organization;
+use App\Packages\Admin\Organizations\Services\ResolveOrganizationScopeService;
 use App\Packages\Admin\Users\Models\User;
 use App\Packages\Task\Tasks\Models\Task;
 use App\Packages\Task\Tasks\Resources\TaskResource;
@@ -17,6 +18,7 @@ class UpdateTaskService
     public function __construct(
         private GuardTaskAccessService $guard_task_access_service,
         private RecordAuditLogService $record_audit_log_service,
+        private ResolveOrganizationScopeService $resolve_organization_scope_service,
     ) {}
 
     public function execute(string $task_id, array $data): TaskResource
@@ -85,9 +87,9 @@ class UpdateTaskService
             return false;
         }
 
-        $actor = User::findOrFail($actor_id);
+        $organization_ids = $this->resolve_organization_scope_service->execute($actor_id);
 
-        return $task->organization_id !== null && $actor->active_organization_id === $task->organization_id;
+        return $task->organization_id !== null && in_array($task->organization_id, $organization_ids ?? [], true);
     }
 
     /**

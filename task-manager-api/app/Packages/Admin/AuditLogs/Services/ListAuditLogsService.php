@@ -4,12 +4,17 @@ namespace App\Packages\Admin\AuditLogs\Services;
 
 use App\Packages\Admin\AuditLogs\Models\AuditLog;
 use App\Packages\Admin\AuditLogs\Resources\AuditLogResource;
+use App\Packages\Admin\Organizations\Services\ResolveOrganizationScopeService;
 use App\Packages\Admin\Users\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ListAuditLogsService
 {
+    public function __construct(
+        private ResolveOrganizationScopeService $resolveOrganizationScopeService,
+    ) {}
+
     public function execute(array $filters, string $actorId): LengthAwarePaginator
     {
         $limit = (int) ($filters['limit'] ?? 15);
@@ -36,7 +41,9 @@ class ListAuditLogsService
             return;
         }
 
-        $query->where('organization_id', $actor->active_organization_id);
+        $organizationIds = $this->resolveOrganizationScopeService->execute($actorId);
+
+        $query->whereIn('organization_id', $organizationIds ?? []);
     }
 
     private function applyFilters(Builder $query, array $filters): void
