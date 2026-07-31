@@ -16,7 +16,6 @@ use App\Packages\Admin\Organizations\Requests\UpdateOrganizationMemberRoleReques
 use App\Packages\Admin\Organizations\Requests\UpdateOrganizationRequest;
 use App\Packages\Admin\Organizations\Resources\MyOrganizationMembershipResource;
 use App\Packages\Admin\Organizations\Resources\OrganizationMemberLookupResource;
-use App\Packages\Admin\Organizations\Resources\OrganizationMemberResource;
 use App\Packages\Admin\Organizations\Resources\OrganizationResource;
 use App\Packages\Admin\Organizations\Services\AddOrganizationMemberService;
 use App\Packages\Admin\Organizations\Services\CreateOrganizationMemberService;
@@ -32,6 +31,7 @@ use App\Packages\Admin\Organizations\Services\TransferOrganizationOwnershipServi
 use App\Packages\Admin\Organizations\Services\UpdateOrganizationMemberRoleService;
 use App\Packages\Admin\Organizations\Services\UpdateOrganizationService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response as HttpResponse;
 
 class OrganizationController extends Controller
@@ -165,13 +165,13 @@ class OrganizationController extends Controller
         }
     }
 
-    public function members(string $id, ListOrganizationMembersService $service): JsonResponse
+    public function members(string $id, Request $request, ListOrganizationMembersService $service): JsonResponse
     {
         try {
             $admin = userObject();
-            $data = $service->execute($id, $admin->id);
+            $data = $service->execute($id, $admin->id, $request->all());
 
-            return self::successResponse(OrganizationMemberResource::collection($data), 'Membros recuperados com sucesso.');
+            return self::successResponse($data, 'Membros recuperados com sucesso.');
         } catch (\Exception $e) {
             return self::returnError($e);
         }

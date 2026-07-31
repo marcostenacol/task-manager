@@ -63,7 +63,7 @@ test('admin global vê os membros de uma organization específica', function () 
 
     $response->assertStatus(200)->assertJsonPath('success', true);
 
-    $emails = collect($response->json('data'))->pluck('email');
+    $emails = collect($response->json('data.data'))->pluck('email');
     expect($emails)->toContain($this->orgAdmin->email);
 });
 

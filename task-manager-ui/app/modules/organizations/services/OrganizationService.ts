@@ -41,8 +41,8 @@ export const OrganizationService = {
         return useApi('/v1/admin/organizations', { method: 'POST', body: { name, parent_id: parentId, owner_cpf: ownerCpf } });
     },
 
-    async listMembers(organizationId: string) {
-        return useApi(`/v1/organizations/${organizationId}/members`);
+    async listMembers(organizationId: string, filters?: { page?: number; limit?: number }) {
+        return useApi(`/v1/organizations/${organizationId}/members`, { query: filters });
     },
 
     async transferOwnership(newOwnerUserId: string, organizationId?: string) {

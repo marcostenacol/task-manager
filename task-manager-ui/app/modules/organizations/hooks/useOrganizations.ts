@@ -6,6 +6,7 @@ export const useOrganizations = () => {
     const memberships = ref<OrganizationMembership[]>([]);
     const allOrganizations = ref<Organization[]>([]);
     const members = ref<OrganizationMember[]>([]);
+    const membersMeta = ref<any>(null);
     const loading = ref(false);
 
     const fetchMine = async () => {
@@ -32,11 +33,12 @@ export const useOrganizations = () => {
         }
     };
 
-    const fetchMembers = async (organizationId: string) => {
+    const fetchMembers = async (organizationId: string, filters?: { page?: number; limit?: number }) => {
         loading.value = true;
         try {
-            const response = await OrganizationService.listMembers(organizationId) as any;
-            members.value = response.data || [];
+            const response = await OrganizationService.listMembers(organizationId, filters) as any;
+            members.value = response.data?.data || [];
+            membersMeta.value = response.data || null;
         } catch (error) {
             console.error('Erro ao buscar membros da organization:', error);
         } finally {
@@ -148,6 +150,7 @@ export const useOrganizations = () => {
         memberships,
         allOrganizations,
         members,
+        membersMeta,
         loading,
         fetchMine,
         fetchAllOrganizations,

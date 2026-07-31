@@ -4,20 +4,27 @@ namespace App\Packages\Admin\Organizations\Services;
 
 use App\Packages\Admin\Organizations\Models\Organization;
 use App\Packages\Admin\Organizations\Models\UserOrganization;
+use App\Packages\Admin\Organizations\Resources\OrganizationMemberResource;
 use App\Packages\Admin\Users\Models\User;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ListOrganizationMembersService
 {
-    public function execute(string $organization_id, string $actor_id): Collection
+    public function execute(string $organization_id, string $actor_id, array $filters = []): LengthAwarePaginator
     {
         Organization::findOrFail($organization_id);
 
         $this->guardAgainstCrossOrganizationAccess($actor_id, $organization_id);
 
-        return UserOrganization::with(['user', 'role'])
+        $paginator = UserOrganization::with(['user', 'role'])
             ->where('organization_id', $organization_id)
-            ->get();
+            ->paginate((int) ($filters['limit'] ?? 15));
+
+        $paginator->setCollection(
+            $paginator->getCollection()->map(fn ($item) => new OrganizationMemberResource($item))
+        );
+
+        return $paginator;
     }
 
     private function guardAgainstCrossOrganizationAccess(string $actor_id, string $organization_id): void

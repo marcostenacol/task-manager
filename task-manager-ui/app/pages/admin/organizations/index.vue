@@ -54,7 +54,7 @@
             <button class="btn-secondary" @click="showAddMemberModal = true">
               + Adicionar membro
             </button>
-            <button v-if="canTransferOwnership" class="btn-secondary" @click="showTransferModal = true">
+            <button v-if="canTransferOwnership" class="btn-secondary" @click="openTransferModal">
               Transferir titularidade
             </button>
           </div>
@@ -103,6 +103,12 @@
               </tbody>
             </table>
           </div>
+
+          <div v-if="membersMeta && membersMeta.last_page > 1" class="pagination">
+            <button class="btn-page" :disabled="membersPage <= 1" @click="changeMembersPage(membersPage - 1)">Anterior</button>
+            <span class="page-info">Página {{ membersMeta.current_page }} de {{ membersMeta.last_page }} ({{ membersMeta.total }} membros)</span>
+            <button class="btn-page" :disabled="membersPage >= membersMeta.last_page" @click="changeMembersPage(membersPage + 1)">Próxima</button>
+          </div>
         </div>
       </div>
     </div>
@@ -119,7 +125,7 @@
       :organization-id="selectedOrganizationId"
       :organization-roles="organizationRoles"
       @close="showAddMemberModal = false"
-      @added="fetchMembers(selectedOrganizationId)"
+      @added="fetchMembers(selectedOrganizationId, { page: membersPage })"
     />
 
     <TransferOwnershipModal
@@ -127,7 +133,7 @@
       :show="showTransferModal"
       :organization-id="selectedOrganizationId"
       :current-user-id="user?.id"
-      :members="members"
+      :members="transferModalMembers"
       @close="showTransferModal = false"
       @transferred="handleTransferred"
     />
@@ -167,6 +173,7 @@ import { computed, onMounted, ref, watch, watchEffect } from 'vue'
 import { Pencil, Trash2, X } from 'lucide-vue-next'
 import { useAuth } from '~/modules/auth/hooks/useAuth'
 import { useOrganizations } from '~/modules/organizations/hooks/useOrganizations'
+import { OrganizationService } from '~/modules/organizations/services/OrganizationService'
 import { useRoles } from '~/modules/admin/hooks/useRoles'
 import FoundOrganizationModal from '~/modules/organizations/components/FoundOrganizationModal.vue'
 import AddMemberModal from '~/modules/organizations/components/AddMemberModal.vue'
@@ -180,6 +187,7 @@ const { user, restoreSession } = useAuth()
 const {
   allOrganizations,
   members,
+  membersMeta,
   fetchAllOrganizations,
   fetchMembers,
   updateOrganization,
@@ -187,6 +195,8 @@ const {
   updateMemberRole,
   removeMember
 } = useOrganizations()
+const transferModalMembers = ref<typeof members.value>([])
+const membersPage = ref(1)
 const { roles, fetchRoles } = useRoles()
 
 const changingRoleUserId = ref('')
@@ -237,9 +247,23 @@ onMounted(async () => {
 async function selectOrganization(organizationId: string) {
   selectedOrganizationId.value = organizationId
   editingName.value = false
+  membersPage.value = 1
   const org = allOrganizations.value.find((item) => item.id === organizationId)
   orgName.value = org?.name || user.value?.organization?.name || ''
-  await fetchMembers(organizationId)
+  await fetchMembers(organizationId, { page: membersPage.value })
+}
+
+async function changeMembersPage(page: number) {
+  membersPage.value = page
+  await fetchMembers(selectedOrganizationId.value, { page })
+}
+
+async function openTransferModal() {
+  // O modal precisa de todos os membros pra escolher o novo titular, não só
+  // a página atual da tabela — busca uma lista à parte com limite alto.
+  const response = await OrganizationService.listMembers(selectedOrganizationId.value, { limit: 500 }) as any
+  transferModalMembers.value = response.data?.data || []
+  showTransferModal.value = true
 }
 
 watch(() => user.value?.organization, (organization) => {
@@ -293,7 +317,7 @@ async function handleFounded() {
 async function handleTransferred() {
   await restoreSession()
   if (selectedOrganizationId.value) {
-    await fetchMembers(selectedOrganizationId.value)
+    await fetchMembers(selectedOrganizationId.value, { page: membersPage.value })
   }
 }
 
@@ -304,7 +328,7 @@ async function handleChangeRole(userId: string, roleId: string) {
     if (!result.success) {
       window.alert(result.message)
     }
-    await fetchMembers(selectedOrganizationId.value)
+    await fetchMembers(selectedOrganizationId.value, { page: membersPage.value })
   } finally {
     changingRoleUserId.value = ''
   }
@@ -320,7 +344,7 @@ async function handleRemoveMember(userId: string) {
       window.alert(result.message)
       return
     }
-    await fetchMembers(selectedOrganizationId.value)
+    await fetchMembers(selectedOrganizationId.value, { page: membersPage.value })
   } finally {
     removingUserId.value = ''
   }
@@ -526,6 +550,38 @@ async function handleRemoveMember(userId: string) {
 .table-wrapper {
   overflow-x: auto;
   border-radius: 12px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.page-info {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.btn-page {
+  padding: 0.5rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--ink);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-page:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.btn-page:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .members-table {

@@ -42,8 +42,27 @@ test('org admin consegue ver os membros da própria organization', function () {
 
     $response->assertStatus(200)->assertJsonPath('success', true);
 
-    $emails = collect($response->json('data'))->pluck('email');
+    $emails = collect($response->json('data.data'))->pluck('email');
     expect($emails)->toContain($this->orgAdmin->email);
+});
+
+test('listagem de membros pagina de verdade (limit/page respeitados e total correto)', function () {
+    foreach (range(1, 4) as $i) {
+        $member = User::factory()->create([
+            'role_id' => $this->userRole->id,
+            'active_organization_id' => $this->org->id,
+            'password' => 'password123',
+        ]);
+        UserOrganization::create(['user_id' => $member->id, 'organization_id' => $this->org->id, 'role_id' => $this->userRole->id]);
+    }
+
+    // org admin já criado no beforeEach + 4 novos = 5 membros no total.
+    $response = withToken($this->orgAdminToken)->getJson("/api/v1/organizations/{$this->org->id}/members?limit=2&page=1");
+
+    $response->assertStatus(200);
+    expect($response->json('data.data'))->toHaveCount(2);
+    expect($response->json('data.total'))->toBe(5);
+    expect($response->json('data.last_page'))->toBe(3);
 });
 
 test('org admin não consegue ver os membros de outra organization', function () {
