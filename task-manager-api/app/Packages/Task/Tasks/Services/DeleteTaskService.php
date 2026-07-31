@@ -36,7 +36,7 @@ class DeleteTaskService
 
             // Invalida caches
             $this->clearCache('task_', $task_id);
-            $this->clearCache('tasks_user_', $user_id.'*');
+            $this->bumpCacheVersion('tasks_user_'.$user_id);
         });
     }
 }

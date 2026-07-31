@@ -40,7 +40,7 @@ class UpdateTaskService
 
             // Invalida caches
             $this->clearCache('task_', $task_id);
-            $this->clearCache('tasks_user_', $task->user_id.'*');
+            $this->bumpCacheVersion('tasks_user_'.$task->user_id);
 
             return new TaskResource($task->load(['status', 'priority']));
         });

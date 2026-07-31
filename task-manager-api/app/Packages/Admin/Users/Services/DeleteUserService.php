@@ -35,6 +35,7 @@ class DeleteUserService
 
         Cache::forget("admin_user_detail_{$userId}");
         $this->clearUserCache($userId);
+        $this->bumpCacheVersion('admin_users_list');
     }
 
     private function guardAgainstSelfDeletion(User $actor, User $target): void

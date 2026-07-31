@@ -47,12 +47,9 @@ class BanUserService
                 'reason' => $reason,
             ], $user->active_organization_id);
 
-            // Clear cache
             Cache::forget("admin_user_detail_{$userId}");
-            // Para a lista, como usamos MD5 nos filtros, o ideal seria tags,
-            // mas como não temos, limpamos a chave base (se possível) ou aceitamos o TTL.
-            // Aqui vou tentar limpar a chave de usuário no cache geral se existir.
             $this->clearUserCache($userId);
+            $this->bumpCacheVersion('admin_users_list');
         });
     }
 }

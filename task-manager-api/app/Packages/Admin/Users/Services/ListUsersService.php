@@ -21,7 +21,7 @@ class ListUsersService
         $organizationIds = $this->resolveOrganizationScopeService->execute($actorId);
 
         return $this->cache(
-            'admin_users_list_'.md5(json_encode($filters + ['_scope' => $organizationIds])),
+            'admin_users_list_v'.$this->cacheVersion('admin_users_list').'_'.md5(json_encode($filters + ['_scope' => $organizationIds])),
             function () use ($filters, $organizationIds) {
                 $paginator = $this->repository->listWithFilters($filters, $organizationIds);
 

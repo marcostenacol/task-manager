@@ -2,6 +2,7 @@
 
 namespace App\Packages\Admin\Users\Services;
 
+use App\Base\Traits\CacheTrait;
 use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
 use App\Packages\Admin\Organizations\Models\UserOrganization;
 use App\Packages\Admin\Organizations\Services\GuardRoleAssignmentService;
@@ -12,6 +13,8 @@ use Illuminate\Support\Facades\DB;
 
 class CreateUserService
 {
+    use CacheTrait;
+
     public function __construct(
         private RecordAuditLogService $recordAuditLogService,
         private GuardRoleAssignmentService $guardRoleAssignmentService,
@@ -19,7 +22,7 @@ class CreateUserService
 
     public function execute(array $data, string $actorId): User
     {
-        return DB::transaction(function () use ($data, $actorId) {
+        $user = DB::transaction(function () use ($data, $actorId) {
             $actor = User::findOrFail($actorId);
             $role = Role::findOrFail($data['role_id']);
             $activeStatus = UserStatus::where('slug', 'active')->firstOrFail();
@@ -54,6 +57,10 @@ class CreateUserService
 
             return $user;
         });
+
+        $this->bumpCacheVersion('admin_users_list');
+
+        return $user;
     }
 
     private function resolveOrganizationId(User $actor, Role $role, array $data): ?string

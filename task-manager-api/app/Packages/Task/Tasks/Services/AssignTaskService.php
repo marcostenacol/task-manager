@@ -38,8 +38,8 @@ class AssignTaskService
             ], $task->organization_id);
 
             $this->clearCache('task_', $task_id);
-            $this->clearCache('tasks_user_', $old_user_id.'*');
-            $this->clearCache('tasks_user_', $new_user_id.'*');
+            $this->bumpCacheVersion('tasks_user_'.$old_user_id);
+            $this->bumpCacheVersion('tasks_user_'.$new_user_id);
 
             return new TaskResource($task->load(['status', 'priority']));
         });

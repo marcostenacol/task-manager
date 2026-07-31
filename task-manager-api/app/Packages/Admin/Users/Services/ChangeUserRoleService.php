@@ -39,6 +39,7 @@ class ChangeUserRoleService
 
         Cache::forget("admin_user_detail_{$userId}");
         $this->clearUserCache($userId);
+        $this->bumpCacheVersion('admin_users_list');
     }
 
     private function guardAgainstEditingSuperiorOrEqual(User $actor, User $user): void

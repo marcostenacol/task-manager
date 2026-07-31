@@ -2,20 +2,24 @@
 
 namespace App\Packages\Admin\Users\Services;
 
+use App\Base\Traits\CacheTrait;
 use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
 use App\Packages\Admin\Roles\Models\Role;
 use App\Packages\Admin\Users\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class UpdateUserService
 {
+    use CacheTrait;
+
     public function __construct(
         private RecordAuditLogService $recordAuditLogService,
     ) {}
 
     public function execute(string $id, array $data, string $actorId): User
     {
-        return DB::transaction(function () use ($id, $data, $actorId) {
+        $user = DB::transaction(function () use ($id, $data, $actorId) {
             $actor = User::with('role')->findOrFail($actorId);
             $user = User::with('role')->findOrFail($id);
 
@@ -28,6 +32,11 @@ class UpdateUserService
 
             return $user;
         });
+
+        Cache::forget("admin_user_detail_{$id}");
+        $this->bumpCacheVersion('admin_users_list');
+
+        return $user;
     }
 
     private function guardAgainstEditingSuperiorOrEqual(User $actor, User $user): void

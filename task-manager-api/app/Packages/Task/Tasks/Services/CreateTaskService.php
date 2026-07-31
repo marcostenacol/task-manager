@@ -47,7 +47,7 @@ class CreateTaskService
             // Invalida cache de listagem do usuário
             // Como as chaves de listagem contêm hash de filtros, podemos limpar por prefixo se o driver suportar
             // Ou apenas confiar no TTL curto. Aqui vamos limpar a chave base de perfil se houver.
-            $this->clearCache('tasks_user_', $user_id.'*');
+            $this->bumpCacheVersion('tasks_user_'.$user_id);
 
             return new TaskResource($task->load(['status', 'priority']));
         });

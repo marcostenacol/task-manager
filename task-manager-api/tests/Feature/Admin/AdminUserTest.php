@@ -6,6 +6,7 @@ use App\Packages\Admin\Roles\Models\Role;
 use App\Packages\Admin\Users\Models\User;
 use App\Packages\Admin\UserStatuses\Models\UserStatus;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Str;
 
 use function Pest\Laravel\artisan;
 use function Pest\Laravel\postJson;
@@ -73,6 +74,59 @@ test('deve permitir que admin banir um usuário', function () {
         'id' => $this->user->id,
         'last_status_id' => UserStatus::where('slug', 'banned')->first()->id,
     ]);
+});
+
+test('com cache ligado, a listagem reflete o ban imediatamente (regressão de invalidação de cache)', function () {
+    config(['api.cache.use_cache' => true]);
+
+    // Filtra por e-mail pra não depender de paginação/dados pré-existentes.
+    $query = '?search='.urlencode($this->user->email);
+
+    // Aquece o cache da listagem antes do ban.
+    withToken($this->adminToken)->getJson('/api/v1/admin/users'.$query);
+
+    withToken($this->adminToken)
+        ->postJson("/api/v1/admin/users/{$this->user->id}/ban", ['reason' => 'Teste de invalidação de cache'])
+        ->assertStatus(200);
+
+    $response = withToken($this->adminToken)->getJson('/api/v1/admin/users'.$query);
+    $bannedUser = collect($response->json('data.data'))->firstWhere('id', $this->user->id);
+
+    expect($bannedUser)->not->toBeNull();
+    expect($bannedUser['status']['slug'])->toBe('banned');
+});
+
+test('com cache ligado, a listagem reflete um usuário recém-criado imediatamente (regressão de invalidação de cache)', function () {
+    config(['api.cache.use_cache' => true]);
+
+    // Owner global evita a resolução de organization (role nova é global-scope).
+    $ownerRole = Role::where('slug', 'owner')->first();
+    $owner = User::factory()->create(['role_id' => $ownerRole->id, 'global_role_id' => $ownerRole->id, 'password' => 'password123']);
+    $ownerToken = postJson(route('v1.auth.login'), [
+        'email' => $owner->email,
+        'password' => 'password123',
+    ])->json('data.access_token.token');
+
+    $newEmail = 'depois-do-cache-'.Str::random(6).'@example.com';
+    $query = '?search='.urlencode($newEmail);
+
+    // Aquece o cache da listagem (vazia) antes da criação.
+    withToken($ownerToken)->getJson('/api/v1/admin/users'.$query);
+
+    $newUserResponse = withToken($ownerToken)->postJson('/api/v1/admin/users', [
+        'name' => 'Usuário Criado Depois Do Cache',
+        'email' => $newEmail,
+        'password' => 'password123',
+        'role_id' => $this->adminRole->id,
+    ]);
+
+    $newUserResponse->assertStatus(201);
+    $newUserId = $newUserResponse->json('data.id');
+
+    $response = withToken($ownerToken)->getJson('/api/v1/admin/users'.$query);
+    $ids = collect($response->json('data.data'))->pluck('id');
+
+    expect($ids)->toContain($newUserId);
 });
 
 test('não deve permitir que admin promova um usuário a admin via edição (PUT)', function () {

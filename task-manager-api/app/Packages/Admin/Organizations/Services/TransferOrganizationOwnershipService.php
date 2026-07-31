@@ -7,6 +7,7 @@ use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
 use App\Packages\Admin\Organizations\Models\UserOrganization;
 use App\Packages\Admin\Roles\Models\Role;
 use App\Packages\Admin\Users\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class TransferOrganizationOwnershipService
@@ -45,6 +46,9 @@ class TransferOrganizationOwnershipService
 
             $this->clearUserCache($new_owner_user_id);
             $this->clearUserCache($actor_id);
+            Cache::forget("admin_user_detail_{$new_owner_user_id}");
+            Cache::forget("admin_user_detail_{$actor_id}");
+            $this->bumpCacheVersion('admin_users_list');
         });
     }
 

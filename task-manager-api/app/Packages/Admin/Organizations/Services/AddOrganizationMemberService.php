@@ -7,6 +7,7 @@ use App\Packages\Admin\AuditLogs\Services\RecordAuditLogService;
 use App\Packages\Admin\Organizations\Models\UserOrganization;
 use App\Packages\Admin\Roles\Models\Role;
 use App\Packages\Admin\Users\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class AddOrganizationMemberService
@@ -50,6 +51,8 @@ class AddOrganizationMemberService
             ], $target_organization_id);
 
             $this->clearUserCache($target_user_id);
+            Cache::forget("admin_user_detail_{$target_user_id}");
+            $this->bumpCacheVersion('admin_users_list');
 
             return $membership;
         });

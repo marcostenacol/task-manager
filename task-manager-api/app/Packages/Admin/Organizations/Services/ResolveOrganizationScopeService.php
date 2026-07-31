@@ -14,9 +14,9 @@ class ResolveOrganizationScopeService
      */
     public function execute(string $actorId): ?array
     {
-        $actor = User::findOrFail($actorId);
+        $actor = User::with('role')->findOrFail($actorId);
 
-        if ($actor->global_role_id !== null) {
+        if ($actor->global_role_id !== null || $actor->role->scope === 'global') {
             return null;
         }
 

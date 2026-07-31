@@ -41,6 +41,7 @@ class ActivateUserService
 
             Cache::forget("admin_user_detail_{$userId}");
             $this->clearUserCache($userId);
+            $this->bumpCacheVersion('admin_users_list');
         });
     }
 }

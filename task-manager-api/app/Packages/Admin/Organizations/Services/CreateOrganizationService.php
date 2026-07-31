@@ -8,6 +8,7 @@ use App\Packages\Admin\Organizations\Models\Organization;
 use App\Packages\Admin\Organizations\Models\UserOrganization;
 use App\Packages\Admin\Roles\Models\Role;
 use App\Packages\Admin\Users\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -59,5 +60,7 @@ class CreateOrganizationService
         ]);
 
         $this->clearUserCache($owner->id);
+        Cache::forget("admin_user_detail_{$owner->id}");
+        $this->bumpCacheVersion('admin_users_list');
     }
 }

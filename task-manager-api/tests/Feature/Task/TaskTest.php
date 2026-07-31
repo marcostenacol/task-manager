@@ -121,6 +121,47 @@ test('deve deletar uma tarefa', function () {
     $this->assertSoftDeleted('tasks', ['id' => $task->id]);
 });
 
+test('com cache ligado, a listagem reflete uma tarefa recém-criada imediatamente (regressão de invalidação de cache)', function () {
+    config(['api.cache.use_cache' => true]);
+
+    // Aquece o cache da listagem (vazia).
+    withToken($this->token)->getJson('/api/v1/tasks?search=Tarefa Pós Cache');
+
+    $createResponse = withToken($this->token)->postJson('/api/v1/tasks', [
+        'title' => 'Tarefa Pós Cache',
+        'status_id' => $this->statusPending->id,
+        'priority_id' => $this->priorityHigh->id,
+    ]);
+    $createResponse->assertStatus(201);
+    $newTaskId = $createResponse->json('data.id');
+
+    $response = withToken($this->token)->getJson('/api/v1/tasks?search=Tarefa Pós Cache');
+    $ids = collect($response->json('data.data'))->pluck('id');
+
+    expect($ids)->toContain($newTaskId);
+});
+
+test('com cache ligado, a listagem reflete a exclusão de uma tarefa imediatamente (regressão de invalidação de cache)', function () {
+    config(['api.cache.use_cache' => true]);
+
+    $task = Task::create([
+        'user_id' => $this->user->id,
+        'status_id' => $this->statusPending->id,
+        'priority_id' => $this->priorityHigh->id,
+        'title' => 'Tarefa Que Vai Ser Excluída',
+    ]);
+
+    // Aquece o cache da listagem (com a task ainda presente).
+    withToken($this->token)->getJson('/api/v1/tasks?search=Tarefa Que Vai Ser Excluída');
+
+    withToken($this->token)->deleteJson("/api/v1/tasks/{$task->id}")->assertStatus(200);
+
+    $response = withToken($this->token)->getJson('/api/v1/tasks?search=Tarefa Que Vai Ser Excluída');
+    $ids = collect($response->json('data.data'))->pluck('id');
+
+    expect($ids)->not->toContain($task->id);
+});
+
 test('listagem padrão não mostra tarefas concluídas', function () {
     Task::create([
         'user_id' => $this->user->id,
