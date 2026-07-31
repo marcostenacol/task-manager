@@ -2,7 +2,7 @@
 
 use App\Packages\Admin\Users\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use Illuminate\Support\Facades\Hash;
+
 use function Pest\Laravel\postJson;
 
 uses(DatabaseTransactions::class);
@@ -16,7 +16,6 @@ test('should login successfully with valid credentials', function () {
         'email' => 'login@example.com',
         'password' => 'password123',
     ]);
-
 
     $response->assertStatus(200)
         ->assertJsonPath('success', true)
@@ -33,9 +32,9 @@ test('should login successfully with valid credentials', function () {
                     'email',
                     'status',
                     'role',
-                    'permissions'
-                ]
-            ]
+                    'permissions',
+                ],
+            ],
         ]);
 });
 
@@ -79,7 +78,7 @@ test('should validate required fields on login', function () {
             'success',
             'message',
             'data' => [
-                'errors' => ['email', 'password']
-            ]
+                'errors' => ['email', 'password'],
+            ],
         ]);
 });

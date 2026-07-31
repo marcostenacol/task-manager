@@ -1,8 +1,8 @@
 <?php
 
-
-function isValidCpf($value): bool {
-    if (!$value) {
+function isValidCpf($value): bool
+{
+    if (! $value) {
         return false;
     }
 
@@ -30,24 +30,23 @@ function isValidCpf($value): bool {
             }
         }
     }
+
     return $valid;
 }
 
-function isValidCodeFamily($value): bool {
-    if (!$value) {
+function isValidCodeFamily($value): bool
+{
+    if (! $value) {
         return false;
     }
 
-    $code = trim((string)$value);
+    $code = trim((string) $value);
 
-    return (bool)preg_match('/^(\d{11}|\d{9}-\d{2})$/', $code);
+    return (bool) preg_match('/^(\d{11}|\d{9}-\d{2})$/', $code);
 }
 
-/**
- * @param $token
- * @return string|null
- */
-function handlerRequestToken($token): ?string {
+function handlerRequestToken($token): ?string
+{
     $split_token = explode(
         separator: '|',
         string: $token ?? request()->bearerToken()

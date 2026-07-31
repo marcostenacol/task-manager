@@ -12,21 +12,23 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class AuthenticateMiddleware {
-    use Response, CacheTrait;
+class AuthenticateMiddleware
+{
+    use CacheTrait, Response;
 
-    public function handle(Request $request, Closure $next, ...$abilities): mixed {
+    public function handle(Request $request, Closure $next, ...$abilities): mixed
+    {
         try {
             $token = handlerRequestToken($request->bearerToken());
-            
+
             $this->checkIfTokenIsValid(
                 data: app(TokenInCacheService::class)->execute($token)
             );
 
-            if (!$request->routeIs('v1.auth.terms-acceptance', 'v1.auth.logout', 'v1.auth.me')) {
+            if (! $request->routeIs('v1.auth.terms-acceptance', 'v1.auth.logout', 'v1.auth.me')) {
                 $userData = userObject();
                 // Verificação de termos de uso (se existir no seu projeto)
-                if ($userData && isset($userData->terms_accepted) && !$userData->terms_accepted) {
+                if ($userData && isset($userData->terms_accepted) && ! $userData->terms_accepted) {
                     return self::notAuthorizeExceptionResponse(
                         message: 'É necessário aceitar os termos de uso atualizados para continuar.',
                         status_code: 403
@@ -36,7 +38,7 @@ class AuthenticateMiddleware {
 
             if ($abilities) {
                 $permissions = data_get(entityObject(), 'user.permissions', []);
-                if (!(count(array_intersect($abilities, $permissions)) == count($abilities))) {
+                if (! (count(array_intersect($abilities, $permissions)) == count($abilities))) {
                     return self::notAuthorizeExceptionResponse(
                         message: 'Você não possui permissão para acessar esse recurso!',
                         status_code: 403
@@ -50,26 +52,25 @@ class AuthenticateMiddleware {
         }
     }
 
-    /**
-     * @param $data
-     * @return mixed
-     */
-    private function checkIfTokenIsValid($data = null): mixed {
-        if (!$data) {
+    private function checkIfTokenIsValid($data = null): mixed
+    {
+        if (! $data) {
             return self::notAuthorizeExceptionResponse(
                 message: 'Você precisa estar conectado para acessar esse recurso, por favor realize o login!'
             );
         }
 
-        $expirationMinutes = (int)SettingsEnum::getValue(SettingsEnum::TOKEN_EXPIRATION_MINUTES);
-        
+        $expirationMinutes = (int) SettingsEnum::getValue(SettingsEnum::TOKEN_EXPIRATION_MINUTES);
+
         if (isset($data->is_expired) && $data->is_expired) {
             $this->revokeToken(personal_access_token_id: $data->id, access_token: $data->token);
+
             return self::notAuthorizeExceptionResponse('Acesso expirado, por favor, realize o login novamente!');
         }
 
         if (Carbon::parse($data->created_at)->addMinutes($expirationMinutes) < now()) {
             $this->revokeToken(personal_access_token_id: $data->id, access_token: $data->token);
+
             return self::notAuthorizeExceptionResponse('Acesso expirado, por favor, realize o login novamente!');
         }
 
@@ -80,20 +81,21 @@ class AuthenticateMiddleware {
         return $data;
     }
 
-    private function revokeToken($personal_access_token_id, $access_token): void {
-        DB::statement("
+    private function revokeToken($personal_access_token_id, $access_token): void
+    {
+        DB::statement('
             UPDATE admin.personal_access_tokens PAT SET expires_at = now() WHERE PAT.id = ?;
-        ", [$personal_access_token_id]
+        ', [$personal_access_token_id]
         );
 
         $this->clearCache('token_', $access_token);
     }
 
     /**
-     * @return mixed
      * @throws Exception
      */
-    protected function failedAuthentication(): mixed {
+    protected function failedAuthentication(): mixed
+    {
         return self::notAuthorizeExceptionResponse();
     }
 }

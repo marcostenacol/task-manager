@@ -21,7 +21,7 @@ return new class extends Migration
                     $$;");
 
         // 2. Correção de Datatype Mismatch (varying[] -> text[])
-        DB::statement("create or replace function admin.get_permission_names_by_user_id(user_id_p uuid)
+        DB::statement('create or replace function admin.get_permission_names_by_user_id(user_id_p uuid)
             returns TABLE(data text[])
             language plpgsql
         as
@@ -38,7 +38,7 @@ return new class extends Migration
             )
             SELECT array_agg(DISTINCT name)::text[] AS data FROM tmp_permissions;
         END;
-        $$;");
+        $$;');
 
         // 3. Atualização para Retorno de Objetos de Token Detalhandos
         DB::statement("CREATE OR REPLACE FUNCTION admin.get_user_by_token(token_p text, dispatch_error boolean DEFAULT true)
@@ -133,7 +133,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Nota: O down não reverte o código das funções para o estado anterior, 
+        // Nota: O down não reverte o código das funções para o estado anterior,
         // apenas remove a função de geração de hash que é nova.
         DB::statement('DROP FUNCTION IF EXISTS admin.generate_password_hash(password text)');
     }

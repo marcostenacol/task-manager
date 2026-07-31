@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Packages\Task\Priorities\Models\TaskPriority;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class TaskPrioritySeeder extends Seeder

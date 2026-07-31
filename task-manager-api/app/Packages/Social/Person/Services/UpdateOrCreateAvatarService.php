@@ -22,7 +22,7 @@ class UpdateOrCreateAvatarService
 
         // Salva novo avatar
         $path = $file->store('avatars', 'public');
-        
+
         $user->update(['avatar_path' => $path]);
 
         // Invalida caches

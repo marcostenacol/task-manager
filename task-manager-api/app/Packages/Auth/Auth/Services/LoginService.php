@@ -3,6 +3,7 @@
 namespace App\Packages\Auth\Auth\Services;
 
 use App\Base\Traits\CacheTrait;
+use App\Packages\Auth\Auth\Repositories\AuthRepository;
 use App\Packages\Auth\Auth\Services\Cache\RefreshTokenInCacheService;
 use App\Packages\Auth\Auth\Services\Cache\TokenInCacheService;
 use App\Packages\Auth\Auth\Services\Cache\UserInCacheByTokenService;
@@ -13,9 +14,9 @@ class LoginService
 
     public function execute(string $username, string $password): mixed
     {
-        $response = app(\App\Packages\Auth\Auth\Repositories\AuthRepository::class)->processLogin($username, $password);
+        $response = app(AuthRepository::class)->processLogin($username, $password);
 
-        if (isset($response->success) && !$response->success) {
+        if (isset($response->success) && ! $response->success) {
             abort(400, $response->message);
         }
 

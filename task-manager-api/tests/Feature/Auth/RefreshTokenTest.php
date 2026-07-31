@@ -2,6 +2,7 @@
 
 use App\Packages\Admin\Users\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+
 use function Pest\Laravel\postJson;
 use function Pest\Laravel\withToken;
 
@@ -27,7 +28,6 @@ test('should refresh token successfully', function () {
         'refresh_token' => $refreshToken,
     ]);
 
-
     $refreshResponse->assertStatus(200)
         ->assertJsonPath('success', true)
         ->assertJsonPath('message', 'Token atualizado com sucesso.')
@@ -35,8 +35,8 @@ test('should refresh token successfully', function () {
             'data' => [
                 'access_token',
                 'refresh_token',
-                'user'
-            ]
+                'user',
+            ],
         ]);
 
     $newAccessToken = $refreshResponse->json('data.access_token.token');
@@ -74,5 +74,5 @@ test('should detect refresh token reuse (security)', function () {
     postJson(route('v1.auth.refresh'), [
         'refresh_token' => $refreshToken,
     ])->assertStatus(401)
-      ->assertJsonPath('message', 'Aviso de Segurança: Token de atualização inválido ou reciclado, logue novamente nas suas sessões!');
+        ->assertJsonPath('message', 'Aviso de Segurança: Token de atualização inválido ou reciclado, logue novamente nas suas sessões!');
 });

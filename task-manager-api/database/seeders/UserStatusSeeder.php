@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Packages\Admin\UserStatuses\Models\UserStatus;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class UserStatusSeeder extends Seeder

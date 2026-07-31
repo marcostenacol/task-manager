@@ -6,7 +6,6 @@ use Illuminate\Support\Str;
 
 trait HasSlug
 {
-
     public static function bootHasSlug()
     {
         static::creating(function ($model) {
@@ -28,7 +27,7 @@ trait HasSlug
         $originalSlug = $slug;
         $count = 1;
         while (static::where($slugColumn, $slug)->exists()) {
-            $slug = $originalSlug . '-' . $count;
+            $slug = $originalSlug.'-'.$count;
             $count++;
         }
 

@@ -11,10 +11,10 @@ return new class extends Migration
     public function up(): void
     {
         // Remove a função SHA-256 e sua auxiliar que foram criadas durante o debug
-        DB::statement("DROP FUNCTION IF EXISTS admin.check_hash_constant_time(text, text)");
-        
+        DB::statement('DROP FUNCTION IF EXISTS admin.check_hash_constant_time(text, text)');
+
         // Restaura a função de geração de hash para o modelo original (Blowfish)
-        DB::statement("DROP FUNCTION IF EXISTS admin.generate_password_hash(text)");
+        DB::statement('DROP FUNCTION IF EXISTS admin.generate_password_hash(text)');
         DB::statement("CREATE OR REPLACE FUNCTION admin.generate_password_hash(password text) returns text
                         language plpgsql
                     as
@@ -32,7 +32,5 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down(): void
-    {
-    }
+    public function down(): void {}
 };

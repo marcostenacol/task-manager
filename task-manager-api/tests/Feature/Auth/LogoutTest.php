@@ -2,8 +2,8 @@
 
 use App\Packages\Admin\Users\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+
 use function Pest\Laravel\postJson;
-use function Pest\Laravel\getJson;
 use function Pest\Laravel\withToken;
 
 uses(DatabaseTransactions::class);

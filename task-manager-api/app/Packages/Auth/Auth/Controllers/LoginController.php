@@ -12,11 +12,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class LoginController extends BaseController
 {
-    /**
-     * @param LoginRequest $request
-     * @param LoginService $service
-     * @return JsonResponse
-     */
     public function login(LoginRequest $request, LoginService $service): JsonResponse
     {
         try {

@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Packages\Task\Statuses\Models\TaskStatus;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
 class TaskStatusSeeder extends Seeder

@@ -1,12 +1,12 @@
 <?php
 
-use App\Packages\Admin\Users\Models\User;
 use App\Packages\Admin\Roles\Models\Role;
+use App\Packages\Admin\Users\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
-use function Pest\Laravel\postJson;
-use function Pest\Laravel\getJson;
-use function Pest\Laravel\withToken;
+
 use function Pest\Laravel\artisan;
+use function Pest\Laravel\postJson;
+use function Pest\Laravel\withToken;
 
 uses(DatabaseTransactions::class);
 
@@ -20,7 +20,7 @@ test('usuário admin tem todas as permissões e pode acessar rotas protegidas', 
     $user = User::factory()->create([
         'email' => 'admin-test@example.com',
         'password' => 'password123',
-        'role_id' => $adminRole->id
+        'role_id' => $adminRole->id,
     ]);
 
     // Login
@@ -43,7 +43,7 @@ test('usuário comum sem permissão recebe 403 em rotas admin', function () {
     $user = User::factory()->create([
         'email' => 'user-test@example.com',
         'password' => 'password123',
-        'role_id' => $userRole->id
+        'role_id' => $userRole->id,
     ]);
 
     // Login

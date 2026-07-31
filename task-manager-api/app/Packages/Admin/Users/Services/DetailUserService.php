@@ -2,9 +2,9 @@
 
 namespace App\Packages\Admin\Users\Services;
 
+use App\Base\Traits\CacheTrait;
 use App\Packages\Admin\Users\Repositories\UserRepository;
 use App\Packages\Admin\Users\Resources\AdminUserResource;
-use App\Base\Traits\CacheTrait;
 
 class DetailUserService
 {
@@ -22,7 +22,7 @@ class DetailUserService
             config('api.cache.ttl', 86400)
         );
 
-        if (!$user) {
+        if (! $user) {
             throw new \Exception('Usuário não encontrado.', 404);
         }
 

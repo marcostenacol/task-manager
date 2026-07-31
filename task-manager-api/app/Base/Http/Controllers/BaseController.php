@@ -8,7 +8,7 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller;
 
-class BaseController extends Controller {
-
-    use AuditLog, ValidatesRequests, AuthorizesRequests, Response;
+class BaseController extends Controller
+{
+    use AuditLog, AuthorizesRequests, Response, ValidatesRequests;
 }

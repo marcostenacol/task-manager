@@ -9,6 +9,7 @@ trait HasLinks
     public function links(): array
     {
         $class = Str::plural(mb_strtolower(class_basename($this)));
+
         return [
             [
                 'rel' => 'self',
@@ -19,7 +20,7 @@ trait HasLinks
                 'rel' => 'update',
                 'href' => route("{$class}.update", $this),
                 'method' => 'PUT',
-            ]
+            ],
         ];
     }
 }

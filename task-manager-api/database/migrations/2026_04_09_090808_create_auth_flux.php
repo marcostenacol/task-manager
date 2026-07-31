@@ -39,7 +39,7 @@ BEGIN
 END;
 $$;");
 
-        DB::statement("create or replace function admin.get_permission_names_by_user_id(user_id_p uuid)
+        DB::statement('create or replace function admin.get_permission_names_by_user_id(user_id_p uuid)
     returns TABLE(data text[])
     language plpgsql
 as
@@ -56,7 +56,7 @@ BEGIN
     )
     SELECT array_agg(DISTINCT name) AS data FROM tmp_permissions;
 END;
-$$;");
+$$;');
 
         DB::statement("create or replace function admin.generate_bearer_token_com_abilities(user_id_p uuid)
     returns TABLE

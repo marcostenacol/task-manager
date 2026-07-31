@@ -18,7 +18,7 @@ class LogoutService
         if ($userData) {
             $this->clearUserCache($userData->id);
         }
-        
+
         $this->clearCache('token_', $token);
     }
 }

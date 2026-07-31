@@ -48,6 +48,7 @@ class CriarModuloCommand extends Command
 
         if (empty($parts)) {
             $this->error('Nome do pacote inválido.');
+
             return 1;
         }
 
@@ -72,7 +73,7 @@ class CriarModuloCommand extends Command
 
     protected function criarDiretorios(): void
     {
-        $basePath = app_path('Packages/' . $this->modulePath);
+        $basePath = app_path('Packages/'.$this->modulePath);
 
         $directories = [
             'Controllers',
@@ -91,44 +92,46 @@ class CriarModuloCommand extends Command
         foreach ($directories as $dir) {
             $path = "{$basePath}/{$dir}";
 
-            if (!$this->files->isDirectory($path)) {
+            if (! $this->files->isDirectory($path)) {
                 $this->files->makeDirectory($path, 0755, true);
                 $this->line("  ✔ Diretório criado: {$path}");
             }
 
-//            // Cria arquivo .gitkeep para garantir que pastas vazias sejam rastreadas pelo Git
-//            $gitkeepPath = "{$path}/.gitkeep";
-//            if (!$this->files->exists($gitkeepPath)) {
-//                $this->files->put($gitkeepPath, '');
-//                $this->line("  ✔ Arquivo .gitkeep criado: {$gitkeepPath}");
-//            }
+            //            // Cria arquivo .gitkeep para garantir que pastas vazias sejam rastreadas pelo Git
+            //            $gitkeepPath = "{$path}/.gitkeep";
+            //            if (!$this->files->exists($gitkeepPath)) {
+            //                $this->files->put($gitkeepPath, '');
+            //                $this->line("  ✔ Arquivo .gitkeep criado: {$gitkeepPath}");
+            //            }
         }
     }
 
     protected function criarController(): void
     {
         $moduleName = class_basename(str_replace('/', '\\', $this->modulePath));
-        $controllerName = $moduleName . 'Controller';
+        $controllerName = $moduleName.'Controller';
 
         $path = app_path(
-            'Packages/' . $this->modulePath . '/Controllers/' . $controllerName . '.php'
+            'Packages/'.$this->modulePath.'/Controllers/'.$controllerName.'.php'
         );
 
         if ($this->files->exists($path)) {
             $this->warn("Controller {$controllerName} já existe.");
+
             return;
         }
 
         $stubPath = base_path('stubs/controller.stub');
 
-        if (!$this->files->exists($stubPath)) {
+        if (! $this->files->exists($stubPath)) {
             $this->error('Arquivo stub controller.stub não encontrado.');
+
             return;
         }
 
         $stub = $this->files->get($stubPath);
 
-        $namespace = 'App\\Packages\\' . $this->moduleNamespace . '\\Controllers';
+        $namespace = 'App\\Packages\\'.$this->moduleNamespace.'\\Controllers';
 
         $stub = str_replace('{{namespace}}', $namespace, $stub);
         $stub = str_replace('{{class}}', $controllerName, $stub);

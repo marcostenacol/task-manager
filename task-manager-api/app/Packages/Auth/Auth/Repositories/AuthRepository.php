@@ -1,4 +1,5 @@
 <?php
+
 /**
  * [REEST] Repository para autenticação via funções do Postgres.
  */
@@ -11,10 +12,6 @@ class AuthRepository
 {
     /**
      * Processa o login através da função admin.process_login.
-     *
-     * @param string $username
-     * @param string $password
-     * @return object
      */
     public function processLogin(string $username, string $password): object
     {
@@ -28,9 +25,6 @@ class AuthRepository
 
     /**
      * Processa o refresh do token.
-     *
-     * @param string $refreshToken
-     * @return object
      */
     public function processRefresh(string $refreshToken): object
     {
@@ -44,9 +38,6 @@ class AuthRepository
 
     /**
      * Realiza o logout invalidando os tokens.
-     *
-     * @param string $token
-     * @return void
      */
     public function logout(string $token): void
     {

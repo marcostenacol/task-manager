@@ -9,6 +9,7 @@ class TaskStatus extends Model
     protected $table = 'public.task_statuses';
 
     public $incrementing = false;
+
     protected $keyType = 'string';
 
     protected $fillable = [

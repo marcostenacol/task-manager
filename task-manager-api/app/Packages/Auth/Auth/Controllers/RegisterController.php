@@ -12,11 +12,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RegisterController extends BaseController
 {
-    /**
-     * @param RegisterRequest $request
-     * @param RegisterService $service
-     * @return JsonResponse
-     */
     public function register(RegisterRequest $request, RegisterService $service): JsonResponse
     {
         try {
