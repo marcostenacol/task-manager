@@ -198,7 +198,7 @@ const handleAdd = () => {
   width: 100%;
   padding: 0.7rem;
   background: var(--accent-primary);
-  color: #000;
+  color: var(--accent-ink);
   border: none;
   border-radius: 10px;
   font-weight: 700;

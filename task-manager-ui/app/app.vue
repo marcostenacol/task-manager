@@ -18,7 +18,7 @@ useHead({
   link: [
     { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
     { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-    { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap' }
+    { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap' }
   ]
 })
 </script>
@@ -26,7 +26,9 @@ useHead({
 <style>
 :root {
   --font-primary: 'Inter', sans-serif;
-  --font-secondary: 'Outfit', sans-serif;
+  /* Condensada em caixa alta — referência a placa de oficina/canteiro de obra, no lugar da
+     geométrica arredondada (Outfit) que deixava o produto com cara de template SaaS genérico. */
+  --font-secondary: 'Oswald', 'Arial Narrow', sans-serif;
 }
 
 body {

@@ -34,7 +34,7 @@ definePageMeta({
   justify-content: center;
   position: relative;
   overflow: hidden;
-  background-color: var(--bg-primary);
+  background-color: var(--bg);
   padding: 2rem;
 }
 
@@ -51,7 +51,7 @@ definePageMeta({
   top: 2rem;
   left: 2rem;
   z-index: 20;
-  color: var(--text-secondary);
+  color: var(--muted);
   text-decoration: none;
   font-weight: 500;
   display: flex;

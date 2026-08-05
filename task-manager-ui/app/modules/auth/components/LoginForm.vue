@@ -1,6 +1,7 @@
 <template>
-  <div class="auth-card glass">
+  <div class="auth-card glass wk-panel wk-brackets">
     <div class="auth-header">
+      <span class="wk-stencil auth-eyebrow">Acesso / Portaria</span>
       <h2 class="font-outfit">{{ t('auth.loginTitle') }}</h2>
       <p>{{ t('auth.loginSubtitle') }}</p>
     </div>
@@ -97,7 +98,6 @@ async function handleSubmit() {
   width: 100%;
   max-width: 450px;
   padding: 3rem;
-  border-radius: 28px;
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
@@ -109,16 +109,20 @@ async function handleSubmit() {
   margin-bottom: 2.5rem;
 }
 
+.auth-eyebrow {
+  display: block;
+  margin-bottom: 0.75rem;
+  color: var(--accent);
+}
+
 .auth-header h2 {
   font-size: 2rem;
   margin-bottom: 0.5rem;
-  background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--ink);
 }
 
 .auth-header p {
-  color: var(--text-secondary);
+  color: var(--muted);
   font-size: 0.95rem;
 }
 
@@ -137,7 +141,7 @@ async function handleSubmit() {
 .input-group label {
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--muted);
   margin-left: 0.5rem;
 }
 
@@ -156,10 +160,10 @@ async function handleSubmit() {
 .input-wrapper input {
   width: 100%;
   padding: 1rem 1rem 1rem 3rem;
-  background: rgba(15, 23, 42, 0.6);
+  background: var(--surface-2);
   border: 1px solid var(--glass-border);
   border-radius: 14px;
-  color: #fff;
+  color: var(--ink);
   font-size: 1rem;
   transition: all 0.3s ease;
 }
@@ -167,8 +171,8 @@ async function handleSubmit() {
 .input-wrapper input:focus {
   outline: none;
   border-color: var(--accent-primary);
-  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1);
-  background: rgba(15, 23, 42, 0.8);
+  box-shadow: 0 0 0 4px var(--accent-soft);
+  background: var(--surface);
 }
 
 .auth-actions {
@@ -183,7 +187,7 @@ async function handleSubmit() {
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
-  color: var(--text-secondary);
+  color: var(--muted);
 }
 
 .forgot-password {
@@ -202,11 +206,14 @@ async function handleSubmit() {
 }
 
 .btn-auth {
+  font-family: var(--font-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
   margin-top: 1rem;
   padding: 1rem;
-  border-radius: 14px;
-  background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-  color: #000;
+  border-radius: 0;
+  background: var(--accent);
+  color: var(--accent-ink);
   font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
@@ -219,7 +226,7 @@ async function handleSubmit() {
 
 .btn-auth:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(56, 189, 248, 0.4);
+  box-shadow: var(--shadow);
 }
 
 .btn-auth:active:not(:disabled) {
@@ -243,8 +250,8 @@ async function handleSubmit() {
 
 .info-message {
   padding: 0.8rem;
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-soft);
   border-radius: 10px;
   color: var(--accent-primary);
   font-size: 0.85rem;
@@ -255,7 +262,7 @@ async function handleSubmit() {
   margin-top: 2rem;
   text-align: center;
   font-size: 0.9rem;
-  color: var(--text-secondary);
+  color: var(--muted);
 }
 
 .auth-footer a {
@@ -270,7 +277,7 @@ async function handleSubmit() {
   height: 20px;
   border: 3px solid rgba(0, 0, 0, 0.1);
   border-radius: 50%;
-  border-top-color: #000;
+  border-top-color: var(--accent-ink);
   animation: spin 0.8s linear infinite;
 }
 

@@ -72,15 +72,17 @@ onMounted(async () => {
     <div>
         <!-- Header -->
         <div class="page-header">
-            <div>
+            <div class="page-header-text">
+                <span class="wk-stencil page-eyebrow">Setor 01 / Bancada</span>
                 <h1 class="page-title">
                     Suas <span class="gradient-title">Tarefas</span>
                 </h1>
+                <hr class="wk-hazard-rule page-rule">
                 <p class="page-subtitle">Gerencie sua produtividade com foco e clareza.</p>
             </div>
 
             <button
-                class="btn-new-task"
+                class="btn-new-task wk-panel"
                 @click="openCreateModal"
             >
                 <Plus class="btn-icon" :size="20" />
@@ -157,7 +159,7 @@ onMounted(async () => {
                 </div>
             </div>
 
-            <div v-else class="empty-state">
+            <div v-else class="empty-state wk-panel wk-brackets">
                 <div class="empty-icon">
                     <FolderOpen class="empty-svg-icon" :size="32" />
                 </div>
@@ -200,6 +202,22 @@ onMounted(async () => {
     }
 }
 
+.page-header-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.page-eyebrow {
+    margin-bottom: 0.5rem;
+    color: var(--accent);
+}
+
+.page-rule {
+    width: 84px;
+    margin: 0.75rem 0 0;
+}
+
 .page-title {
     font-size: 2.25rem;
     font-weight: 800;
@@ -213,9 +231,7 @@ onMounted(async () => {
 }
 
 .gradient-title {
-    background: linear-gradient(135deg, var(--ink), var(--accent));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--accent);
 }
 
 .btn-new-task {
@@ -227,7 +243,10 @@ onMounted(async () => {
     background: var(--accent);
     color: var(--accent-ink);
     border: none;
-    border-radius: 14px;
+    font-family: var(--font-secondary);
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
     font-weight: 700;
     cursor: pointer;
     box-shadow: var(--shadow);
@@ -258,12 +277,11 @@ onMounted(async () => {
     padding: 0.25rem;
     background: var(--surface-2);
     border: 1px solid var(--border);
-    border-radius: 12px;
 }
 
 .view-switcher-btn {
     padding: 0.375rem 1rem;
-    border-radius: 8px;
+    border-radius: 0;
     border: none;
     background: transparent;
     color: var(--muted);
@@ -288,12 +306,11 @@ onMounted(async () => {
     padding: 0.25rem;
     background: var(--surface-2);
     border: 1px solid var(--border);
-    border-radius: 12px;
 }
 
 .status-tab-btn {
     padding: 0.375rem 1rem;
-    border-radius: 8px;
+    border-radius: 0;
     border: none;
     background: transparent;
     color: var(--muted);
@@ -358,17 +375,16 @@ onMounted(async () => {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 5rem 0;
+    padding: 5rem 1.5rem;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 18px;
 }
 
 .empty-icon {
     width: 4rem;
     height: 4rem;
     background: var(--surface-2);
-    border-radius: 18px;
+    border: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;

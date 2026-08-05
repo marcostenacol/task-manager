@@ -178,7 +178,7 @@ const cancel = () => {
 .btn-upload {
   padding: 0.8rem;
   background: var(--accent-primary);
-  color: #000;
+  color: var(--accent-ink);
   border: none;
   border-radius: 12px;
   font-weight: 700;

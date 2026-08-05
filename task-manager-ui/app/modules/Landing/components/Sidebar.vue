@@ -35,13 +35,18 @@
       </nav>
 
       <div class="sidebar-footer">
-        <div class="user-info">
+        <NuxtLink
+          to="/profile"
+          class="user-info user-info-link"
+          :class="{ active: isActive('/profile') }"
+          @click="mobileOpen = false"
+        >
           <div class="avatar">
             <img v-if="profile?.avatar_path" :src="profile.avatar_path" alt="Avatar" class="avatar-image">
             <template v-else>{{ user?.name?.charAt(0) || 'U' }}</template>
           </div>
           <span class="user-name">{{ user?.name }}</span>
-        </div>
+        </NuxtLink>
         <button class="logout-btn" @click="handleLogout">
           <LogOut :size="16" /> {{ t('nav.logout') }}
         </button>
@@ -96,7 +101,6 @@ const canManageMembers = computed(() => user.value?.permissions?.includes('admin
 const navItems = computed(() => {
   const items = [
     { label: t('nav.tasks'), to: '/tasks' },
-    { label: t('nav.profile'), to: '/profile' },
   ]
   if (isGlobalAdmin.value) {
     items.push({ label: t('nav.users'), to: '/admin/users' })
@@ -241,6 +245,26 @@ function handleLogout() {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.user-info-link {
+  text-decoration: none;
+  padding: 6px 8px;
+  margin: -6px -8px;
+  border-radius: 10px;
+  transition: background-color 0.15s ease;
+}
+
+.user-info-link:hover {
+  background: var(--surface-2);
+}
+
+.user-info-link.active {
+  background: var(--accent-soft);
+}
+
+.user-info-link.active .user-name {
+  color: var(--accent);
 }
 
 .avatar {

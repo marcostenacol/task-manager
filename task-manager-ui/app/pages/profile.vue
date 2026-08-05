@@ -88,7 +88,7 @@ onMounted(() => {
 
 .page-header {
   padding: 4rem 0 2rem;
-  background: linear-gradient(to bottom, rgba(15, 23, 42, 0.8), transparent);
+  background: linear-gradient(to bottom, var(--surface), transparent);
 }
 
 .container {
@@ -100,9 +100,7 @@ onMounted(() => {
 .title {
   font-size: 2.5rem;
   font-weight: 800;
-  background: linear-gradient(135deg, var(--ink), var(--accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--ink);
   margin-bottom: 0.5rem;
 }
 
@@ -155,7 +153,7 @@ onMounted(() => {
   margin-top: 1rem;
   padding: 0.6rem 1.2rem;
   background: var(--accent);
-  color: #000;
+  color: var(--accent-ink);
   border: none;
   border-radius: 10px;
   font-weight: 700;

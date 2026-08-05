@@ -142,7 +142,7 @@ const handleSubmit = () => {
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   border: none;
   border-radius: 12px;
-  color: #000;
+  color: var(--accent-ink);
   font-weight: 700;
   cursor: pointer;
   transition: all 0.3s;

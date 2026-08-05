@@ -86,7 +86,7 @@ defineProps<{
   font-size: 2rem;
   font-weight: 800;
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-  color: #000;
+  color: var(--accent-ink);
 }
 
 .user-name {
@@ -133,12 +133,12 @@ defineProps<{
 
 .status-badge.active {
   background: rgba(34, 197, 94, 0.2);
-  color: #4ade80;
+  color: var(--success);
 }
 
 .status-badge.banned {
   background: rgba(244, 63, 94, 0.2);
-  color: #fb7185;
+  color: var(--danger);
 }
 
 .role-text, .bio-text {

@@ -1,38 +1,44 @@
 :root {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --accent-primary: #38bdf8;
-  --accent-secondary: #818cf8;
-  --glass-bg: rgba(30, 41, 59, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  /* Oficina: bege concreto + tinta, ferrugem como único acento — referência a placa de
+     canteiro de obra/oficina, no lugar do teal/indigo genérico de SaaS. */
+  --bg-primary: #17140f;
+  --bg-secondary: #211c15;
+  --text-primary: #ece7dc;
+  --text-secondary: #a89d87;
+  --accent-primary: #b8502f;
+  --accent-secondary: #b8502f;
+  --glass-bg: rgba(33, 28, 21, 0.7);
+  --glass-border: rgba(236, 231, 220, 0.1);
   --bg: var(--bg-primary);
   --surface: var(--bg-secondary);
-  --surface-2: rgba(255, 255, 255, 0.06);
+  --surface-2: rgba(236, 231, 220, 0.06);
   --ink: var(--text-primary);
   --muted: var(--text-secondary);
   --border: var(--glass-border);
-  --accent: #4fb3ac;
-  --accent-ink: #0a1615;
-  --accent-soft: rgba(79, 179, 172, 0.15);
-  --success: #4ade80;
-  --danger: #f28b74;
+  --accent: #c1613c;
+  --accent-ink: #17140f;
+  --accent-soft: rgba(193, 97, 60, 0.15);
+  --success: #7a9a5c;
+  --danger: #c1613c;
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -10px rgba(0, 0, 0, 0.55);
 }
 
 :root[data-theme="light"] {
-  --bg: #eef0f1;
-  --surface: #ffffff;
-  --surface-2: #f7f8f8;
-  --ink: #14181a;
-  --muted: #667077;
-  --border: rgba(20, 24, 26, 0.06);
-  --accent: #0f5c5c;
-  --accent-ink: #ffffff;
-  --accent-soft: #e4efee;
-  --success: #1a7a4c;
-  --danger: #b3402e;
+  --bg: #ece7dd;
+  --surface: #f7f4ec;
+  --surface-2: #efe9db;
+  --ink: #23201a;
+  --muted: #6b6355;
+  --text-primary: #23201a;
+  --text-secondary: #6b6355;
+  --border: rgba(35, 32, 26, 0.1);
+  --glass-bg: rgba(247, 244, 236, 0.75);
+  --glass-border: rgba(35, 32, 26, 0.1);
+  --accent: #b8502f;
+  --accent-ink: #f7f4ec;
+  --accent-soft: #e7d9c9;
+  --success: #4c6b38;
+  --danger: #a83f2e;
   --shadow: 0 1px 2px rgba(16, 24, 26, 0.04), 0 8px 24px -8px rgba(16, 24, 26, 0.1);
 }
 
@@ -48,4 +54,109 @@ body {
   color: var(--ink);
   line-height: 1.6;
   overflow-x: hidden;
+}
+
+/* ==========================================================================
+   Primitivas visuais "Oficina" — devices estruturais reaproveitáveis.
+   Vivem aqui (e não em <style scoped>) porque a identidade precisa ser a mesma
+   em todas as telas; um `scoped` por componente já divergiu no passado.
+   ========================================================================== */
+
+:root {
+  --edge: 3px;          /* raio "cortado a serra" — quase reto, nunca pill */
+  --cut: 14px;          /* tamanho do canto chanfrado dos painéis */
+  --bracket: 12px;      /* comprimento das cantoneiras em L */
+}
+
+/* Painel de chapa: canto superior direito chanfrado, resto reto. */
+.wk-panel {
+  border-radius: 0;
+  clip-path: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+}
+
+/* Cantoneiras em L (marca de registro de estêncil industrial) nos 4 cantos. */
+.wk-brackets {
+  position: relative;
+}
+
+.wk-brackets::before,
+.wk-brackets::after {
+  content: '';
+  position: absolute;
+  width: var(--bracket);
+  height: var(--bracket);
+  border: 2px solid var(--accent);
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.wk-brackets::before {
+  top: 8px;
+  left: 8px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.wk-brackets::after {
+  bottom: 8px;
+  right: 8px;
+  border-left: none;
+  border-top: none;
+}
+
+.wk-brackets:hover::before,
+.wk-brackets:hover::after {
+  opacity: 1;
+}
+
+/* Etiqueta de estêncil: caixa alta, muito espaçada, monoespaçada. */
+.wk-stencil {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--muted);
+}
+
+/* Selo carimbado: retângulo reto com borda, não pill colorida. */
+.wk-stamp {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid currentColor;
+  border-radius: 0;
+  background: transparent;
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+}
+
+/* Faixa de risco (zebrado diagonal) — divisor/indicador de urgência. */
+.wk-hazard {
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--accent) 0 6px,
+    transparent 6px 12px
+  );
+}
+
+.wk-hazard-rule {
+  height: 6px;
+  border: none;
+  background-image: repeating-linear-gradient(
+    45deg,
+    var(--accent) 0 5px,
+    transparent 5px 10px
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wk-brackets::before,
+  .wk-brackets::after {
+    transition: none;
+  }
 }

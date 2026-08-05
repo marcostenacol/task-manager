@@ -29,23 +29,23 @@ const formatDate = (date: string) => {
 
 <template>
     <div
-        class="task-card"
+        class="task-card wk-panel wk-brackets"
         @click="emit('click', task)"
     >
         <div
             class="priority-line"
-            :class="[priorityColors[task.priority.slug] || 'priority-low']"
+            :class="[priorityColors[task.priority.slug] || 'priority-low', { 'wk-hazard': task.priority.slug === 'urgent' }]"
         />
 
         <div class="card-body">
             <div class="card-header">
                 <h3 class="card-title">
                     {{ task.title }}
-                    <span v-if="task.visibility === 'organization'" class="org-badge" title="Task da organization">Org</span>
+                    <span v-if="task.visibility === 'organization'" class="org-badge wk-stencil" title="Task da organization">Org</span>
                 </h3>
                 <div class="card-header-actions">
                     <span
-                        class="status-badge"
+                        class="status-badge wk-stamp"
                         :class="[statusColors[task.status.slug]]"
                     >
                         {{ task.status.name }}
@@ -62,7 +62,7 @@ const formatDate = (date: string) => {
 
             <div class="card-footer">
                 <span
-                    class="priority-badge"
+                    class="priority-badge wk-stamp"
                     :class="[priorityColors[task.priority.slug]]"
                 >
                     {{ task.priority.name }}
@@ -82,8 +82,7 @@ const formatDate = (date: string) => {
     position: relative;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 1.25rem;
+    padding: 1.25rem 1.25rem 1.25rem 1.5rem;
     cursor: pointer;
     overflow: hidden;
     transition: background 0.2s;
@@ -101,14 +100,14 @@ const formatDate = (date: string) => {
     position: absolute;
     top: 0;
     left: 0;
-    width: 4px;
+    width: 6px;
     height: 100%;
 }
 
-.priority-low { background: var(--success); }
-.priority-medium { background: #d99a3d; }
-.priority-high { background: #d9773d; }
-.priority-urgent { background: var(--danger); }
+.priority-line.priority-low { background: var(--success); }
+.priority-line.priority-medium { background: #d99a3d; }
+.priority-line.priority-high { background: #d9773d; }
+.priority-line.priority-urgent { background: var(--danger); }
 
 .card-body {
     display: flex;
@@ -124,6 +123,7 @@ const formatDate = (date: string) => {
 }
 
 .card-title {
+    padding-right: 0.75rem;
     color: var(--ink);
     font-weight: 600;
     font-size: 1.125rem;
@@ -133,13 +133,8 @@ const formatDate = (date: string) => {
 
 .org-badge {
     display: inline-block;
-    margin-left: 0.4rem;
-    padding: 0.1rem 0.4rem;
-    border-radius: 6px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
+    margin-left: 0.5rem;
+    padding: 0.1rem 0.35rem;
     background: var(--accent-soft);
     color: var(--accent);
     vertical-align: middle;
@@ -147,13 +142,6 @@ const formatDate = (date: string) => {
 
 .status-badge {
     flex-shrink: 0;
-    padding: 0.25rem 0.625rem;
-    border-radius: 999px;
-    font-size: 0.625rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    background: var(--surface-2);
     color: var(--muted);
 }
 
@@ -185,9 +173,9 @@ const formatDate = (date: string) => {
     height: 1rem;
 }
 
-.status-pending { background: var(--surface-2); color: var(--muted); }
-.status-in-progress { background: var(--accent-soft); color: var(--accent); }
-.status-done { background: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success); }
+.status-pending { color: var(--muted); }
+.status-in-progress { color: var(--accent); }
+.status-done { color: var(--success); }
 
 .card-description {
     color: var(--muted);
@@ -204,20 +192,14 @@ const formatDate = (date: string) => {
     align-items: center;
     margin-top: 0.5rem;
     padding-top: 1rem;
-    border-top: 1px solid var(--border);
+    border-top: 1px dashed var(--border);
 }
 
-.priority-badge {
-    padding: 0.125rem 0.5rem;
-    border-radius: 6px;
-    font-size: 0.625rem;
-    font-weight: 500;
-}
-
-.priority-badge.priority-low { background: color-mix(in srgb, var(--success) 15%, transparent); color: var(--success); }
-.priority-badge.priority-medium { background: color-mix(in srgb, #d99a3d 15%, transparent); color: #d99a3d; }
-.priority-badge.priority-high { background: color-mix(in srgb, #d9773d 15%, transparent); color: #d9773d; }
-.priority-badge.priority-urgent { background: color-mix(in srgb, var(--danger) 15%, transparent); color: var(--danger); }
+/* A prioridade é lida como etiqueta estampada na peça, não como pill de status. */
+.priority-badge.priority-low { color: var(--success); }
+.priority-badge.priority-medium { color: #d99a3d; }
+.priority-badge.priority-high { color: #d9773d; }
+.priority-badge.priority-urgent { color: var(--danger); }
 
 .due-date {
     display: flex;

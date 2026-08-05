@@ -128,7 +128,10 @@ const handleLogout = () => {
   padding: 0.5rem 1.2rem;
   background: var(--accent);
   color: var(--accent-ink);
-  border-radius: 10px;
+  border-radius: 0;
+  font-family: var(--font-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   font-weight: 600;
   text-decoration: none;
   transition: all 0.3s;
