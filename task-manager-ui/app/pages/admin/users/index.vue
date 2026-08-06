@@ -1,43 +1,43 @@
 <template>
   <div>
     <div v-if="accessDenied" class="access-denied">
-      <h2>Acesso Negado</h2>
-      <p>Você não tem permissão para acessar esta página.</p>
-      <NuxtLink to="/tasks">Voltar para tarefas</NuxtLink>
+      <h2>{{ t('admin.accessDenied') }}</h2>
+      <p>{{ t('admin.accessDeniedMessage') }}</p>
+      <NuxtLink to="/tasks">{{ t('admin.backToTasks') }}</NuxtLink>
     </div>
     <div v-else>
       <div class="page-header">
         <div>
-          <h1 class="page-title">Usuários</h1>
-          <p class="page-subtitle">Gerencie os usuários da plataforma.</p>
+          <h1 class="page-title">{{ t('admin.usersTitle') }}</h1>
+          <p class="page-subtitle">{{ t('admin.usersSubtitle') }}</p>
         </div>
         <button class="btn-new-user" @click="openCreateModal">
           <Plus class="btn-icon" :size="20" />
-          Novo Usuário
+          {{ t('admin.newUser') }}
         </button>
       </div>
 
       <form class="filters" @submit.prevent="applyFilters">
-        <input v-model="filters.search" type="text" class="filter-input" placeholder="Buscar por nome ou e-mail">
+        <input v-model="filters.search" type="text" class="filter-input" :placeholder="t('admin.searchUsersPlaceholder')">
         <select v-model="filters.role_id" class="filter-input">
-          <option value="">Todas as roles</option>
+          <option value="">{{ t('admin.allRoles') }}</option>
           <option v-for="role in roles" :key="role.id" :value="role.id">
             {{ role.name }}
           </option>
         </select>
         <select v-model="filters.status_id" class="filter-input">
-          <option value="">Todos os status</option>
+          <option value="">{{ t('admin.allStatuses') }}</option>
           <option v-for="status in userStatuses" :key="status.id" :value="status.id">
             {{ status.name }}
           </option>
         </select>
         <select v-if="isGlobalActor" v-model="filters.organization_id" class="filter-input">
-          <option value="">Todas as organizations</option>
+          <option value="">{{ t('admin.allOrganizations') }}</option>
           <option v-for="org in allOrganizations" :key="org.id" :value="org.id">
             {{ org.name }}
           </option>
         </select>
-        <button type="submit" class="btn-filter">Filtrar</button>
+        <button type="submit" class="btn-filter">{{ t('admin.filter') }}</button>
       </form>
 
       <UserTable
@@ -54,9 +54,9 @@
       />
 
       <div v-if="!loading && users.length > 0 && meta" class="pagination">
-        <button class="btn-page" :disabled="meta.current_page <= 1" @click="previousPage">Anterior</button>
-        <span class="page-info">Página {{ meta.current_page }} de {{ meta.last_page }} ({{ meta.total }} usuários)</span>
-        <button class="btn-page" :disabled="meta.current_page >= meta.last_page" @click="nextPage">Próxima</button>
+        <button class="btn-page" :disabled="meta.current_page <= 1" @click="previousPage">{{ t('admin.previousPage') }}</button>
+        <span class="page-info">{{ t('admin.usersPageInfo', { current: meta.current_page, last: meta.last_page, total: meta.total }) }}</span>
+        <button class="btn-page" :disabled="meta.current_page >= meta.last_page" @click="nextPage">{{ t('admin.nextPage') }}</button>
       </div>
 
       <UserFormModal
@@ -85,6 +85,7 @@ definePageMeta({
   middleware: 'auth'
 })
 
+const { t } = useI18n()
 const { user } = useAuth()
 const { users, roles, userStatuses, meta, filters, loading, fetchUsers, fetchRoles, fetchUserStatuses, applyFilters, banUser, activateUser, deleteUser, resetPassword } = useUsers()
 const { allOrganizations, fetchAllOrganizations } = useOrganizations()
@@ -134,7 +135,7 @@ onMounted(() => {
 })
 
 function handleBan(targetUser: { id: string }) {
-  const reason = window.prompt('Motivo do banimento:')
+  const reason = window.prompt(t('admin.banReasonPrompt'))
   if (reason) {
     banUser(targetUser.id, reason)
   }
@@ -145,13 +146,13 @@ function handleActivate(targetUser: { id: string }) {
 }
 
 function handleDelete(targetUser: { id: string; name: string }) {
-  if (window.confirm(`Excluir o usuário "${targetUser.name}"? Essa ação não pode ser desfeita pela tela.`)) {
+  if (window.confirm(t('admin.confirmDeleteUser', { name: targetUser.name }))) {
     deleteUser(targetUser.id)
   }
 }
 
 async function handleResetPassword(targetUser: { id: string; name: string }) {
-  const password = window.prompt(`Nova senha para "${targetUser.name}" (mínimo 8 caracteres):`)
+  const password = window.prompt(t('admin.resetPasswordPrompt', { name: targetUser.name }))
   if (!password) return
 
   const result = await resetPassword(targetUser.id, password)

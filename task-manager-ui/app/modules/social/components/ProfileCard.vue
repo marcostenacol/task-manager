@@ -15,19 +15,19 @@
     
     <div class="card-body">
       <div class="info-group">
-        <label>Status</label>
+        <label>{{ t('profile.statusLabel') }}</label>
         <span class="status-badge" :class="profile?.status?.slug">
           {{ profile?.status?.name }}
         </span>
       </div>
       
       <div class="info-group">
-        <label>Cargo</label>
+        <label>{{ t('profile.roleLabel') }}</label>
         <p class="role-text">{{ profile?.role?.name }}</p>
       </div>
       
       <div v-if="profile?.bio" class="info-group">
-        <label>Bio</label>
+        <label>{{ t('profile.bioLabel') }}</label>
         <p class="bio-text">{{ profile.bio }}</p>
       </div>
     </div>
@@ -36,6 +36,8 @@
 
 <script setup lang="ts">
 import type { UserProfile } from '../models/social'
+
+const { t } = useI18n()
 
 defineProps<{
   profile: UserProfile | null

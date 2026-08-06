@@ -1,9 +1,9 @@
 <template>
   <div class="contacts-section glass">
     <div class="section-header">
-      <h3 class="title">Contatos</h3>
+      <h3 class="title">{{ t('profile.contactsTitle') }}</h3>
       <button class="btn-toggle" @click="showAddForm = !showAddForm">
-        {{ showAddForm ? 'Cancelar' : '+ Adicionar' }}
+        {{ showAddForm ? t('common.cancel') : t('profile.addContact') }}
       </button>
     </div>
 
@@ -12,22 +12,22 @@
       <div v-if="showAddForm" class="add-form">
         <div class="form-grid">
           <div class="form-group">
-            <label>Tipo</label>
+            <label>{{ t('profile.contactTypeLabel') }}</label>
             <select v-model="newContact.type" class="form-input">
-              <option value="phone">Telefone</option>
-              <option value="whatsapp">WhatsApp</option>
-              <option value="email">E-mail</option>
-              <option value="linkedin">LinkedIn</option>
-              <option value="github">GitHub</option>
-              <option value="other">Outro</option>
+              <option value="phone">{{ t('profile.contactTypePhone') }}</option>
+              <option value="whatsapp">{{ t('profile.contactTypeWhatsapp') }}</option>
+              <option value="email">{{ t('profile.contactTypeEmail') }}</option>
+              <option value="linkedin">{{ t('profile.contactTypeLinkedin') }}</option>
+              <option value="github">{{ t('profile.contactTypeGithub') }}</option>
+              <option value="other">{{ t('profile.contactTypeOther') }}</option>
             </select>
           </div>
           <div class="form-group">
-            <label>Valor</label>
+            <label>{{ t('profile.contactValueLabel') }}</label>
             <input 
               v-model="newContact.value" 
               type="text" 
-              placeholder="ex: +55 (11) 99999-9999" 
+              :placeholder="t('profile.contactValuePlaceholder')" 
               class="form-input"
             >
           </div>
@@ -37,7 +37,7 @@
           class="btn-save" 
           @click="handleAdd"
         >
-          Salvar Contato
+          {{ t('profile.saveContact') }}
         </button>
       </div>
     </Transition>
@@ -45,7 +45,7 @@
     <!-- Lista de Contatos -->
     <div class="contacts-list">
       <div v-if="contacts.length === 0" class="empty-state">
-        Nenhum contato cadastrado.
+        {{ t('profile.noContacts') }}
       </div>
       <div v-for="contact in contacts" :key="contact.id" class="contact-item">
         <div class="contact-info">
@@ -56,7 +56,7 @@
           </div>
         </div>
         <button :disabled="loading" class="btn-remove" @click="emit('remove', contact.id)">
-          <Trash2 :size="18" />
+          <Trash2 :size="18" :aria-label="t('profile.removeContact')" />
         </button>
       </div>
     </div>
@@ -68,6 +68,8 @@ import { ref } from 'vue'
 import type { Component } from 'vue'
 import { Bookmark, Github, Linkedin, Mail, MessageCircle, Phone, Trash2 } from 'lucide-vue-next'
 import type { UserContact, UpsertContactData } from '../models/social'
+
+const { t } = useI18n()
 
 defineProps<{
   contacts: UserContact[]

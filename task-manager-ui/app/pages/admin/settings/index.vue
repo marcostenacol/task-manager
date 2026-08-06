@@ -1,13 +1,13 @@
 <template>
   <div>
     <div v-if="accessDenied" class="access-denied">
-      <h2>Acesso Negado</h2>
-      <p>Você não tem permissão para acessar esta página.</p>
-      <NuxtLink to="/tasks">Voltar para tarefas</NuxtLink>
+      <h2>{{ t('admin.accessDenied') }}</h2>
+      <p>{{ t('admin.accessDeniedMessage') }}</p>
+      <NuxtLink to="/tasks">{{ t('admin.backToTasks') }}</NuxtLink>
     </div>
     <div v-else>
-      <h1 class="page-title">Configurações</h1>
-      <p class="page-subtitle">Parâmetros globais do sistema.</p>
+      <h1 class="page-title">{{ t('admin.settingsTitle') }}</h1>
+      <p class="page-subtitle">{{ t('admin.settingsSubtitle') }}</p>
       <SettingsTable
         class="settings-table-wrap"
         :settings="settings"
@@ -28,6 +28,7 @@ definePageMeta({
   middleware: 'auth'
 })
 
+const { t } = useI18n()
 const { user } = useAuth()
 const { settings, loading, fetchSettings, updateSetting } = useSettings()
 

@@ -11,6 +11,8 @@ const emit = defineEmits<{
   (e: 'close' | 'created'): void
 }>()
 
+const { t } = useI18n()
+
 const name = ref('')
 const creating = ref(false)
 const error = ref('')
@@ -30,7 +32,7 @@ async function handleCreate() {
     emit('created')
     emit('close')
   } catch (err: any) {
-    error.value = err?.data?.message || 'Não foi possível criar a sub-organization.'
+    error.value = err?.data?.message || t('orgs.createSubError')
   } finally {
     creating.value = false
   }
@@ -44,18 +46,18 @@ async function handleCreate() {
     <div class="modal-content">
       <div class="modal-inner">
         <div class="modal-header">
-          <h2 class="modal-title">Criar sub-organization</h2>
+          <h2 class="modal-title">{{ t('orgs.createSubTitle') }}</h2>
           <button class="close-btn" @click="handleClose">
             <X class="close-icon" :size="24" />
           </button>
         </div>
 
-        <p class="section-hint">Cria uma organization vinculada à sua como organization-pai. Você já entra como administrador dela.</p>
+        <p class="section-hint">{{ t('orgs.createSubHint') }}</p>
 
         <form class="create-form" @submit.prevent="handleCreate">
-          <input v-model="name" type="text" class="field-input" placeholder="Nome da sub-organization" required>
+          <input v-model="name" type="text" class="field-input" :placeholder="t('orgs.subNamePlaceholder')" required>
           <button type="submit" class="btn-add" :disabled="creating">
-            {{ creating ? 'Criando...' : 'Criar' }}
+            {{ creating ? t('orgs.creating') : t('common.create') }}
           </button>
         </form>
 

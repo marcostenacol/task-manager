@@ -11,6 +11,7 @@ const emit = defineEmits<{
   (e: 'close' | 'founded'): void
 }>()
 
+const { t } = useI18n()
 const { onboard } = useOrganizations()
 
 const name = ref('')
@@ -29,7 +30,7 @@ async function handleFound() {
   try {
     const result = await onboard(name.value)
     if (!result.success) {
-      error.value = result.message || 'Não foi possível fundar a organization.'
+      error.value = result.message || t('orgs.foundError')
       return
     }
     name.value = ''
@@ -48,7 +49,7 @@ async function handleFound() {
     <div class="modal-content">
       <div class="modal-inner">
         <div class="modal-header">
-          <h2 class="modal-title">Fundar outra organization</h2>
+          <h2 class="modal-title">{{ t('orgs.foundAnother') }}</h2>
           <button class="close-btn" @click="handleClose">
             <X class="close-icon" :size="24" />
           </button>

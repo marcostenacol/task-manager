@@ -2,6 +2,8 @@
 import { Ban, CircleCheck, KeyRound, Pencil, Trash2 } from 'lucide-vue-next';
 import type { AdminUser } from '../models/admin';
 
+const { t } = useI18n();
+
 const props = defineProps<{
     users: AdminUser[];
     loading: boolean;
@@ -38,17 +40,17 @@ const statusColors: Record<string, string> = {
         <table class="user-table">
             <thead>
                 <tr>
-                    <th>Usuário</th>
-                    <th>Role</th>
-                    <th>Organization</th>
-                    <th>Status</th>
-                    <th>Desde</th>
-                    <th class="text-right">Ações</th>
+                    <th>{{ t('admin.userColumnUser') }}</th>
+                    <th>{{ t('admin.userColumnRole') }}</th>
+                    <th>{{ t('admin.userColumnOrganization') }}</th>
+                    <th>{{ t('admin.userColumnStatus') }}</th>
+                    <th>{{ t('admin.userColumnSince') }}</th>
+                    <th class="text-right">{{ t('admin.columnActions') }}</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="user in users" :key="user.id" class="user-row">
-                    <td data-label="Usuário">
+                    <td :data-label="t('admin.userColumnUser')">
                         <div class="user-cell">
                             <div class="user-avatar">
                                 <img v-if="user.avatar_path" :src="user.avatar_path" alt="" class="avatar-image">
@@ -62,7 +64,7 @@ const statusColors: Record<string, string> = {
                             </div>
                         </div>
                     </td>
-                    <td data-label="Role">
+                    <td :data-label="t('admin.userColumnRole')">
                         <span
                             class="badge"
                             :style="roleBadgeStyle(user.role.color)"
@@ -70,10 +72,10 @@ const statusColors: Record<string, string> = {
                             {{ user.role.name }}
                         </span>
                     </td>
-                    <td class="cell-muted" data-label="Organization">
+                    <td class="cell-muted" :data-label="t('admin.userColumnOrganization')">
                         {{ user.organization?.name || '—' }}
                     </td>
-                    <td data-label="Status">
+                    <td :data-label="t('admin.userColumnStatus')">
                         <span
                             class="badge"
                             :class="[statusColors[user.status.slug]]"
@@ -81,15 +83,15 @@ const statusColors: Record<string, string> = {
                             {{ user.status.name }}
                         </span>
                     </td>
-                    <td class="cell-muted" data-label="Desde">
+                    <td class="cell-muted" :data-label="t('admin.userColumnSince')">
                         {{ new Date(user.created_at).toLocaleDateString('pt-BR') }}
                     </td>
-                    <td class="text-right" data-label="Ações">
+                    <td class="text-right" :data-label="t('admin.columnActions')">
                         <div class="actions">
                             <button
                                 v-if="user.status.slug !== 'banned' && user.id !== currentUserId"
                                 class="action-btn action-danger"
-                                title="Banir"
+                                :title="t('admin.actionBan')"
                                 @click="emit('ban', user)"
                             >
                                 <Ban class="action-icon" :size="18" />
@@ -97,7 +99,7 @@ const statusColors: Record<string, string> = {
                             <button
                                 v-else-if="user.status.slug === 'banned'"
                                 class="action-btn action-success"
-                                title="Ativar"
+                                :title="t('admin.actionActivate')"
                                 @click="emit('activate', user)"
                             >
                                 <CircleCheck class="action-icon" :size="18" />
@@ -105,7 +107,7 @@ const statusColors: Record<string, string> = {
                             <button
                                 v-if="canManage(user)"
                                 class="action-btn action-view"
-                                title="Editar"
+                                :title="t('common.edit')"
                                 @click="emit('edit', user)"
                             >
                                 <Pencil class="action-icon" :size="18" />
@@ -113,7 +115,7 @@ const statusColors: Record<string, string> = {
                             <button
                                 v-if="canManage(user)"
                                 class="action-btn"
-                                title="Redefinir senha"
+                                :title="t('admin.actionResetPassword')"
                                 @click="emit('reset-password', user)"
                             >
                                 <KeyRound class="action-icon" :size="18" />
@@ -121,7 +123,7 @@ const statusColors: Record<string, string> = {
                             <button
                                 v-if="canManage(user)"
                                 class="action-btn action-danger"
-                                title="Excluir"
+                                :title="t('common.delete')"
                                 @click="emit('delete', user)"
                             >
                                 <Trash2 class="action-icon" :size="18" />
@@ -133,7 +135,7 @@ const statusColors: Record<string, string> = {
         </table>
 
         <div v-if="!loading && users.length === 0" class="empty-row">
-            <p>Nenhum usuário encontrado.</p>
+            <p>{{ t('admin.emptyUsers') }}</p>
         </div>
     </div>
 </template>

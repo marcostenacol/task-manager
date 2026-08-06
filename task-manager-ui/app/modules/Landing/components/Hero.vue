@@ -1,12 +1,12 @@
 <template>
   <main class="hero-section">
     <div class="hero-content">
-      <span class="wk-stencil hero-eyebrow">Oficina de Produtividade — Lote 2026</span>
-      <h1 class="hero-title">Gerencie suas tarefas com <span class="gradient-text">precisão</span>.</h1>
+      <span class="wk-stencil hero-eyebrow">{{ t('landing.heroEyebrow') }}</span>
+      <h1 class="hero-title">{{ t('landing.heroTitle') }} <span class="gradient-text">{{ t('landing.heroTitleAccent') }}</span>.</h1>
       <hr class="wk-hazard-rule hero-rule">
-      <p class="hero-subtitle">Aumente sua produtividade com a nossa plataforma inteligente de gestão de fluxo de trabalho.</p>
+      <p class="hero-subtitle">{{ t('landing.heroSubtitle') }}</p>
       <div class="cta-group">
-        <button class="btn btn-primary wk-panel" @click="navigateTo('/register')">Começar Agora</button>
+        <button class="btn btn-primary wk-panel" @click="navigateTo('/register')">{{ t('landing.heroCta') }}</button>
       </div>
     </div>
 
@@ -14,20 +14,20 @@
       <div class="card floating wk-panel wk-brackets">
         <span class="wk-stencil card-index">01</span>
         <Target class="card-icon" :size="32" />
-        <h3>Foco Total</h3>
-        <p>Priorize o que importa com o nosso sistema de tags inteligentes.</p>
+        <h3>{{ t('landing.feature1Title') }}</h3>
+        <p>{{ t('landing.feature1Text') }}</p>
       </div>
       <div class="card floating delay-1 wk-panel wk-brackets">
         <span class="wk-stencil card-index">02</span>
         <BarChart3 class="card-icon" :size="32" />
-        <h3>Métricas Reais</h3>
-        <p>Acompanhe seu desempenho com gráficos detalhados em tempo real.</p>
+        <h3>{{ t('landing.feature2Title') }}</h3>
+        <p>{{ t('landing.feature2Text') }}</p>
       </div>
       <div class="card floating delay-2 wk-panel wk-brackets">
         <span class="wk-stencil card-index">03</span>
         <Zap class="card-icon" :size="32" />
-        <h3>Performance</h3>
-        <p>Backend robusto em Laravel garantindo respostas em milissegundos.</p>
+        <h3>{{ t('landing.feature3Title') }}</h3>
+        <p>{{ t('landing.feature3Text') }}</p>
       </div>
     </div>
   </main>
@@ -35,6 +35,8 @@
 
 <script setup lang="ts">
 import { BarChart3, Target, Zap } from 'lucide-vue-next'
+
+const { t } = useI18n()
 </script>
 
 <style scoped>

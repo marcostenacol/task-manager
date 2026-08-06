@@ -9,6 +9,7 @@ const filters = defineModel<Record<string, unknown>>('filters', { required: true
 
 const emit = defineEmits(['apply']);
 
+const { t } = useI18n();
 const { user } = useAuth();
 const { allOrganizations, fetchAllOrganizations } = useOrganizations();
 
@@ -39,7 +40,7 @@ onMounted(async () => {
             <input
                 v-model="filters.search"
                 type="text"
-                placeholder="Pesquisar tarefas..."
+                :placeholder="t('tasks.searchPlaceholder')"
                 class="filter-input"
                 @input="emit('apply')"
             >
@@ -51,7 +52,7 @@ onMounted(async () => {
                 class="filter-input"
                 @change="emit('apply')"
             >
-                <option value="">Todos Status</option>
+                <option value="">{{ t('tasks.allStatuses') }}</option>
                 <option v-for="s in statuses" :key="s.id" :value="s.id">
                     {{ s.name }}
                 </option>
@@ -64,7 +65,7 @@ onMounted(async () => {
                 class="filter-input"
                 @change="emit('apply')"
             >
-                <option value="">Todas Prioridades</option>
+                <option value="">{{ t('tasks.allPriorities') }}</option>
                 <option v-for="p in priorities" :key="p.id" :value="p.id">
                     {{ p.name }}
                 </option>
@@ -77,14 +78,14 @@ onMounted(async () => {
                 class="filter-input"
                 @change="emit('apply')"
             >
-                <option value="">Todas as Organizations</option>
+                <option value="">{{ t('tasks.allOrganizations') }}</option>
                 <option v-for="org in allOrganizations" :key="org.id" :value="org.id">
                     {{ org.name }}
                 </option>
             </select>
         </div>
 
-        <button class="filter-apply" @click="emit('apply')">
+        <button class="filter-apply" :title="t('tasks.applyFilters')" :aria-label="t('tasks.applyFilters')" @click="emit('apply')">
             <Search class="filter-apply-icon" :size="20" />
         </button>
     </div>

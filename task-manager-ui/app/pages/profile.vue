@@ -2,20 +2,20 @@
   <div class="profile-page">
     <header class="page-header">
       <div class="container">
-        <h1 class="title">Meu Perfil</h1>
-        <p class="subtitle">Gerencie suas informações pessoais e contatos</p>
+        <h1 class="title">{{ t('profile.title') }}</h1>
+        <p class="subtitle">{{ t('profile.subtitle') }}</p>
       </div>
     </header>
 
     <main class="container">
       <div v-if="loading && !profile" class="loading-state">
         <div class="spinner"/>
-        <p>Carregando perfil...</p>
+        <p>{{ t('profile.loadingProfile') }}</p>
       </div>
 
       <div v-else-if="error" class="error-state">
         <p>{{ error }}</p>
-        <button class="btn-retry" @click="fetchProfile">Tentar Novamente</button>
+        <button class="btn-retry" @click="fetchProfile">{{ t('profile.retry') }}</button>
       </div>
 
       <div v-else-if="profile" class="profile-grid">
@@ -63,6 +63,8 @@ import ContactsSection from '~/modules/social/components/ContactsSection.vue'
 definePageMeta({
   middleware: 'auth'
 })
+
+const { t } = useI18n()
 
 const {
   profile,

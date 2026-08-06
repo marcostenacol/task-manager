@@ -1,21 +1,21 @@
 <template>
   <form class="profile-form glass" @submit.prevent="handleSubmit">
-    <h3 class="form-title">Editar Perfil</h3>
+    <h3 class="form-title">{{ t('profile.editTitle') }}</h3>
     
     <div class="form-group">
-      <label for="name">Nome</label>
+      <label for="name">{{ t('profile.nameLabel') }}</label>
       <input 
         id="name"
         v-model="formData.name"
         type="text"
-        placeholder="Seu nome"
+        :placeholder="t('profile.namePlaceholder')"
         required
         class="form-input"
       >
     </div>
     
     <div class="form-group">
-      <label for="cpf">CPF</label>
+      <label for="cpf">{{ t('profile.cpfLabel') }}</label>
       <input
         id="cpf"
         v-model="formData.cpf"
@@ -27,11 +27,11 @@
     </div>
 
     <div class="form-group">
-      <label for="bio">Biografia</label>
+      <label for="bio">{{ t('profile.bioFieldLabel') }}</label>
       <textarea 
         id="bio"
         v-model="formData.bio"
-        placeholder="Conte um pouco sobre você..."
+        :placeholder="t('profile.bioPlaceholder')"
         rows="4"
         class="form-input textarea"
       />
@@ -39,8 +39,8 @@
     
     <div class="form-actions">
       <button type="submit" :disabled="loading" class="btn-submit">
-        <span v-if="loading">Salvando...</span>
-        <span v-else>Salvar Alterações</span>
+        <span v-if="loading">{{ t('profile.saving') }}</span>
+        <span v-else>{{ t('profile.saveChanges') }}</span>
       </button>
     </div>
   </form>
@@ -49,6 +49,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import type { UserProfile, UpdateProfileData } from '../models/social'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   profile: UserProfile | null

@@ -12,6 +12,7 @@ definePageMeta({
     middleware: ['auth']
 });
 
+const { t } = useI18n();
 const { tasks, kanbanTasks, loading, filters, fetchTasks, fetchKanbanTasks, applyFilters, deleteTask } = useTasks();
 
 const viewMode = ref<'list' | 'kanban'>('list');
@@ -46,7 +47,7 @@ const openEditModal = (task: any) => {
 };
 
 const handleDelete = async (task: any) => {
-    if (!window.confirm(`Excluir a tarefa "${task.title}"? Essa ação não pode ser desfeita.`)) return;
+    if (!window.confirm(t('tasks.confirmDelete', { title: task.title }))) return;
     await deleteTask(task.id);
     if (viewMode.value === 'kanban') {
         fetchKanbanTasks();
@@ -73,12 +74,12 @@ onMounted(async () => {
         <!-- Header -->
         <div class="page-header">
             <div class="page-header-text">
-                <span class="wk-stencil page-eyebrow">Setor 01 / Bancada</span>
+                <span class="wk-stencil page-eyebrow">{{ t('tasks.pageEyebrow') }}</span>
                 <h1 class="page-title">
-                    Suas <span class="gradient-title">Tarefas</span>
+                    {{ t('tasks.pageTitleLead') }} <span class="gradient-title">{{ t('tasks.pageTitleHighlight') }}</span>
                 </h1>
                 <hr class="wk-hazard-rule page-rule">
-                <p class="page-subtitle">Gerencie sua produtividade com foco e clareza.</p>
+                <p class="page-subtitle">{{ t('tasks.pageSubtitle') }}</p>
             </div>
 
             <button
@@ -86,7 +87,7 @@ onMounted(async () => {
                 @click="openCreateModal"
             >
                 <Plus class="btn-icon" :size="20" />
-                Nova Tarefa
+                {{ t('tasks.newTask') }}
             </button>
         </div>
 
@@ -98,14 +99,14 @@ onMounted(async () => {
                     :class="{ 'is-active': viewMode === 'list' }"
                     @click="viewMode = 'list'"
                 >
-                    Lista
+                    {{ t('tasks.viewList') }}
                 </button>
                 <button
                     class="view-switcher-btn"
                     :class="{ 'is-active': viewMode === 'kanban' }"
                     @click="viewMode = 'kanban'"
                 >
-                    Kanban
+                    {{ t('tasks.viewKanban') }}
                 </button>
             </div>
 
@@ -115,14 +116,14 @@ onMounted(async () => {
                     :class="{ 'is-active': !filters.completed }"
                     @click="selectTab(false)"
                 >
-                    Ativas
+                    {{ t('tasks.tabActive') }}
                 </button>
                 <button
                     class="status-tab-btn"
                     :class="{ 'is-active': filters.completed }"
                     @click="selectTab(true)"
                 >
-                    Concluídas
+                    {{ t('tasks.tabCompleted') }}
                 </button>
             </div>
 
@@ -134,7 +135,7 @@ onMounted(async () => {
         <!-- Content -->
         <div v-if="loading" class="loading-state">
             <div class="spinner"/>
-            <p>Carregando suas tarefas...</p>
+            <p>{{ t('tasks.loadingTasks') }}</p>
         </div>
 
         <template v-else>
@@ -163,15 +164,15 @@ onMounted(async () => {
                 <div class="empty-icon">
                     <FolderOpen class="empty-svg-icon" :size="32" />
                 </div>
-                <h3 class="empty-title">Nenhuma tarefa encontrada</h3>
+                <h3 class="empty-title">{{ t('tasks.emptyTitle') }}</h3>
                 <p class="empty-text">
-                    Parece que você está com tudo em dia! Que tal criar uma nova tarefa para começar?
+                    {{ t('tasks.emptyText') }}
                 </p>
                 <button
                     class="empty-cta"
                     @click="openCreateModal"
                 >
-                    Criar minha primeira tarefa →
+                    {{ t('tasks.emptyCta') }}
                 </button>
             </div>
         </template>

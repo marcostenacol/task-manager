@@ -4,6 +4,8 @@ import { X } from 'lucide-vue-next';
 import type { AdminUser, Role } from '../models/admin';
 import { AdminService } from '../services/AdminService';
 
+const { t } = useI18n();
+
 const props = defineProps<{
     show: boolean;
     user?: AdminUser | null;
@@ -87,7 +89,7 @@ const handleSave = async () => {
             <div class="modal-inner">
                 <div class="modal-header">
                     <h2 class="modal-title">
-                        {{ isEditing() ? 'Editar Usuário' : 'Novo Usuário' }}
+                        {{ isEditing() ? t('admin.editUser') : t('admin.newUser') }}
                     </h2>
                     <button class="close-btn" @click="emit('close')">
                         <X class="close-icon" :size="24" />
@@ -96,45 +98,45 @@ const handleSave = async () => {
 
                 <form class="modal-form" @submit.prevent="handleSave">
                     <div>
-                        <label class="field-label">Nome</label>
+                        <label class="field-label">{{ t('admin.fieldName') }}</label>
                         <input
                             v-model="form.name"
                             type="text"
                             class="field-input"
-                            placeholder="Nome completo"
+                            :placeholder="t('admin.placeholderFullName')"
                         >
                         <span v-if="errors?.name" class="field-error">{{ errors.name[0] }}</span>
                     </div>
 
                     <div>
-                        <label class="field-label">E-mail</label>
+                        <label class="field-label">{{ t('admin.fieldEmail') }}</label>
                         <input
                             v-model="form.email"
                             type="email"
                             class="field-input"
-                            placeholder="email@exemplo.com"
+                            :placeholder="t('admin.placeholderEmail')"
                         >
                         <span v-if="errors?.email" class="field-error">{{ errors.email[0] }}</span>
                     </div>
 
                     <div v-if="!isEditing()">
-                        <label class="field-label">Senha</label>
+                        <label class="field-label">{{ t('admin.fieldPassword') }}</label>
                         <input
                             v-model="form.password"
                             type="password"
                             class="field-input"
-                            placeholder="Mínimo 8 caracteres"
+                            :placeholder="t('admin.placeholderMinPassword')"
                         >
                         <span v-if="errors?.password" class="field-error">{{ errors.password[0] }}</span>
                     </div>
 
                     <div>
-                        <label class="field-label">Role</label>
+                        <label class="field-label">{{ t('admin.fieldRole') }}</label>
                         <select
                             v-model="form.role_id"
                             class="field-input"
                         >
-                            <option value="" disabled>Selecione...</option>
+                            <option value="" disabled>{{ t('admin.selectPlaceholder') }}</option>
                             <option v-for="role in assignableRoles" :key="role.id" :value="role.id">
                                 {{ role.name }}
                             </option>
@@ -148,14 +150,14 @@ const handleSave = async () => {
                             class="btn-cancel"
                             @click="emit('close')"
                         >
-                            Cancelar
+                            {{ t('common.cancel') }}
                         </button>
                         <button
                             type="submit"
                             :disabled="loading"
                             class="btn-submit"
                         >
-                            {{ loading ? 'Salvando...' : (isEditing() ? 'Atualizar' : 'Criar Usuário') }}
+                            {{ loading ? t('admin.saving') : (isEditing() ? t('admin.updateUser') : t('admin.createUser')) }}
                         </button>
                     </div>
                 </form>

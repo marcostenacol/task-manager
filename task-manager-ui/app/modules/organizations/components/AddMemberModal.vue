@@ -15,6 +15,7 @@ const emit = defineEmits<{
   (e: 'close' | 'added'): void
 }>()
 
+const { t } = useI18n()
 const { lookupMember, addMember, createMember } = useOrganizations()
 
 const cpf = ref('')
@@ -56,7 +57,7 @@ async function handleLookup() {
     const result = await lookupMember(cpf.value, props.organizationId)
     searched.value = true
     if (!result.success) {
-      lookupError.value = result.message || 'Erro ao buscar usuário.'
+      lookupError.value = result.message || t('orgs.lookupError')
       return
     }
     lookupResult.value = result.result ?? null
@@ -109,39 +110,39 @@ async function handleCreateMember() {
     <div class="modal-content">
       <div class="modal-inner">
         <div class="modal-header">
-          <h2 class="modal-title">Adicionar membro</h2>
+          <h2 class="modal-title">{{ t('orgs.addMemberTitle') }}</h2>
           <button class="close-btn" @click="handleClose">
             <X class="close-icon" :size="24" />
           </button>
         </div>
 
         <form class="lookup-form" @submit.prevent="handleLookup">
-          <input v-model="cpf" type="text" class="field-input" placeholder="000.000.000-00" maxlength="14">
+          <input v-model="cpf" type="text" class="field-input" :placeholder="t('orgs.cpfPlaceholder')" maxlength="14">
           <button type="submit" class="btn-secondary" :disabled="loadingLookup">
-            {{ loadingLookup ? 'Buscando...' : 'Buscar' }}
+            {{ loadingLookup ? t('orgs.searching') : t('orgs.search') }}
           </button>
         </form>
 
         <p v-if="lookupError" class="error-message">{{ lookupError }}</p>
 
         <div v-if="searched && !lookupResult && !lookupError" class="result-card">
-          <p class="empty-message">Nenhum usuário encontrado com esse CPF. Você pode criar um novo usuário já com esse CPF.</p>
+          <p class="empty-message">{{ t('orgs.noUserFound') }}</p>
 
           <form class="create-form" @submit.prevent="handleCreateMember">
-            <input v-model="newMemberName" type="text" class="field-input" placeholder="Nome completo" required>
-            <input v-model="newMemberEmail" type="email" class="field-input" placeholder="E-mail" required>
+            <input v-model="newMemberName" type="text" class="field-input" :placeholder="t('orgs.fullNamePlaceholder')" required>
+            <input v-model="newMemberEmail" type="email" class="field-input" :placeholder="t('orgs.emailPlaceholder')" required>
 
             <select v-model="newMemberRoleId" class="field-input role-select">
-              <option value="" disabled>Selecione a role...</option>
+              <option value="" disabled>{{ t('orgs.selectRole') }}</option>
               <option v-for="role in organizationRoles" :key="role.id" :value="role.id">
                 {{ role.name }}
               </option>
             </select>
 
-            <p class="section-hint">A senha inicial do usuário será o próprio CPF.</p>
+            <p class="section-hint">{{ t('orgs.initialPasswordHint') }}</p>
 
             <button type="submit" class="btn-add" :disabled="!newMemberRoleId || creatingMember">
-              {{ creatingMember ? 'Criando...' : 'Criar e adicionar à organization' }}
+              {{ creatingMember ? t('orgs.creating') : t('orgs.createAndAddToOrganization') }}
             </button>
           </form>
         </div>
@@ -153,14 +154,14 @@ async function handleCreateMember() {
           </div>
 
           <select v-model="selectedRoleId" class="field-input role-select">
-            <option value="" disabled>Selecione a role...</option>
+            <option value="" disabled>{{ t('orgs.selectRole') }}</option>
             <option v-for="role in organizationRoles" :key="role.id" :value="role.id">
               {{ role.name }}
             </option>
           </select>
 
           <button class="btn-add" :disabled="!selectedRoleId || addingMember" @click="handleAdd">
-            {{ addingMember ? 'Adicionando...' : 'Adicionar à organization' }}
+            {{ addingMember ? t('orgs.adding') : t('orgs.addToOrganization') }}
           </button>
         </div>
       </div>

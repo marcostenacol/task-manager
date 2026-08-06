@@ -1,27 +1,26 @@
 <template>
   <div class="onboarding-page">
     <div class="card">
-      <h1 class="title">Crie sua organization</h1>
+      <h1 class="title">{{ t('orgs.onboardingTitle') }}</h1>
       <p class="subtitle">
-        Para continuar, você precisa criar uma organization — é o espaço de trabalho da sua equipe.
-        Você já entra como administrador dela.
+        {{ t('orgs.onboardingSubtitle') }}
       </p>
 
       <form class="form" @submit.prevent="handleSubmit">
-        <label class="field-label" for="org-name">Nome da organization</label>
+        <label class="field-label" for="org-name">{{ t('orgs.nameLabel') }}</label>
         <input
           id="org-name"
           v-model="name"
           type="text"
           class="field-input"
-          placeholder="ex: Minha Empresa"
+          :placeholder="t('orgs.onboardingNamePlaceholder')"
           required
         >
 
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
 
         <button type="submit" class="btn-submit" :disabled="loading">
-          {{ loading ? 'Criando...' : 'Criar organization' }}
+          {{ loading ? t('orgs.creating') : t('orgs.createOrganization') }}
         </button>
       </form>
     </div>
@@ -37,6 +36,7 @@ definePageMeta({
   middleware: 'auth'
 })
 
+const { t } = useI18n()
 const { onboard } = useOrganizations()
 const { restoreSession } = useAuth()
 
@@ -50,7 +50,7 @@ async function handleSubmit() {
   try {
     const result = await onboard(name.value)
     if (!result.success) {
-      errorMessage.value = result.message || 'Não foi possível criar a organization.'
+      errorMessage.value = result.message || t('orgs.createOrganizationError')
       return
     }
     await restoreSession()

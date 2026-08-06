@@ -13,6 +13,7 @@ const props = defineProps<{
 
 const emit = defineEmits(['close', 'saved']);
 
+const { t } = useI18n();
 const { user } = useAuth();
 const { form, loading, errors, taskOwnerId, submit, resetForm, fillForm } = useTaskForm();
 const { allOrganizations, fetchAllOrganizations } = useOrganizations();
@@ -43,7 +44,7 @@ const canAssign = computed(() => (
 ));
 const currentOrganizationName = computed(() => {
     const current = allOrganizations.value.find((org: any) => org.id === taskOrganizationId.value);
-    return current?.name || 'organization atual';
+    return current?.name || t('tasks.currentOrganizationFallback');
 });
 const effectiveOrganizationId = computed(() => selectedOrganizationId.value || taskOrganizationId.value);
 
@@ -100,7 +101,7 @@ const handleAssign = async () => {
         emit('saved');
         emit('close');
     } catch (error: any) {
-        window.alert(error?.data?.message || 'Não foi possível atribuir a tarefa.');
+        window.alert(error?.data?.message || t('tasks.assignError'));
     } finally {
         assigning.value = false;
     }
@@ -126,7 +127,7 @@ const handleSave = async () => {
             <div class="modal-inner">
                 <div class="modal-header">
                     <h2 class="modal-title">
-                        {{ taskId ? 'Editar Tarefa' : 'Nova Tarefa' }}
+                        {{ taskId ? t('tasks.editTask') : t('tasks.newTask') }}
                     </h2>
                     <button class="close-btn" @click="emit('close')">
                         <X class="close-icon" :size="24" />
@@ -135,34 +136,34 @@ const handleSave = async () => {
 
                 <form class="modal-form" @submit.prevent="handleSave">
                     <div>
-                        <label class="field-label">Título</label>
+                        <label class="field-label">{{ t('tasks.fieldTitle') }}</label>
                         <input
                             v-model="form.title"
                             type="text"
                             class="field-input"
-                            placeholder="O que precisa ser feito?"
+                            :placeholder="t('tasks.titlePlaceholder')"
                         >
                         <span v-if="errors?.title" class="field-error">{{ errors.title[0] }}</span>
                     </div>
 
                     <div>
-                        <label class="field-label">Descrição</label>
+                        <label class="field-label">{{ t('tasks.fieldDescription') }}</label>
                         <textarea
                             v-model="form.description"
                             rows="3"
                             class="field-input"
-                            placeholder="Adicione mais detalhes..."
+                            :placeholder="t('tasks.descriptionPlaceholder')"
                         />
                     </div>
 
                     <div class="field-grid">
                         <div>
-                            <label class="field-label">Status</label>
+                            <label class="field-label">{{ t('tasks.fieldStatus') }}</label>
                             <select
                                 v-model="form.status_id"
                                 class="field-input"
                             >
-                                <option value="" disabled>Selecione...</option>
+                                <option value="" disabled>{{ t('tasks.selectPlaceholder') }}</option>
                                 <option v-for="s in statuses" :key="s.id" :value="s.id">
                                     {{ s.name }}
                                 </option>
@@ -170,12 +171,12 @@ const handleSave = async () => {
                         </div>
 
                         <div>
-                            <label class="field-label">Prioridade</label>
+                            <label class="field-label">{{ t('tasks.fieldPriority') }}</label>
                             <select
                                 v-model="form.priority_id"
                                 class="field-input"
                             >
-                                <option value="" disabled>Selecione...</option>
+                                <option value="" disabled>{{ t('tasks.selectPlaceholder') }}</option>
                                 <option v-for="p in priorities" :key="p.id" :value="p.id">
                                     {{ p.name }}
                                 </option>
@@ -184,7 +185,7 @@ const handleSave = async () => {
                     </div>
 
                     <div>
-                        <label class="field-label">Data de Entrega</label>
+                        <label class="field-label">{{ t('tasks.fieldDueDate') }}</label>
                         <input
                             v-model="form.due_date"
                             type="datetime-local"
@@ -193,23 +194,23 @@ const handleSave = async () => {
                     </div>
 
                     <div v-if="canEditVisibility">
-                        <label class="field-label">Escopo</label>
+                        <label class="field-label">{{ t('tasks.fieldScope') }}</label>
                         <select
                             v-model="form.visibility"
                             class="field-input"
                         >
-                            <option value="personal">Pessoal (só eu vejo)</option>
-                            <option value="organization">Organization (todos os membros veem)</option>
+                            <option value="personal">{{ t('tasks.scopePersonal') }}</option>
+                            <option value="organization">{{ t('tasks.scopeOrganization') }}</option>
                         </select>
                     </div>
 
                     <div v-if="showOrganizationPicker">
-                        <label class="field-label">Organization</label>
+                        <label class="field-label">{{ t('tasks.fieldOrganization') }}</label>
                         <select
                             v-model="selectedOrganizationId"
                             class="field-input"
                         >
-                            <option value="">{{ taskId ? `Manter organization atual (${currentOrganizationName})` : 'Selecione...' }}</option>
+                            <option value="">{{ taskId ? t('tasks.keepCurrentOrganization', { name: currentOrganizationName }) : t('tasks.selectPlaceholder') }}</option>
                             <option v-for="org in allOrganizations" :key="org.id" :value="org.id">
                                 {{ org.name }}
                             </option>
@@ -217,17 +218,17 @@ const handleSave = async () => {
                     </div>
 
                     <div v-else-if="taskId">
-                        <label class="field-label">Escopo</label>
+                        <label class="field-label">{{ t('tasks.fieldScope') }}</label>
                         <p class="field-static">
-                            {{ form.visibility === 'organization' ? 'Organization (todos os membros veem)' : 'Pessoal (só eu vejo)' }}
+                            {{ form.visibility === 'organization' ? t('tasks.scopeOrganization') : t('tasks.scopePersonal') }}
                         </p>
                     </div>
 
                     <div v-if="canAssign" class="assign-section">
-                        <label class="field-label">Atribuir a</label>
+                        <label class="field-label">{{ t('tasks.assignTo') }}</label>
                         <div class="assign-row">
                             <select v-model="assigneeUserId" class="field-input">
-                                <option value="">Selecione um membro...</option>
+                                <option value="">{{ t('tasks.selectMember') }}</option>
                                 <option v-for="member in members" :key="member.user_id" :value="member.user_id">
                                     {{ member.name }}
                                 </option>
@@ -238,7 +239,7 @@ const handleSave = async () => {
                                 :disabled="!assigneeUserId || assigning"
                                 @click="handleAssign"
                             >
-                                {{ assigning ? 'Atribuindo...' : 'Atribuir' }}
+                                {{ assigning ? t('tasks.assigning') : t('tasks.assign') }}
                             </button>
                         </div>
                     </div>
@@ -249,14 +250,14 @@ const handleSave = async () => {
                             class="btn-cancel"
                             @click="emit('close')"
                         >
-                            Cancelar
+                            {{ t('common.cancel') }}
                         </button>
                         <button
                             type="submit"
                             :disabled="loading"
                             class="btn-submit"
                         >
-                            {{ loading ? 'Salvando...' : (taskId ? 'Atualizar' : 'Criar Tarefa') }}
+                            {{ loading ? t('tasks.saving') : (taskId ? t('tasks.update') : t('tasks.createTask')) }}
                         </button>
                     </div>
                 </form>

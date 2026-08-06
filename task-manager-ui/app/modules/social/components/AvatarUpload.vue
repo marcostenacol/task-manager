@@ -1,13 +1,13 @@
 <template>
   <div class="avatar-upload glass">
-    <h3 class="title">Foto de Perfil</h3>
+    <h3 class="title">{{ t('profile.avatarTitle') }}</h3>
     
     <div class="upload-container">
       <div class="preview-area" @click="triggerFileInput">
         <img v-if="previewUrl || currentAvatar" :src="previewUrl || currentAvatar" alt="Preview" class="preview-img">
         <Camera v-else class="placeholder-icon" :size="40" />
         <div class="overlay">
-          <span>Alterar</span>
+          <span>{{ t('profile.avatarChange') }}</span>
         </div>
       </div>
       
@@ -20,17 +20,17 @@
       >
       
       <div class="upload-info">
-        <p>Clique na imagem para alterar</p>
-        <span class="limit">Máx: 2MB (JPG, PNG)</span>
+        <p>{{ t('profile.avatarHint') }}</p>
+        <span class="limit">{{ t('profile.avatarLimit', { max: '2MB' }) }}</span>
       </div>
     </div>
     
     <div v-if="selectedFile" class="actions">
       <button :disabled="loading" class="btn-upload" @click="upload">
-        <span v-if="loading">Enviando...</span>
-        <span v-else>Confirmar Novo Avatar</span>
+        <span v-if="loading">{{ t('profile.avatarUploading') }}</span>
+        <span v-else>{{ t('profile.avatarConfirm') }}</span>
       </button>
-      <button :disabled="loading" class="btn-cancel" @click="cancel">Cancelar</button>
+      <button :disabled="loading" class="btn-cancel" @click="cancel">{{ t('common.cancel') }}</button>
     </div>
   </div>
 </template>
@@ -38,6 +38,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Camera } from 'lucide-vue-next'
+
+const { t } = useI18n()
 
 defineProps<{
   currentAvatar: string | null | undefined

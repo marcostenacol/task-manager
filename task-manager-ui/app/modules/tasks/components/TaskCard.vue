@@ -8,6 +8,8 @@ defineProps<{
 
 const emit = defineEmits(['click', 'status-change', 'delete']);
 
+const { t } = useI18n();
+
 const priorityColors: Record<string, string> = {
     low: 'priority-low',
     medium: 'priority-medium',
@@ -22,7 +24,7 @@ const statusColors: Record<string, string> = {
 };
 
 const formatDate = (date: string) => {
-    if (!date) return 'Sem data';
+    if (!date) return t('tasks.noDueDate');
     return new Date(date).toLocaleDateString('pt-BR');
 };
 </script>
@@ -41,7 +43,7 @@ const formatDate = (date: string) => {
             <div class="card-header">
                 <h3 class="card-title">
                     {{ task.title }}
-                    <span v-if="task.visibility === 'organization'" class="org-badge wk-stencil" title="Task da organization">Org</span>
+                    <span v-if="task.visibility === 'organization'" class="org-badge wk-stencil" :title="t('tasks.orgBadgeTooltip')">{{ t('tasks.orgBadge') }}</span>
                 </h3>
                 <div class="card-header-actions">
                     <span
@@ -50,14 +52,14 @@ const formatDate = (date: string) => {
                     >
                         {{ task.status.name }}
                     </span>
-                    <button class="delete-btn" title="Excluir" @click.stop="emit('delete', task)">
+                    <button class="delete-btn" :title="t('common.delete')" @click.stop="emit('delete', task)">
                         <Trash2 class="delete-icon" :size="16" />
                     </button>
                 </div>
             </div>
 
             <p class="card-description">
-                {{ task.description || 'Nenhuma descrição fornecida.' }}
+                {{ task.description || t('tasks.noDescription') }}
             </p>
 
             <div class="card-footer">

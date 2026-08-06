@@ -6,29 +6,29 @@
     </div>
     
     <div v-if="isAuthenticated" class="nav-links">
-      <NuxtLink to="/tasks" class="nav-link">Tarefas</NuxtLink>
-      <NuxtLink v-if="isAdmin" to="/admin/users" class="nav-link">Usuários</NuxtLink>
+      <NuxtLink to="/tasks" class="nav-link">{{ t('landing.navTasks') }}</NuxtLink>
+      <NuxtLink v-if="isAdmin" to="/admin/users" class="nav-link">{{ t('landing.navUsers') }}</NuxtLink>
     </div>
 
     <div class="auth-group">
       <template v-if="!isAuthenticated">
-        <NuxtLink to="/login" class="nav-link">Entrar</NuxtLink>
-        <NuxtLink to="/register" class="btn btn-register">Cadastrar</NuxtLink>
+        <NuxtLink to="/login" class="nav-link">{{ t('auth.loginButton') }}</NuxtLink>
+        <NuxtLink to="/register" class="btn btn-register">{{ t('landing.navRegister') }}</NuxtLink>
       </template>
       <template v-else>
         <div class="user-info">
           <span class="user-name">{{ user?.name }}</span>
           <div class="user-menu-container">
             <div class="avatar" @click="toggleMenu">
-              <img v-if="profile?.avatar_path" :src="profile.avatar_path" alt="Avatar" class="avatar-image">
+              <img v-if="profile?.avatar_path" :src="profile.avatar_path" :alt="t('landing.avatarAlt')" class="avatar-image">
               <template v-else>{{ user?.name?.charAt(0) || 'U' }}</template>
             </div>
             <div v-if="showMenu" class="user-dropdown glass">
               <NuxtLink to="/profile" class="dropdown-item" @click="showMenu = false">
-                <User class="icon" :size="18" /> Perfil
+                <User class="icon" :size="18" /> {{ t('landing.menuProfile') }}
               </NuxtLink>
               <button class="dropdown-item logout" @click="handleLogout">
-                <LogOut class="icon" :size="18" /> Sair
+                <LogOut class="icon" :size="18" /> {{ t('landing.menuLogout') }}
               </button>
             </div>
           </div>
@@ -44,6 +44,7 @@ import { LogOut, User } from 'lucide-vue-next'
 import { useAuth } from '~/modules/auth/hooks/useAuth'
 import { useProfile } from '~/modules/social/hooks/useProfile'
 
+const { t } = useI18n()
 const { user, isAuthenticated, logout } = useAuth()
 const { profile, fetchProfile } = useProfile()
 const showMenu = ref(false)

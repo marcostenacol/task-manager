@@ -1,7 +1,7 @@
 <template>
   <div class="auth-card glass wk-panel wk-brackets">
     <div class="auth-header">
-      <span class="wk-stencil auth-eyebrow">Cadastro / Admissão</span>
+      <span class="wk-stencil auth-eyebrow">{{ t('auth.registerEyebrow') }}</span>
       <h2 class="font-outfit">{{ t('auth.registerTitle') }}</h2>
       <p>{{ t('auth.registerSubtitle') }}</p>
     </div>
@@ -15,7 +15,7 @@
             id="name"
             v-model="form.name"
             type="text"
-            placeholder="Seu nome"
+            :placeholder="t('auth.namePlaceholder')"
             required
           >
         </div>
@@ -29,7 +29,7 @@
             id="email"
             v-model="form.email"
             type="email"
-            placeholder="seu@email.com"
+            :placeholder="t('auth.emailPlaceholder')"
             required
           >
         </div>
@@ -58,7 +58,7 @@
             id="password"
             v-model="form.password"
             type="password"
-            placeholder="Mínimo 8 caracteres"
+            :placeholder="t('auth.passwordPlaceholder')"
             required
           >
         </div>
@@ -72,7 +72,7 @@
             id="password_confirmation"
             v-model="form.password_confirmation"
             type="password"
-            placeholder="Repita a senha"
+            :placeholder="t('auth.passwordConfirmationPlaceholder')"
             required
           >
         </div>
@@ -119,12 +119,12 @@ async function handleSubmit() {
       // Vamos para login para simplificar e garantir que o usuário saiba as credenciais
       navigateTo('/login?registered=true')
     } else {
-      error.value = response.message || 'Erro ao realizar cadastro.'
+      error.value = response.message || t('auth.registerError')
     }
   } catch (err: any) {
     console.error('Register error detail:', err)
     const firstFieldError = Object.values(err?.data?.data?.errors || {})[0] as string[] | undefined
-    error.value = err?.data?.message || firstFieldError?.[0] || 'Falha na conexão com o servidor.'
+    error.value = err?.data?.message || firstFieldError?.[0] || t('auth.connectionError')
   } finally {
     loading.value = false
   }

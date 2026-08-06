@@ -1,7 +1,7 @@
 <template>
   <div class="auth-card glass wk-panel wk-brackets">
     <div class="auth-header">
-      <span class="wk-stencil auth-eyebrow">Acesso / Portaria</span>
+      <span class="wk-stencil auth-eyebrow">{{ t('auth.loginEyebrow') }}</span>
       <h2 class="font-outfit">{{ t('auth.loginTitle') }}</h2>
       <p>{{ t('auth.loginSubtitle') }}</p>
     </div>
@@ -15,7 +15,7 @@
             id="email"
             v-model="form.email"
             type="email"
-            placeholder="seu@email.com"
+            :placeholder="t('auth.emailPlaceholder')"
             required
           >
         </div>
@@ -84,11 +84,11 @@ async function handleSubmit() {
   try {
     const response = await login(form)
     if (!response.success) {
-      error.value = response.message || 'Erro ao realizar login.'
+      error.value = response.message || t('auth.loginError')
     }
   } catch (err: any) {
     console.error('Login error detail:', err)
-    error.value = err?.data?.message || 'Falha na conexão com o servidor.'
+    error.value = err?.data?.message || t('auth.connectionError')
   }
 }
 </script>

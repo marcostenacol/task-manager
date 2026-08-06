@@ -1,19 +1,19 @@
 <template>
   <div>
     <div v-if="accessDenied" class="access-denied">
-      <h2>Acesso Negado</h2>
-      <p>Você não tem permissão para acessar esta página.</p>
-      <NuxtLink to="/tasks">Voltar para tarefas</NuxtLink>
+      <h2>{{ t('orgs.accessDeniedTitle') }}</h2>
+      <p>{{ t('orgs.accessDeniedText') }}</p>
+      <NuxtLink to="/tasks">{{ t('orgs.backToTasks') }}</NuxtLink>
     </div>
     <div v-else>
-      <h1 class="page-title">Membros e Organizations</h1>
+      <h1 class="page-title">{{ t('orgs.pageTitle') }}</h1>
       <p class="page-subtitle">
-        {{ canListAll ? 'Gerencie todas as organizations da plataforma.' : 'Gerencie a sua organization e seus membros.' }}
+        {{ canListAll ? t('orgs.pageSubtitleAll') : t('orgs.pageSubtitleOwn') }}
       </p>
 
       <div class="layout">
         <div v-if="canListAll" class="org-list">
-          <h3 class="section-title">Todas as organizations</h3>
+          <h3 class="section-title">{{ t('orgs.allOrganizations') }}</h3>
           <button
             v-for="org in allOrganizations"
             :key="org.id"
@@ -22,11 +22,11 @@
             @click="selectOrganization(org.id)"
           >
             <span>{{ org.name }}</span>
-            <span class="org-item-count">{{ org.members_count }} membro(s)</span>
+            <span class="org-item-count">{{ t('orgs.membersCount', { count: org.members_count }) }}</span>
           </button>
 
           <button class="btn-secondary btn-new-org" @click="showCreateOrgModal = true">
-            + Nova Organization
+            {{ t('orgs.newOrganizationButton') }}
           </button>
         </div>
 
@@ -34,50 +34,50 @@
           <div class="org-header">
             <template v-if="!editingName">
               <h2 class="org-name">{{ orgName }}</h2>
-              <button class="icon-btn" title="Renomear" @click="editingName = true">
+              <button class="icon-btn" :title="t('orgs.rename')" @click="editingName = true">
                 <Pencil :size="16" />
               </button>
             </template>
             <form v-else class="rename-form" @submit.prevent="handleRename">
-              <input v-model="orgName" type="text" class="field-input" placeholder="Nome da organization">
+              <input v-model="orgName" type="text" class="field-input" :placeholder="t('orgs.namePlaceholder')">
               <button type="submit" class="btn-secondary" :disabled="renaming">
-                {{ renaming ? 'Salvando...' : 'Salvar' }}
+                {{ renaming ? t('orgs.saving') : t('common.save') }}
               </button>
-              <button type="button" class="btn-cancel" @click="editingName = false">Cancelar</button>
+              <button type="button" class="btn-cancel" @click="editingName = false">{{ t('common.cancel') }}</button>
             </form>
           </div>
 
           <div class="actions-row">
             <button v-if="!canListAll" class="btn-secondary" @click="showFoundModal = true">
-              Fundar outra organization
+              {{ t('orgs.foundAnother') }}
             </button>
             <button v-if="!canListAll" class="btn-secondary" @click="showCreateSubOrgModal = true">
-              + Criar sub-organization
+              {{ t('orgs.createSubButton') }}
             </button>
             <button class="btn-secondary" @click="showAddMemberModal = true">
-              + Adicionar membro
+              {{ t('orgs.addMemberButton') }}
             </button>
             <button v-if="canTransferOwnership" class="btn-secondary" @click="openTransferModal">
-              Transferir titularidade
+              {{ t('orgs.transferOwnership') }}
             </button>
           </div>
 
-          <h3 class="section-title">Membros</h3>
+          <h3 class="section-title">{{ t('orgs.membersTitle') }}</h3>
           <div class="table-wrapper">
             <table class="members-table">
               <thead>
                 <tr>
-                  <th>Nome</th>
-                  <th>E-mail</th>
-                  <th>Role</th>
-                  <th class="text-right">Ações</th>
+                  <th>{{ t('orgs.columnName') }}</th>
+                  <th>{{ t('orgs.columnEmail') }}</th>
+                  <th>{{ t('orgs.columnRole') }}</th>
+                  <th class="text-right">{{ t('orgs.columnActions') }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="member in members" :key="member.user_id">
-                  <td data-label="Nome">{{ member.name }}</td>
-                  <td class="cell-muted" data-label="E-mail">{{ member.email }}</td>
-                  <td data-label="Role">
+                  <td :data-label="t('orgs.columnName')">{{ member.name }}</td>
+                  <td class="cell-muted" :data-label="t('orgs.columnEmail')">{{ member.email }}</td>
+                  <td :data-label="t('orgs.columnRole')">
                     <select
                       v-if="member.user_id !== user?.id"
                       class="field-input role-select-inline"
@@ -91,11 +91,11 @@
                     </select>
                     <span v-else>{{ member.role.name }}</span>
                   </td>
-                  <td class="text-right" data-label="Ações">
+                  <td class="text-right" :data-label="t('orgs.columnActions')">
                     <button
                       v-if="member.user_id !== user?.id"
                       class="icon-btn icon-btn-danger"
-                      title="Remover membro"
+                      :title="t('orgs.removeMember')"
                       :disabled="removingUserId === member.user_id"
                       @click="handleRemoveMember(member.user_id)"
                     >
@@ -108,9 +108,9 @@
           </div>
 
           <div v-if="membersMeta && membersMeta.last_page > 1" class="pagination">
-            <button class="btn-page" :disabled="membersPage <= 1" @click="changeMembersPage(membersPage - 1)">Anterior</button>
-            <span class="page-info">Página {{ membersMeta.current_page }} de {{ membersMeta.last_page }} ({{ membersMeta.total }} membros)</span>
-            <button class="btn-page" :disabled="membersPage >= membersMeta.last_page" @click="changeMembersPage(membersPage + 1)">Próxima</button>
+            <button class="btn-page" :disabled="membersPage <= 1" @click="changeMembersPage(membersPage - 1)">{{ t('orgs.previousPage') }}</button>
+            <span class="page-info">{{ t('orgs.pageInfo', { current: membersMeta.current_page, last: membersMeta.last_page, total: membersMeta.total }) }}</span>
+            <button class="btn-page" :disabled="membersPage >= membersMeta.last_page" @click="changeMembersPage(membersPage + 1)">{{ t('orgs.nextPage') }}</button>
           </div>
         </div>
       </div>
@@ -152,23 +152,23 @@
       <div class="modal-content">
         <div class="modal-inner">
           <div class="modal-header">
-            <h2 class="modal-title">Nova Organization</h2>
+            <h2 class="modal-title">{{ t('orgs.newOrganizationTitle') }}</h2>
             <button class="close-btn" @click="showCreateOrgModal = false">
               <X class="close-icon" :size="24" />
             </button>
           </div>
 
           <form class="create-form" @submit.prevent="handleCreate">
-            <input v-model="newOrgName" type="text" class="field-input" placeholder="Nome da organization" required>
+            <input v-model="newOrgName" type="text" class="field-input" :placeholder="t('orgs.namePlaceholder')" required>
             <select v-model="newOrgParentId" class="field-input">
-              <option value="">Sem organization-pai</option>
+              <option value="">{{ t('orgs.noParentOrganization') }}</option>
               <option v-for="org in allOrganizations" :key="org.id" :value="org.id">
                 {{ org.name }}
               </option>
             </select>
-            <input v-model="newOrgOwnerCpf" type="text" class="field-input" placeholder="CPF do responsável (opcional) — 000.000.000-00" maxlength="14">
+            <input v-model="newOrgOwnerCpf" type="text" class="field-input" :placeholder="t('orgs.ownerCpfPlaceholder')" maxlength="14">
             <button type="submit" class="btn-add" :disabled="creating">
-              {{ creating ? 'Criando...' : 'Criar' }}
+              {{ creating ? t('orgs.creating') : t('common.create') }}
             </button>
           </form>
         </div>
@@ -193,6 +193,7 @@ definePageMeta({
   middleware: 'auth'
 })
 
+const { t } = useI18n()
 const { user, restoreSession } = useAuth()
 const {
   allOrganizations,
@@ -326,7 +327,7 @@ async function handleFounded() {
 }
 
 function handleSubOrgCreated() {
-  window.alert('Sub-organization criada com sucesso. Use o seletor de organization no menu lateral pra trocar para ela e gerenciá-la.')
+  window.alert(t('orgs.subOrganizationCreatedAlert'))
 }
 
 async function handleTransferred() {
@@ -350,7 +351,7 @@ async function handleChangeRole(userId: string, roleId: string) {
 }
 
 async function handleRemoveMember(userId: string) {
-  if (!window.confirm('Remover este membro da organization?')) return
+  if (!window.confirm(t('orgs.confirmRemoveMember'))) return
 
   removingUserId.value = userId
   try {

@@ -6,7 +6,7 @@
     </div>
     
     <NuxtLink to="/" class="back-home">
-      <span>←</span> Voltar para Início
+      <span>←</span> {{ t('auth.backHome') }}
     </NuxtLink>
 
     <div class="content-wrapper">
@@ -17,6 +17,8 @@
 
 <script setup lang="ts">
 import LoginForm from '~/modules/auth/components/LoginForm.vue'
+
+const { t } = useI18n()
 
 definePageMeta({
   layout: false,

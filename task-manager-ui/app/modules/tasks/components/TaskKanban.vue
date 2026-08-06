@@ -11,6 +11,8 @@ const props = defineProps<{
 
 const emit = defineEmits(['task-click', 'task-updated', 'task-delete']);
 
+const { t } = useI18n();
+
 const tasksByStatus = computed(() => {
     const map: any = {};
     props.statuses.forEach(s => map[s.slug] = []);
@@ -80,7 +82,7 @@ const handleDragOver = (event: DragEvent) => {
                 />
 
                 <div v-if="!tasksByStatus[status.slug]?.length" class="column-empty">
-                    <p>Vazio</p>
+                    <p>{{ t('tasks.columnEmpty') }}</p>
                 </div>
             </div>
         </div>

@@ -1,26 +1,26 @@
 <template>
   <form class="password-form glass" @submit.prevent="handleSubmit">
-    <h3 class="form-title">Trocar Senha</h3>
+    <h3 class="form-title">{{ t('profile.changePasswordTitle') }}</h3>
 
     <div class="form-group">
-      <label for="current_password">Senha atual</label>
+      <label for="current_password">{{ t('profile.currentPasswordLabel') }}</label>
       <input
         id="current_password"
         v-model="formData.current_password"
         type="password"
-        placeholder="Sua senha atual"
+        :placeholder="t('profile.currentPasswordPlaceholder')"
         required
         class="form-input"
       >
     </div>
 
     <div class="form-group">
-      <label for="new_password">Nova senha</label>
+      <label for="new_password">{{ t('profile.newPasswordLabel') }}</label>
       <input
         id="new_password"
         v-model="formData.new_password"
         type="password"
-        placeholder="Mínimo de 8 caracteres"
+        :placeholder="t('profile.newPasswordPlaceholder', { min: 8 })"
         minlength="8"
         required
         class="form-input"
@@ -28,12 +28,12 @@
     </div>
 
     <div class="form-group">
-      <label for="new_password_confirmation">Confirmar nova senha</label>
+      <label for="new_password_confirmation">{{ t('profile.confirmPasswordLabel') }}</label>
       <input
         id="new_password_confirmation"
         v-model="formData.new_password_confirmation"
         type="password"
-        placeholder="Repita a nova senha"
+        :placeholder="t('profile.confirmPasswordPlaceholder')"
         minlength="8"
         required
         class="form-input"
@@ -45,8 +45,8 @@
 
     <div class="form-actions">
       <button type="submit" :disabled="submitting" class="btn-submit">
-        <span v-if="submitting">Salvando...</span>
-        <span v-else>Trocar Senha</span>
+        <span v-if="submitting">{{ t('profile.saving') }}</span>
+        <span v-else>{{ t('profile.changePasswordButton') }}</span>
       </button>
     </div>
   </form>
@@ -54,6 +54,8 @@
 
 <script setup lang="ts">
 import { reactive, ref } from 'vue'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   onChangePassword: (data: { current_password: string; new_password: string; new_password_confirmation: string }) => Promise<{ success: boolean; message?: string }>
@@ -80,7 +82,7 @@ async function handleSubmit() {
   successMessage.value = ''
 
   if (formData.new_password !== formData.new_password_confirmation) {
-    errorMessage.value = 'A confirmação não confere com a nova senha.'
+    errorMessage.value = t('profile.passwordMismatch')
     return
   }
 
@@ -88,14 +90,14 @@ async function handleSubmit() {
   try {
     const result = await props.onChangePassword({ ...formData })
     if (result?.success) {
-      successMessage.value = 'Senha alterada com sucesso.'
+      successMessage.value = t('profile.passwordChangedSuccess')
       resetForm()
       return
     }
-    errorMessage.value = result?.message || 'Não foi possível trocar a senha.'
+    errorMessage.value = result?.message || t('profile.passwordChangeFailed')
   } catch (err) {
     console.error('Erro inesperado ao trocar senha:', err)
-    errorMessage.value = 'Erro inesperado ao trocar a senha.'
+    errorMessage.value = t('profile.passwordChangeUnexpectedError')
   } finally {
     submitting.value = false
   }

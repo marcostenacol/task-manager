@@ -1,31 +1,31 @@
 <template>
   <div>
     <div v-if="accessDenied" class="access-denied">
-      <h2>Acesso Negado</h2>
-      <p>Você não tem permissão para acessar esta página.</p>
-      <NuxtLink to="/tasks">Voltar para tarefas</NuxtLink>
+      <h2>{{ t('admin.accessDenied') }}</h2>
+      <p>{{ t('admin.accessDeniedMessage') }}</p>
+      <NuxtLink to="/tasks">{{ t('admin.backToTasks') }}</NuxtLink>
     </div>
     <div v-else>
       <div class="page-header">
         <div>
-          <h1 class="page-title">Roles</h1>
-          <p class="page-subtitle">Gerencie roles e suas permissões.</p>
+          <h1 class="page-title">{{ t('admin.rolesTitle') }}</h1>
+          <p class="page-subtitle">{{ t('admin.rolesSubtitle') }}</p>
         </div>
         <div class="header-actions">
           <div class="org-filter">
-            <label class="org-filter-label" for="role-name-search">Nome</label>
+            <label class="org-filter-label" for="role-name-search">{{ t('admin.fieldName') }}</label>
             <input
               id="role-name-search"
               v-model="nameFilter"
               type="text"
-              placeholder="Buscar por nome..."
+              :placeholder="t('admin.searchNamePlaceholder')"
               class="org-filter-select"
             >
           </div>
           <div v-if="isGlobalActor" class="org-filter">
-            <label class="org-filter-label" for="role-scope-select">Escopo</label>
+            <label class="org-filter-label" for="role-scope-select">{{ t('admin.roleScope') }}</label>
             <select id="role-scope-select" v-model="selectedScope" class="org-filter-select" @change="handleScopeChange">
-              <option value="global">Global</option>
+              <option value="global">{{ t('admin.scopeGlobal') }}</option>
               <option v-for="org in allOrganizations" :key="org.id" :value="org.id">
                 {{ org.name }}
               </option>
@@ -33,7 +33,7 @@
           </div>
           <button class="btn-new-role" @click="openCreateModal">
             <Plus class="btn-icon" :size="20" />
-            Nova Role
+            {{ t('admin.newRole') }}
           </button>
         </div>
       </div>
@@ -74,6 +74,7 @@ definePageMeta({
   middleware: 'auth'
 })
 
+const { t } = useI18n()
 const { user } = useAuth()
 const { roles, permissions, loading, fetchRoles, fetchPermissions, deleteRole } = useRoles()
 const { allOrganizations, fetchAllOrganizations } = useOrganizations()
@@ -131,7 +132,7 @@ function openEditModal(role: Role) {
 }
 
 function handleDelete(role: Role) {
-  if (window.confirm(`Excluir a role "${role.name}"? Essa ação não pode ser desfeita pela tela.`)) {
+  if (window.confirm(t('admin.confirmDeleteRole', { name: role.name }))) {
     deleteRole(role.id)
   }
 }
