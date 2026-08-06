@@ -5,7 +5,7 @@
         <img src="/favicon.svg" alt="TaskMaster" class="brand-icon">
         <span class="brand-text">TaskMaster</span>
       </div>
-      <button class="mobile-toggle" :aria-expanded="mobileOpen" aria-label="Abrir menu" @click="mobileOpen = !mobileOpen">
+      <button class="mobile-toggle" :aria-expanded="mobileOpen" :aria-label="t('common.openMenu')" @click="mobileOpen = !mobileOpen">
         <Menu v-if="!mobileOpen" :size="22" />
         <X v-else :size="22" />
       </button>

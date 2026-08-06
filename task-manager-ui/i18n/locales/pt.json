@@ -7,7 +7,8 @@
     "delete": "Excluir",
     "loading": "Carregando...",
     "confirm": "Confirmar",
-    "back": "Voltar"
+    "back": "Voltar",
+    "openMenu": "Abrir menu"
   },
   "nav": {
     "tasks": "Minhas tarefas",
@@ -21,7 +22,7 @@
     "logout": "Sair"
   },
   "auth": {
-    "loginTitle": "Bem-vindo de volta",
+    "loginTitle": "Bem-vindo",
     "loginSubtitle": "Entre com suas credenciais para continuar",
     "loginEyebrow": "Acesso / Portaria",
     "registerTitle": "Criar Conta",
@@ -230,7 +231,15 @@
     "nameLabel": "Nome da organization",
     "onboardingNamePlaceholder": "ex: Minha Empresa",
     "createOrganization": "Criar organization",
-    "createOrganizationError": "Não foi possível criar a organization."
+    "createOrganizationError": "Não foi possível criar a organization.",
+    "transferOwnershipHint": "Escolha um membro para virar o novo titular da organization. Você passa a ser um membro comum.",
+    "selectMemberPlaceholder": "Selecione um membro...",
+    "transferring": "Transferindo...",
+    "transferConfirm": "Tem certeza? Você deixará de ser o titular desta organization e virará um membro comum.",
+    "transferError": "Não foi possível transferir a titularidade.",
+    "foundHint": "Você vira administrador dela e ela passa a ser sua organization ativa.",
+    "foundNamePlaceholder": "Nome da nova organization",
+    "found": "Fundar"
   },
   "admin": {
     "accessDenied": "Acesso Negado",
@@ -285,6 +294,30 @@
     "newRole": "Nova Role",
     "confirmDeleteRole": "Excluir a role \"{name}\"? Essa ação não pode ser desfeita pela tela.",
     "settingsTitle": "Configurações",
-    "settingsSubtitle": "Parâmetros globais do sistema."
+    "settingsSubtitle": "Parâmetros globais do sistema.",
+    "auditColumnWho": "Quem",
+    "auditColumnOrganization": "Organization",
+    "auditColumnAction": "Ação",
+    "auditColumnTarget": "Alvo",
+    "auditColumnDetails": "Detalhes",
+    "auditColumnWhen": "Quando",
+    "emptyAuditLogs": "Nenhum registro de auditoria encontrado.",
+    "roleColumnName": "Nome",
+    "roleColumnSlug": "Slug",
+    "roleColumnOrganization": "Organization",
+    "roleColumnPermissions": "Permissões",
+    "settingColumnName": "Nome",
+    "settingColumnDescription": "Descrição",
+    "settingColumnValue": "Valor",
+    "newRoleTitle": "Nova Role",
+    "editRolePermissionsTitle": "Permissões — {name}",
+    "fieldColor": "Cor",
+    "roleNamePlaceholder": "ex: Moderador",
+    "roleLevelLabel": "Nível (quanto menor, mais privilegiada)",
+    "saveRoleError": "Erro ao salvar role.",
+    "managePermissions": "Gerenciar permissões",
+    "emptyRoles": "Nenhuma role encontrada.",
+    "emptySettings": "Nenhuma configuração encontrada.",
+    "saveSettingError": "Não foi possível salvar."
   }
 }

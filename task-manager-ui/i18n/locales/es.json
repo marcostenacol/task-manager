@@ -7,7 +7,8 @@
     "delete": "Eliminar",
     "loading": "Cargando...",
     "confirm": "Confirmar",
-    "back": "Volver"
+    "back": "Volver",
+    "openMenu": "Abrir menú"
   },
   "nav": {
     "tasks": "Mis tareas",
@@ -21,7 +22,7 @@
     "logout": "Salir"
   },
   "auth": {
-    "loginTitle": "Bienvenido de nuevo",
+    "loginTitle": "Bienvenido",
     "loginSubtitle": "Ingresa tus credenciales para continuar",
     "loginEyebrow": "Acceso / Recepción",
     "registerTitle": "Crear Cuenta",
@@ -230,7 +231,15 @@
     "nameLabel": "Nombre de la organización",
     "onboardingNamePlaceholder": "ej: Mi Empresa",
     "createOrganization": "Crear organización",
-    "createOrganizationError": "No se pudo crear la organización."
+    "createOrganizationError": "No se pudo crear la organización.",
+    "transferOwnershipHint": "Elige un miembro para convertirlo en el nuevo titular de la organization. Pasarás a ser un miembro común.",
+    "selectMemberPlaceholder": "Selecciona un miembro...",
+    "transferring": "Transfiriendo...",
+    "transferConfirm": "¿Estás seguro? Dejarás de ser el titular de esta organization y pasarás a ser un miembro común.",
+    "transferError": "No se pudo transferir la titularidad.",
+    "foundHint": "Te conviertes en su administrador y pasa a ser tu organization activa.",
+    "foundNamePlaceholder": "Nombre de la nueva organization",
+    "found": "Fundar"
   },
   "admin": {
     "accessDenied": "Acceso Denegado",
@@ -285,6 +294,30 @@
     "newRole": "Nuevo Role",
     "confirmDeleteRole": "¿Eliminar el role \"{name}\"? Esta acción no se puede deshacer.",
     "settingsTitle": "Configuración",
-    "settingsSubtitle": "Parámetros globales del sistema."
+    "settingsSubtitle": "Parámetros globales del sistema.",
+    "auditColumnWho": "Quién",
+    "auditColumnOrganization": "Organization",
+    "auditColumnAction": "Acción",
+    "auditColumnTarget": "Objetivo",
+    "auditColumnDetails": "Detalles",
+    "auditColumnWhen": "Cuándo",
+    "emptyAuditLogs": "No se encontraron registros de auditoría.",
+    "roleColumnName": "Nombre",
+    "roleColumnSlug": "Slug",
+    "roleColumnOrganization": "Organization",
+    "roleColumnPermissions": "Permisos",
+    "settingColumnName": "Nombre",
+    "settingColumnDescription": "Descripción",
+    "settingColumnValue": "Valor",
+    "newRoleTitle": "Nuevo Rol",
+    "editRolePermissionsTitle": "Permisos — {name}",
+    "fieldColor": "Color",
+    "roleNamePlaceholder": "ej: Moderador",
+    "roleLevelLabel": "Nivel (cuanto menor, más privilegiado)",
+    "saveRoleError": "Error al guardar el rol.",
+    "managePermissions": "Gestionar permisos",
+    "emptyRoles": "No se encontraron roles.",
+    "emptySettings": "No se encontraron configuraciones.",
+    "saveSettingError": "No se pudo guardar."
   }
 }

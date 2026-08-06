@@ -2,6 +2,8 @@
 import { Pencil, Trash2 } from 'lucide-vue-next';
 import type { Role } from '../models/admin';
 
+const { t } = useI18n();
+
 const props = defineProps<{
     roles: Role[];
     loading: boolean;
@@ -25,28 +27,28 @@ function canManage(role: Role): boolean {
         <table class="role-table">
             <thead>
                 <tr>
-                    <th>Nome</th>
-                    <th>Slug</th>
-                    <th v-if="isGlobalActor">Organization</th>
-                    <th>Permissões</th>
-                    <th class="text-right">Ações</th>
+                    <th>{{ t('admin.roleColumnName') }}</th>
+                    <th>{{ t('admin.roleColumnSlug') }}</th>
+                    <th v-if="isGlobalActor">{{ t('admin.roleColumnOrganization') }}</th>
+                    <th>{{ t('admin.roleColumnPermissions') }}</th>
+                    <th class="text-right">{{ t('admin.columnActions') }}</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="role in roles" :key="role.id" class="role-row">
-                    <td class="cell-name" data-label="Nome">
+                    <td class="cell-name" :data-label="t('admin.roleColumnName')">
                         <span class="color-dot" :style="{ background: role.color }"/>
                         {{ role.name }}
                     </td>
-                    <td class="cell-muted" data-label="Slug">{{ role.slug }}</td>
-                    <td v-if="isGlobalActor" class="cell-muted" data-label="Organization">{{ role.organization_name || '—' }}</td>
-                    <td class="cell-muted" data-label="Permissões">{{ role.permissions_count }}</td>
-                    <td class="text-right" data-label="Ações">
+                    <td class="cell-muted" :data-label="t('admin.roleColumnSlug')">{{ role.slug }}</td>
+                    <td v-if="isGlobalActor" class="cell-muted" :data-label="t('admin.roleColumnOrganization')">{{ role.organization_name || '—' }}</td>
+                    <td class="cell-muted" :data-label="t('admin.roleColumnPermissions')">{{ role.permissions_count }}</td>
+                    <td class="text-right" :data-label="t('admin.columnActions')">
                         <div class="actions">
                             <button
                                 v-if="canManage(role)"
                                 class="action-btn"
-                                title="Gerenciar permissões"
+                                :title="t('admin.managePermissions')"
                                 @click="emit('edit', role)"
                             >
                                 <Pencil class="action-icon" :size="18" />
@@ -54,7 +56,7 @@ function canManage(role: Role): boolean {
                             <button
                                 v-if="canManage(role)"
                                 class="action-btn action-danger"
-                                title="Excluir"
+                                :title="t('common.delete')"
                                 @click="emit('delete', role)"
                             >
                                 <Trash2 class="action-icon" :size="18" />
@@ -66,7 +68,7 @@ function canManage(role: Role): boolean {
         </table>
 
         <div v-if="!loading && roles.length === 0" class="empty-row">
-            <p>Nenhuma role encontrada.</p>
+            <p>{{ t('admin.emptyRoles') }}</p>
         </div>
     </div>
 </template>

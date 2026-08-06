@@ -3,6 +3,8 @@ import { reactive, ref } from 'vue';
 import { Check, Pencil, X } from 'lucide-vue-next';
 import type { Setting } from '../models/admin';
 
+const { t } = useI18n();
+
 const props = defineProps<{
     settings: Setting[];
     loading: boolean;
@@ -33,7 +35,7 @@ async function confirmEdit(setting: Setting) {
             editingId.value = null;
             return;
         }
-        errorById[setting.id] = result?.message || 'Não foi possível salvar.';
+        errorById[setting.id] = result?.message || t('admin.saveSettingError');
     } finally {
         savingId.value = null;
     }
@@ -45,17 +47,17 @@ async function confirmEdit(setting: Setting) {
         <table class="settings-table">
             <thead>
                 <tr>
-                    <th>Nome</th>
-                    <th>Descrição</th>
-                    <th>Valor</th>
-                    <th class="text-right">Ações</th>
+                    <th>{{ t('admin.settingColumnName') }}</th>
+                    <th>{{ t('admin.settingColumnDescription') }}</th>
+                    <th>{{ t('admin.settingColumnValue') }}</th>
+                    <th class="text-right">{{ t('admin.columnActions') }}</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="setting in settings" :key="setting.id" class="settings-row">
-                    <td class="cell-name" data-label="Nome">{{ setting.name }}</td>
-                    <td class="cell-muted" data-label="Descrição">{{ setting.description || '—' }}</td>
-                    <td class="cell-value" data-label="Valor">
+                    <td class="cell-name" :data-label="t('admin.settingColumnName')">{{ setting.name }}</td>
+                    <td class="cell-muted" :data-label="t('admin.settingColumnDescription')">{{ setting.description || '—' }}</td>
+                    <td class="cell-value" :data-label="t('admin.settingColumnValue')">
                         <input
                             v-if="editingId === setting.id"
                             v-model="editValue.value"
@@ -65,25 +67,25 @@ async function confirmEdit(setting: Setting) {
                         <span v-else>{{ setting.value }}</span>
                         <span v-if="errorById[setting.id]" class="field-error">{{ errorById[setting.id] }}</span>
                     </td>
-                    <td class="text-right" data-label="Ações">
+                    <td class="text-right" :data-label="t('admin.columnActions')">
                         <div class="actions">
                             <template v-if="editingId === setting.id">
                                 <button
                                     class="action-btn action-success"
-                                    title="Salvar"
+                                    :title="t('common.save')"
                                     :disabled="savingId === setting.id"
                                     @click="confirmEdit(setting)"
                                 >
                                     <Check class="action-icon" :size="18" />
                                 </button>
-                                <button class="action-btn" title="Cancelar" @click="cancelEdit">
+                                <button class="action-btn" :title="t('common.cancel')" @click="cancelEdit">
                                     <X class="action-icon" :size="18" />
                                 </button>
                             </template>
                             <button
                                 v-else
                                 class="action-btn"
-                                title="Editar"
+                                :title="t('common.edit')"
                                 @click="startEdit(setting)"
                             >
                                 <Pencil class="action-icon" :size="18" />
@@ -95,7 +97,7 @@ async function confirmEdit(setting: Setting) {
         </table>
 
         <div v-if="!loading && settings.length === 0" class="empty-row">
-            <p>Nenhuma configuração encontrada.</p>
+            <p>{{ t('admin.emptySettings') }}</p>
         </div>
     </div>
 </template>

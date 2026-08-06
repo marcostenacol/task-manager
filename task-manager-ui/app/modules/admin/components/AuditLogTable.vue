@@ -2,6 +2,8 @@
 import type { AuditLog } from '../models/admin';
 import { ACTION_LABELS } from '../constants/auditLogActions';
 
+const { t } = useI18n();
+
 defineProps<{
     logs: AuditLog[];
     loading: boolean;
@@ -22,33 +24,33 @@ const formatMetadata = (metadata: Record<string, unknown> | []) => {
         <table class="log-table">
             <thead>
                 <tr>
-                    <th>Quem</th>
-                    <th>Organization</th>
-                    <th class="col-action">Ação</th>
-                    <th>Alvo</th>
-                    <th>Detalhes</th>
-                    <th>Quando</th>
+                    <th>{{ t('admin.auditColumnWho') }}</th>
+                    <th>{{ t('admin.auditColumnOrganization') }}</th>
+                    <th class="col-action">{{ t('admin.auditColumnAction') }}</th>
+                    <th>{{ t('admin.auditColumnTarget') }}</th>
+                    <th>{{ t('admin.auditColumnDetails') }}</th>
+                    <th>{{ t('admin.auditColumnWhen') }}</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="log in logs" :key="log.id" class="log-row">
-                    <td class="cell-actor" data-label="Quem">
+                    <td class="cell-actor" :data-label="t('admin.auditColumnWho')">
                         <div>{{ log.actor.name || '—' }}</div>
                         <div v-if="log.actor.id" class="cell-id">{{ log.actor.id }}</div>
                     </td>
-                    <td class="cell-target" data-label="Organization">{{ log.organization.name || '—' }}</td>
-                    <td class="col-action" data-label="Ação">
+                    <td class="cell-target" :data-label="t('admin.auditColumnOrganization')">{{ log.organization.name || '—' }}</td>
+                    <td class="col-action" :data-label="t('admin.auditColumnAction')">
                         <span class="action-badge">{{ actionLabel(log.action) }}</span>
                     </td>
-                    <td class="cell-target" data-label="Alvo">{{ log.target.name || log.target.id }}</td>
-                    <td class="cell-metadata" data-label="Detalhes">{{ formatMetadata(log.metadata) }}</td>
-                    <td class="cell-muted" data-label="Quando">{{ formatDate(log.created_at) }}</td>
+                    <td class="cell-target" :data-label="t('admin.auditColumnTarget')">{{ log.target.name || log.target.id }}</td>
+                    <td class="cell-metadata" :data-label="t('admin.auditColumnDetails')">{{ formatMetadata(log.metadata) }}</td>
+                    <td class="cell-muted" :data-label="t('admin.auditColumnWhen')">{{ formatDate(log.created_at) }}</td>
                 </tr>
             </tbody>
         </table>
 
         <div v-if="!loading && logs.length === 0" class="empty-row">
-            <p>Nenhum registro de auditoria encontrado.</p>
+            <p>{{ t('admin.emptyAuditLogs') }}</p>
         </div>
     </div>
 </template>

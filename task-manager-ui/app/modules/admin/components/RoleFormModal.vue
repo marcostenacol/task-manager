@@ -4,6 +4,8 @@ import { X } from 'lucide-vue-next';
 import type { Permission, Role } from '../models/admin';
 import { AdminService } from '../services/AdminService';
 
+const { t } = useI18n();
+
 const props = defineProps<{
     show: boolean;
     role?: Role | null;
@@ -93,7 +95,7 @@ const handleSave = async () => {
         emit('saved');
         emit('close');
     } catch (err: any) {
-        error.value = err?.data?.message || err?.data?.data?.errors?.name?.[0] || 'Erro ao salvar role.';
+        error.value = err?.data?.message || err?.data?.data?.errors?.name?.[0] || t('admin.saveRoleError');
     } finally {
         loading.value = false;
     }
@@ -108,7 +110,7 @@ const handleSave = async () => {
             <div class="modal-inner">
                 <div class="modal-header">
                     <h2 class="modal-title">
-                        {{ isEditing() ? `Permissões — ${role?.name}` : 'Nova Role' }}
+                        {{ isEditing() ? t('admin.editRolePermissionsTitle', { name: role?.name }) : t('admin.newRoleTitle') }}
                     </h2>
                     <button class="close-btn" @click="emit('close')">
                         <X class="close-icon" :size="24" />
@@ -118,17 +120,17 @@ const handleSave = async () => {
                 <form class="modal-form" @submit.prevent="handleSave">
                     <div v-if="!isEditing()">
                         <div class="field-group">
-                            <label class="field-label">Nome</label>
+                            <label class="field-label">{{ t('admin.roleColumnName') }}</label>
                             <input
                                 v-model="form.name"
                                 type="text"
                                 class="field-input"
-                                placeholder="ex: Moderador"
+                                :placeholder="t('admin.roleNamePlaceholder')"
                             >
                         </div>
 
                         <div class="field-group color-field">
-                            <label class="field-label">Cor</label>
+                            <label class="field-label">{{ t('admin.fieldColor') }}</label>
                             <input v-model="form.color" type="color" class="color-input">
                             <span class="color-value">{{ form.color }}</span>
                         </div>
@@ -136,17 +138,17 @@ const handleSave = async () => {
 
                     <div v-else>
                         <div class="field-group">
-                            <label class="field-label">Nome</label>
+                            <label class="field-label">{{ t('admin.roleColumnName') }}</label>
                             <input
                                 v-model="form.name"
                                 type="text"
                                 class="field-input"
-                                placeholder="ex: Moderador"
+                                :placeholder="t('admin.roleNamePlaceholder')"
                             >
                         </div>
 
                         <div class="field-group">
-                            <label class="field-label">Nível (quanto menor, mais privilegiada)</label>
+                            <label class="field-label">{{ t('admin.roleLevelLabel') }}</label>
                             <input
                                 v-model.number="form.level"
                                 type="number"
@@ -156,7 +158,7 @@ const handleSave = async () => {
                         </div>
 
                         <div class="field-group color-field">
-                            <label class="field-label">Cor</label>
+                            <label class="field-label">{{ t('admin.fieldColor') }}</label>
                             <input v-model="form.color" type="color" class="color-input">
                             <span class="color-value">{{ form.color }}</span>
                         </div>
@@ -184,14 +186,14 @@ const handleSave = async () => {
                             class="btn-cancel"
                             @click="emit('close')"
                         >
-                            Cancelar
+                            {{ t('common.cancel') }}
                         </button>
                         <button
                             type="submit"
                             :disabled="loading"
                             class="btn-submit"
                         >
-                            {{ loading ? 'Salvando...' : 'Salvar' }}
+                            {{ loading ? t('admin.saving') : t('common.save') }}
                         </button>
                     </div>
                 </form>

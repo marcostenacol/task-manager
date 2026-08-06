@@ -55,12 +55,12 @@ async function handleFound() {
           </button>
         </div>
 
-        <p class="section-hint">Você vira administrador dela e ela passa a ser sua organization ativa.</p>
+        <p class="section-hint">{{ t('orgs.foundHint') }}</p>
 
         <form class="found-form" @submit.prevent="handleFound">
-          <input v-model="name" type="text" class="field-input" placeholder="Nome da nova organization" required>
+          <input v-model="name" type="text" class="field-input" :placeholder="t('orgs.foundNamePlaceholder')" required>
           <button type="submit" class="btn-add" :disabled="founding">
-            {{ founding ? 'Criando...' : 'Fundar' }}
+            {{ founding ? t('orgs.creating') : t('orgs.found') }}
           </button>
         </form>
 

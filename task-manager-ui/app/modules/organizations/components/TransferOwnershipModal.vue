@@ -4,6 +4,8 @@ import { X } from 'lucide-vue-next'
 import { useOrganizations } from '../hooks/useOrganizations'
 import type { OrganizationMember } from '../models/organization'
 
+const { t } = useI18n()
+
 const props = defineProps<{
   show: boolean
   organizationId: string
@@ -29,14 +31,14 @@ function handleClose() {
 
 async function handleTransfer() {
   if (!selectedUserId.value) return
-  if (!window.confirm('Tem certeza? Você deixará de ser o titular desta organization e virará um membro comum.')) return
+  if (!window.confirm(t('orgs.transferConfirm'))) return
 
   transferring.value = true
   error.value = ''
   try {
     const result = await transferOwnership(selectedUserId.value, props.organizationId)
     if (!result.success) {
-      error.value = result.message || 'Não foi possível transferir a titularidade.'
+      error.value = result.message || t('orgs.transferError')
       return
     }
     selectedUserId.value = ''
@@ -55,18 +57,18 @@ async function handleTransfer() {
     <div class="modal-content">
       <div class="modal-inner">
         <div class="modal-header">
-          <h2 class="modal-title">Transferir titularidade</h2>
+          <h2 class="modal-title">{{ t('orgs.transferOwnership') }}</h2>
           <button class="close-btn" @click="handleClose">
             <X class="close-icon" :size="24" />
           </button>
         </div>
 
         <p class="section-hint">
-          Escolha um membro para virar o novo titular da organization. Você passa a ser um membro comum.
+          {{ t('orgs.transferOwnershipHint') }}
         </p>
 
         <select v-model="selectedUserId" class="field-input">
-          <option value="" disabled>Selecione um membro...</option>
+          <option value="" disabled>{{ t('orgs.selectMemberPlaceholder') }}</option>
           <option
             v-for="member in members.filter((m) => m.user_id !== currentUserId)"
             :key="member.user_id"
@@ -79,7 +81,7 @@ async function handleTransfer() {
         <p v-if="error" class="error-message">{{ error }}</p>
 
         <button class="btn-danger" :disabled="!selectedUserId || transferring" @click="handleTransfer">
-          {{ transferring ? 'Transferindo...' : 'Transferir titularidade' }}
+          {{ transferring ? t('orgs.transferring') : t('orgs.transferOwnership') }}
         </button>
       </div>
     </div>

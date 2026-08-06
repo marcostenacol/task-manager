@@ -7,7 +7,8 @@
     "delete": "Delete",
     "loading": "Loading...",
     "confirm": "Confirm",
-    "back": "Back"
+    "back": "Back",
+    "openMenu": "Open menu"
   },
   "nav": {
     "tasks": "My tasks",
@@ -21,7 +22,7 @@
     "logout": "Log out"
   },
   "auth": {
-    "loginTitle": "Welcome back",
+    "loginTitle": "Welcome",
     "loginSubtitle": "Sign in with your credentials to continue",
     "loginEyebrow": "Access / Front Desk",
     "registerTitle": "Create Account",
@@ -230,7 +231,15 @@
     "nameLabel": "Organization name",
     "onboardingNamePlaceholder": "e.g.: My Company",
     "createOrganization": "Create organization",
-    "createOrganizationError": "Could not create the organization."
+    "createOrganizationError": "Could not create the organization.",
+    "transferOwnershipHint": "Choose a member to become the new owner of the organization. You will become a regular member.",
+    "selectMemberPlaceholder": "Select a member...",
+    "transferring": "Transferring...",
+    "transferConfirm": "Are you sure? You will stop being the owner of this organization and become a regular member.",
+    "transferError": "Could not transfer ownership.",
+    "foundHint": "You become its administrator and it becomes your active organization.",
+    "foundNamePlaceholder": "New organization name",
+    "found": "Found"
   },
   "admin": {
     "accessDenied": "Access Denied",
@@ -285,6 +294,30 @@
     "newRole": "New Role",
     "confirmDeleteRole": "Delete role \"{name}\"? This action cannot be undone.",
     "settingsTitle": "Settings",
-    "settingsSubtitle": "Global system parameters."
+    "settingsSubtitle": "Global system parameters.",
+    "auditColumnWho": "Who",
+    "auditColumnOrganization": "Organization",
+    "auditColumnAction": "Action",
+    "auditColumnTarget": "Target",
+    "auditColumnDetails": "Details",
+    "auditColumnWhen": "When",
+    "emptyAuditLogs": "No audit records found.",
+    "roleColumnName": "Name",
+    "roleColumnSlug": "Slug",
+    "roleColumnOrganization": "Organization",
+    "roleColumnPermissions": "Permissions",
+    "settingColumnName": "Name",
+    "settingColumnDescription": "Description",
+    "settingColumnValue": "Value",
+    "newRoleTitle": "New Role",
+    "editRolePermissionsTitle": "Permissions — {name}",
+    "fieldColor": "Color",
+    "roleNamePlaceholder": "e.g. Moderator",
+    "roleLevelLabel": "Level (lower is more privileged)",
+    "saveRoleError": "Could not save the role.",
+    "managePermissions": "Manage permissions",
+    "emptyRoles": "No roles found.",
+    "emptySettings": "No settings found.",
+    "saveSettingError": "Could not save."
   }
 }
