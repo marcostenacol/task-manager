@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Str;
+use PDO;
 use Pdo\Mysql;
 
 return [
@@ -97,6 +98,13 @@ return [
             'prefix_indexes' => true,
             'search_path' => 'public',
             'sslmode' => env('DB_SSLMODE', 'prefer'),
+            // PDO::ATTR_TIMEOUT define o connect_timeout do libpq (segundos) — sem
+            // isso, uma conexão travada num banco que nunca responde ao handshake
+            // ficava presa indefinidamente (mesmo risco do loop infinito sem
+            // timeout encontrado no backend Java que motivou esta tarefa).
+            'options' => [
+                PDO::ATTR_TIMEOUT => env('DB_CONNECT_TIMEOUT', 5),
+            ],
         ],
 
         'sqlsrv' => [
@@ -164,6 +172,10 @@ return [
             'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
             'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
             'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
+            // Sem isso, uma conexão/comando Redis travado (ex.: instância caída
+            // no meio de um comando bloqueante) esperava indefinidamente.
+            'timeout' => env('REDIS_TIMEOUT', 5),
+            'read_timeout' => env('REDIS_READ_TIMEOUT', 5),
         ],
 
         'cache' => [
@@ -177,6 +189,8 @@ return [
             'backoff_algorithm' => env('REDIS_BACKOFF_ALGORITHM', 'decorrelated_jitter'),
             'backoff_base' => env('REDIS_BACKOFF_BASE', 100),
             'backoff_cap' => env('REDIS_BACKOFF_CAP', 1000),
+            'timeout' => env('REDIS_TIMEOUT', 5),
+            'read_timeout' => env('REDIS_READ_TIMEOUT', 5),
         ],
 
     ],

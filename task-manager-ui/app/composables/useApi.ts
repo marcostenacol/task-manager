@@ -9,7 +9,10 @@ export const useApi = async <T>(url: string, options: FetchOptions = {}) => {
   const defaults: FetchOptions = {
     baseURL: apiBase,
     headers: token.value ? { Authorization: `Bearer ${token.value}` } : {},
-    
+    // Sem timeout, uma request travada no backend (ex.: loop infinito sem
+    // timeout de rede) ficava pendente indefinidamente no cliente também.
+    timeout: 15000,
+
     async onResponseError({ request, response }) {
       console.error(`API Error [${response.status}] on ${request}:`, response._data)
       if (response.status === 401 && refreshToken.value) {
@@ -18,6 +21,7 @@ export const useApi = async <T>(url: string, options: FetchOptions = {}) => {
           const { data } = await $fetch<any>('/v1/auth/refresh', {
             baseURL: apiBase,
             method: 'POST',
+            timeout: 15000,
             body: { refresh_token: refreshToken.value }
           })
 
